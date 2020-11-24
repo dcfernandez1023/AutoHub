@@ -20,10 +20,10 @@ function AppNavbar() {
       <Nav className = "mr-auto">
       </Nav>
       <Nav className = "justify-content-end">
-        <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+        <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
           ✉️
         </Button>
-        <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+        <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
           👤
         </Button>
       </Nav>
