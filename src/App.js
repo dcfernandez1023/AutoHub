@@ -1,24 +1,54 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+import Login from './components/Login.js';
+import Home from './components/Home.js';
+
+const AUTH = require('./controllers/auth.js');
+
 function App() {
+
+  const[userInfo, setUserInfo] = useState();
+
+  useEffect(() => {
+    isUserSignedin();
+  }, []);
+
+  //sets userInfo state object
+  //passes a call back to AUTH controller to set state object of this component
+  function isUserSignedin() {
+    const callback = (user) => {
+      setUserInfo(user);
+    }
+    AUTH.isUserSignedin(callback);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Switch>
+        <Route exact path = "/">
+          {userInfo === null
+            ?
+              <body style = {{backgroundImage: "url('tools.gif')"}}>
+                <Login
+                  googleSignin = {AUTH.googleSignin}
+                />
+              </body>
+            :
+            <body>
+              <Home/>
+            </body>
+          }
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 
