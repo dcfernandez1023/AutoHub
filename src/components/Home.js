@@ -111,6 +111,12 @@ function Home(props) {
               </Row>
             );
           })}
+          <Form style = {{marginTop: "5%"}}>
+            <Form.Group>
+              <Form.Label> Image </Form.Label>
+              <Form.File id = "image" />
+            </Form.Group>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant = "success" onClick = {() => {addCar()}}>
@@ -154,7 +160,7 @@ function Home(props) {
               return (
                 <Col md = {3}>
                   <a style = {{cursor: "pointer"}}>
-                    <Card border = "dark" className = "carCard">
+                    <Card border = "dark" style = {{marginBottom: "5%"}}>
                       <Card.Img variant = "top" src = "image-placeholder.png"/>
                       <Card.Body>
                         <Row>
@@ -181,9 +187,32 @@ function Home(props) {
           </Row>
         </Col>
         <Col lg = {4}>
-          <Card>
-            <Card.Header style = {{textAlign: "center"}}> Upcoming Maintenance </Card.Header>
-          </Card>
+          <Row>
+            <Col>
+              <Card>
+                <Card.Header>
+                  Upcoming Maintenance 🛠️
+                  <Button variant = "outline-dark" style = {{float: "right"}} size = "sm"> + </Button>
+                </Card.Header>
+                <Card.Body>
+                  You have nothing scheduled for your cars.
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <br/>
+          <Row>
+            <Col>
+              <Card>
+                <Card.Header>
+                  Your Services 🛎️
+                  <Button variant = "outline-dark" style = {{float: "right"}} size = "sm"> + </Button>
+                </Card.Header>
+                <Card.Body>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
         </Col>
       </Row>
     </Container>
