@@ -43,7 +43,9 @@ function App() {
               </body>
             :
             <body>
-              <Home/>
+              <Home
+                userInfo = {userInfo}
+              />
             </body>
           }
         </Route>

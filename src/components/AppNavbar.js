@@ -10,7 +10,7 @@ import Nav from 'react-bootstrap/Nav';
 function AppNavbar() {
   return (
     <Navbar fluid style = {{backgroundColor: "#A9CCE3"}}>
-      <Navbar.Brand>
+      <Navbar.Brand href = "/">
         <Row>
           <Col>
             <h4> AutoHub </h4>
