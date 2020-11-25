@@ -7,3 +7,12 @@ export function getRandomString() {
   }
   return random;
 }
+
+export function getYears(startYear) {
+  var currentYear = new Date().getFullYear();
+  var years = [];
+  while(currentYear >= startYear) {
+    years.push(currentYear--);
+  }
+  return years;
+}

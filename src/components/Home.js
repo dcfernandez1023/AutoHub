@@ -12,6 +12,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal'
 import Badge from 'react-bootstrap/Badge';
+import Spinner from 'react-bootstrap/Spinner';
 import { v4 as uuidv4 } from 'uuid';
 
 import AppNavbar from './AppNavbar.js';
@@ -22,7 +23,7 @@ const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 
 function Home(props) {
 
-  const[cars, setCars] = useState([]); //user's Cars
+  const[cars, setCars] = useState(); //user's Cars
   const[newCar, setNewCar] = useState({}); //state object for creating a new car
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
 
@@ -78,6 +79,16 @@ function Home(props) {
     setShowCarModal(false);
   }
 
+  if(cars === undefined) {
+    return (
+      <Container fluid>
+        <AppNavbar/>
+        <div style = {{textAlign: "center", marginTop: "1%"}}>
+          <Spinner animation = "border"/>
+        </div>
+      </Container>
+    );
+  }
   return (
     <Container fluid>
       <Modal
@@ -90,27 +101,73 @@ function Home(props) {
           <Modal.Title> Add Car </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <Row>
           {CARMODEL.publicFields.map((field) => {
-            return (
-              <Row>
-                <Col>
-                  <Form.Label> {field.displayName} </Form.Label>
-                  <Form.Control
-                    as = "input"
-                    name = {field.value}
-                    value = {newCar[field.value]}
-                    onChange = {(e) => {
-                      var newCarCopy = JSON.parse(JSON.stringify(newCar));
-                      var name = [e.target.name][0];
-                      var value = e.target.value;
-                      newCarCopy[name] = value;
-                      setNewCar(newCarCopy);
-                    }}
-                  />
-                </Col>
-              </Row>
-            );
+            if(field.inputType === "input") {
+              return (
+                  <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
+                    <Form.Label> {field.displayName} </Form.Label>
+                    <Form.Control
+                      as = {field.inputType}
+                      name = {field.value}
+                      value = {newCar[field.value]}
+                      onChange = {(e) => {
+                        var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                        var name = [e.target.name][0];
+                        var value = e.target.value;
+                        newCarCopy[name] = value;
+                        setNewCar(newCarCopy);
+                      }}
+                    />
+                  </Col>
+              );
+            }
+            else if(field.inputType === "select") {
+              return (
+                  <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
+                    <Form.Label> {field.displayName} </Form.Label>
+                    <Form.Control
+                      as = {field.inputType}
+                      name = {field.value}
+                      onChange = {(e) => {
+                        var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                        var name = [e.target.name][0];
+                        var value = e.target.value;
+                        newCarCopy[name] = value;
+                        setNewCar(newCarCopy);
+                      }}
+                    >
+                      <option value = "" selected disabled hidden> Year </option>
+                        {field.modalSelectData.map((data) => {
+                          return (
+                            <option value = {data}> {data} </option>
+                          );
+                        })}
+                    </Form.Control>
+                  </Col>
+              );
+            }
+            else {
+              return (
+                  <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
+                    <Form.Label> {field.displayName} </Form.Label>
+                    <Form.Control
+                      as = {field.inputType}
+                      name = {field.value}
+                      value = {newCar[field.value]}
+                      onChange = {(e) => {
+                        var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                        var name = [e.target.name][0];
+                        var value = e.target.value;
+                        newCarCopy[name] = value;
+                        setNewCar(newCarCopy);
+                      }}
+                    />
+                  </Col>
+              );
+            }
           })}
+          </Row>
           <Form style = {{marginTop: "5%"}}>
             <Form.Group>
               <Form.Label> Image </Form.Label>
@@ -126,15 +183,19 @@ function Home(props) {
       </Modal>
       <AppNavbar/>
       <Row style = {{marginLeft: "1%", marginTop: "1.5%"}}>
-        <Col lg = {8}>
+        <Col lg = {7}>
           <Row>
-            <Col>
+            <Col xs = {4}>
               <Button variant = "outline-dark" style = {{float: "left", marginRight: "1%"}}
                 onClick = {() => {setShowCarModal(true)}}
               >
                 +
               </Button>
               <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
+            </Col>
+            <Col xs = {8} style = {{textAlign: "right"}}>
+              <Button variant = "light" style = {{marginRight: "1%"}}> <i class = "fa fa-bars"> </i> List </Button>
+              <Button variant = "light"> <i class = "fa fa-th-large"> </i> Grid </Button>
             </Col>
           </Row>
           <br/>
@@ -161,7 +222,7 @@ function Home(props) {
                 <Col md = {3}>
                   <a style = {{cursor: "pointer"}}>
                     <Card border = "dark" style = {{marginBottom: "5%"}}>
-                      <Card.Img variant = "top" src = "image-placeholder.png"/>
+                      <Card.Img variant = "top" src = "car-holder.png"/>
                       <Card.Body>
                         <Row>
                           <Col>
@@ -186,7 +247,7 @@ function Home(props) {
             })}
           </Row>
         </Col>
-        <Col lg = {4}>
+        <Col lg = {5}>
           <Row>
             <Col>
               <Card>
