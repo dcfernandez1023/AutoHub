@@ -9,16 +9,21 @@ import Col from 'react-bootstrap/Col';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import Login from './components/Login.js';
+import AppNavbar from './components/AppNavbar.js';
 import Home from './components/Home.js';
+import HomeMobile from './components/HomeMobile.js';
 
 const AUTH = require('./controllers/auth.js');
+const MOBILEBREAKPOINT = 500;
 
 function App() {
 
   const[userInfo, setUserInfo] = useState();
+  const[screenWidth, setScreenWidth] = useState(window.innerWidth); //pixel size of screen, used to determine when to render components for smaller devices
 
   useEffect(() => {
     isUserSignedin();
+    detectMobile();
   }, []);
 
   //sets userInfo state object
@@ -28,6 +33,11 @@ function App() {
       setUserInfo(user);
     }
     AUTH.isUserSignedin(callback);
+  }
+
+  //detects smaller device (mobile)
+  function detectMobile() {
+    window.addEventListener("resize", setScreenWidth(window.innerWidth));
   }
 
   return (
@@ -42,11 +52,23 @@ function App() {
                 />
               </body>
             :
-            <body>
-              <Home
-                userInfo = {userInfo}
-              />
-            </body>
+              <Container fluid>
+                {screenWidth < MOBILEBREAKPOINT ?
+                  <div>
+                    <AppNavbar/>
+                    <HomeMobile
+                      userInfo = {userInfo}
+                    />
+                  </div>
+                :
+                  <div>
+                    <AppNavbar/>
+                    <Home
+                      userInfo = {userInfo}
+                    />
+                  </div>
+                }
+              </Container>
           }
         </Route>
       </Switch>

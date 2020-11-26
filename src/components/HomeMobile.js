@@ -21,13 +21,12 @@ const DB = require('../controllers/db.js');
 const CARMODEL = require('../models/car.js');
 const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 
-function Home(props) {
+function HomeMobile(props) {
 
   const[cars, setCars] = useState(); //user's Cars
   const[newCar, setNewCar] = useState({}); //state object for creating a new car
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
   const[isListView, setIsListView] = useState(false); //flag to toggle the mode of displaying cars (list vs. grid)
-  const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
 
   useEffect(() => {
     getCars();
@@ -79,43 +78,6 @@ function Home(props) {
   function handleCarModalClose() {
     setNewCar(CARMODEL.car);
     setShowCarModal(false);
-    setCarModalFormValidated(false);
-  }
-
-  //function to handle adding values to newCar
-  function onChangeNewCar(e) {
-    var newCarCopy = JSON.parse(JSON.stringify(newCar));
-    var name = [e.target.name][0];
-    var value = e.target.value;
-    newCarCopy[name] = value;
-    setNewCar(newCarCopy);
-    setCarModalFormValidated(false);
-  }
-
-  //handle submit for car modal form
-  function handleCarModalSubmit(e) {
-    const form = e.currentTarget;
-    setCarModalFormValidated(true);
-    if(checkNewCarFields() === false) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    else {
-      addCar();
-    }
-  }
-
-  //check if required fields have been filled
-  function checkNewCarFields() {
-    var isValid = true;
-    for(var i = 0; i < CARMODEL.publicFields.length; i++) {
-      var field = CARMODEL.publicFields[i];
-      if(field.required && newCar[field.value].toString().trim().length === 0) {
-        newCar[field.value] = "";
-        isValid = false;
-      }
-    }
-    return isValid;
   }
 
   if(cars === undefined) {
@@ -129,127 +91,129 @@ function Home(props) {
   }
   return (
     <Container fluid>
-        <Modal
-          show = {showCarModal}
-          onHide = {handleCarModalClose}
-          backdrop = "static"
-          keyboard = {false}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title> Add Car </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form noValidate validated = {carModalFormValidated} onSubmit = {handleCarModalSubmit}>
-              <Row style = {{marginLeft: "3%", marginRight: "3%"}}>
-                {CARMODEL.publicFields.map((field) => {
-                  if(field.inputType === "input") {
-                    return (
-                        <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
-                          <Form.Label> {field.displayName} </Form.Label>
-                          <Form.Control
-                            required = {field.required}
-                            as = {field.inputType}
-                            name = {field.value}
-                            value = {newCar[field.value]}
-                            onChange = {(e) => {
-                              onChangeNewCar(e);
-                            }}
-                          />
-                          <Form.Control.Feedback type = "invalid">
-                            Required
-                          </Form.Control.Feedback>
-                        </Col>
-                    );
-                  }
-                  else if(field.inputType === "select") {
-                    return (
-                        <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
-                          <Form.Label> {field.displayName} </Form.Label>
-                          <Form.Control
-                            required = {field.required}
-                            as = {field.inputType}
-                            name = {field.value}
-                            onChange = {(e) => {
-                              onChangeNewCar(e);
-                            }}
-                          >
-                            <option value = "" selected disabled hidden> Year </option>
-                              {field.modalSelectData.map((data) => {
-                                return (
-                                  <option value = {data}> {data} </option>
-                                );
-                              })}
-                          </Form.Control>
-                          <Form.Control.Feedback type = "invalid">
-                            Required
-                          </Form.Control.Feedback>
-                        </Col>
-                    );
-                  }
-                  else {
-                    return (
-                        <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
-                          <Form.Label> {field.displayName} </Form.Label>
-                          <Form.Control
-                            required = {field.required}
-                            as = {field.inputType}
-                            name = {field.value}
-                            value = {newCar[field.value]}
-                            onChange = {(e) => {
-                              onChangeNewCar(e);
-                            }}
-                          />
-                        </Col>
-                    );
-                  }
-                })}
-              </Row>
-              <Row>
+      <Modal
+        show = {showCarModal}
+        onHide = {handleCarModalClose}
+        backdrop = "static"
+        keyboard = {false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title> Add Car </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row style = {{marginLeft: "3%", marginRight: "3%"}}>
+          {CARMODEL.publicFields.map((field) => {
+            if(field.inputType === "input") {
+              return (
+                  <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
+                    <Form.Label> {field.displayName} </Form.Label>
+                    <Form.Control
+                      as = {field.inputType}
+                      name = {field.value}
+                      value = {newCar[field.value]}
+                      onChange = {(e) => {
+                        var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                        var name = [e.target.name][0];
+                        var value = e.target.value;
+                        newCarCopy[name] = value;
+                        setNewCar(newCarCopy);
+                      }}
+                    />
+                  </Col>
+              );
+            }
+            else if(field.inputType === "select") {
+              return (
+                  <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
+                    <Form.Label> {field.displayName} </Form.Label>
+                    <Form.Control
+                      as = {field.inputType}
+                      name = {field.value}
+                      onChange = {(e) => {
+                        var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                        var name = [e.target.name][0];
+                        var value = e.target.value;
+                        newCarCopy[name] = value;
+                        setNewCar(newCarCopy);
+                      }}
+                    >
+                      <option value = "" selected disabled hidden> Year </option>
+                        {field.modalSelectData.map((data) => {
+                          return (
+                            <option value = {data}> {data} </option>
+                          );
+                        })}
+                    </Form.Control>
+                  </Col>
+              );
+            }
+            else {
+              return (
+                  <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
+                    <Form.Label> {field.displayName} </Form.Label>
+                    <Form.Control
+                      as = {field.inputType}
+                      name = {field.value}
+                      value = {newCar[field.value]}
+                      onChange = {(e) => {
+                        var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                        var name = [e.target.name][0];
+                        var value = e.target.value;
+                        newCarCopy[name] = value;
+                        setNewCar(newCarCopy);
+                      }}
+                    />
+                  </Col>
+              );
+            }
+          })}
+          </Row>
+          <Form style = {{marginTop: "5%"}}>
+            <Form.Group>
+              <Form.Label> Image </Form.Label>
+              <Form.File id = "image" />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant = "success" onClick = {() => {addCar()}}>
+            Add
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Row style = {{marginTop: "5%"}}>
+        <Col>
+          <Row>
+            <Button variant = "outline-dark" style = {{marginRight: "3%"}}
+              onClick = {() => {setShowCarModal(true)}}
+            >
+              +
+            </Button>
+            <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
+          </Row>
+          {cars.length === 0 ?
+            <div></div>
+          :
+            <div>
+              <br/>
+              <Row style = {{textAlign: "center"}}>
                 <Col>
-                  <Form>
-                    <Form.Group>
-                      <Form.Label> Image </Form.Label>
-                      <Form.File id = "image" />
-                    </Form.Group>
-                  </Form>
+                  <Button variant = "light" style = {{marginRight: "1%"}}
+                    onClick = {() => {setIsListView(true)}}
+                  >
+                    <i class = "fa fa-bars"> </i> List
+                  </Button>
                 </Col>
                 <Col>
-                  <Button type = "submit" variant = "success" style = {{float: "right", marginTop: "10%"}}>
-                    Add
+                  <Button variant = "light"
+                    onClick = {() => {setIsListView(false)}}
+                  >
+                    <i class = "fa fa-th-large"> </i> Grid
                   </Button>
                 </Col>
               </Row>
-            </Form>
-          </Modal.Body>
-        </Modal>
-      <Row style = {{marginTop: "2%"}}>
-        <Col lg = {7}>
-          <Row>
-            <Col xs = {6}>
-              <Button variant = "outline-dark" style = {{float: "left", marginRight: "3%"}}
-                onClick = {() => {setShowCarModal(true)}}
-              >
-                +
-              </Button>
-              <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
-            </Col>
-            {cars.length === 0 ?
-              <div></div>
-              :
-              <Col xs = {6} style = {{textAlign: "right"}}>
-                <Button variant = "light" style = {{marginRight: "1%"}}
-                  onClick = {() => {setIsListView(true)}}
-                >
-                  <i class = "fa fa-bars"> </i> List
-                </Button>
-                <Button variant = "light"
-                  onClick = {() => {setIsListView(false)}}
-                >
-                  <i class = "fa fa-th-large"> </i> Grid
-                </Button>
-              </Col>
-            }
-          </Row>
+            </div>
+          }
           <br/>
           <Row>
           {cars.length === 0 ?
@@ -272,6 +236,7 @@ function Home(props) {
                     <ListGroup horizontal>
                       <ListGroup.Item action style = {{width: "100%"}}>
                         <Row>
+                          <Col xs = {5}>
                             <Figure style = {{height: "50px", marginTop: "1%"}}>
                               <Figure.Image
                                 width = {100}
@@ -279,7 +244,8 @@ function Home(props) {
                                 src = "car-holder.png"
                               />
                             </Figure>
-                          <Col>
+                          </Col>
+                          <Col xs = {7} style = {{float: "right"}}>
                             <Row>
                               <Col>
                                 <p> <b> {car.name} </b> </p>
@@ -381,4 +347,4 @@ function Home(props) {
   );
 }
 
-export default Home;
+export default HomeMobile;

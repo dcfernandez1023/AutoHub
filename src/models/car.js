@@ -27,7 +27,8 @@ export const publicFields = [
     type: "string",
     inputType: "input",
     modalColSpan: 6,
-    modalSelectData: []
+    modalSelectData: [],
+    required: true
   },
   {
     value: "mileage",
@@ -35,7 +36,8 @@ export const publicFields = [
     type: "number",
     inputType: "input",
     modalColSpan: 6,
-    modalSelectData: []
+    modalSelectData: [],
+    required: true
   },
   {
     value: "year",
@@ -43,7 +45,8 @@ export const publicFields = [
     type: "string",
     inputType: "select",
     modalColSpan: 4,
-    modalSelectData: GENERICFUNCTIONS.getYears(1900)
+    modalSelectData: GENERICFUNCTIONS.getYears(1900),
+    required: true
   },
   {
     value: "make",
@@ -51,7 +54,8 @@ export const publicFields = [
     type: "string",
     inputType: "input",
     modalColSpan: 4,
-    modalSelectData: []
+    modalSelectData: [],
+    required: true
   },
   {
     value: "model",
@@ -59,7 +63,8 @@ export const publicFields = [
     type: "string",
     inputType: "input",
     modalColSpan: 4,
-    modalSelectData: []
+    modalSelectData: [],
+    required: true
   },
   {
     value: "licensePlate",
@@ -67,7 +72,8 @@ export const publicFields = [
     type: "string",
     inputType: "input",
     modalColSpan: 12,
-    modalSelectData: []
+    modalSelectData: [],
+    required: false
   },
   {
     value: "vinNumber",
@@ -75,13 +81,15 @@ export const publicFields = [
     type: "string",
     inputType: "input",
     modalColSpan: 12,
-    modalSelectData: []
+    modalSelectData: [],
+    required: false
   },
   {
     value: "notes",
     displayName: "Notes",
     inputType: "textarea",
     modalColSpan: 12,
-    modalSelectData: []
+    modalSelectData: [],
+    required: false
   }
 ]
