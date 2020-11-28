@@ -59,21 +59,37 @@ function Home(props) {
       //TODO: handle this error more elegantly
       alert("User data undefined. Cannot add new car");
     }
-    //TODO: add input validation
     var userCreated = props.userInfo.email;
     var carId = uuidv4().toString() + new Date().getTime();
     newCar.userCreated = userCreated;
     newCar.carId = carId;
-    DB.writeOne(carId, newCar, "cars",
-      function() {
-        handleCarModalClose();
-        STORAGE.uploadFile(newCarImage, "images/"+props.userInfo.uid+"/"+newCarImage.name);
-      },
-      function(error) {
-        //TODO: handle this error more elegantly
-        alert(error.toString());
-      }
-    );
+    if(newCarImage !== undefined) {
+      STORAGE.uploadFile(newCarImage, "images/"+props.userInfo.uid+"/"+newCarImage.name,
+        function(url) {
+          newCar.imageUrl = url;
+          DB.writeOne(carId, newCar, "cars",
+            function() {
+              handleCarModalClose();
+            },
+            function(error) {
+              //TODO: handle this error more elegantly
+              alert(error.toString());
+            }
+          );
+        }
+      );
+    }
+    else {
+      DB.writeOne(carId, newCar, "cars",
+        function() {
+          handleCarModalClose();
+        },
+        function(error) {
+          //TODO: handle this error more elegantly
+          alert(error.toString());
+        }
+      );
+    }
   }
 
   //function to handle car modal closing
@@ -221,8 +237,9 @@ function Home(props) {
                           if(file) {
                             var extension = file.name.split('.').pop();
                             var imageId = uuidv4().toString() + GENERICFUNCTIONS.getRandomString();
-                            newCarCopy.imageId = imageId;
                             var fileType = file.type;
+                            newCarCopy.imageId = imageId;
+                            newCarCopy.imageType = fileType;
                             var renamedFile = new File([file], imageId + "." + extension, {
                               type: fileType
                             });
@@ -298,13 +315,23 @@ function Home(props) {
                     <ListGroup horizontal>
                       <ListGroup.Item action style = {{width: "100%"}}>
                         <Row>
-                            <Figure style = {{height: "50px", marginTop: "1%"}}>
-                              <Figure.Image
-                                width = {100}
-                                height = {100}
-                                src = "car-holder.png"
-                              />
-                            </Figure>
+                            {car.imageId.toString().trim().length === 0 ?
+                              <Figure style = {{height: "50px", marginTop: "1%"}}>
+                                <Figure.Image
+                                  width = {100}
+                                  height = {100}
+                                  src = "car-holder.png"
+                                />
+                              </Figure>
+                              :
+                              <Figure style = {{height: "50px", marginTop: "1%"}}>
+                                <Figure.Image
+                                  width = {100}
+                                  height = {100}
+                                  src = {car.imageUrl}
+                                />
+                              </Figure>
+                            }
                           <Col>
                             <Row>
                               <Col>
@@ -334,9 +361,9 @@ function Home(props) {
                     <a style = {{cursor: "pointer"}}>
                       <Card border = "dark">
                         {car.imageId.toString().trim().length === 0 ?
-                          <Card.Img variant = "top" src = "car-holder.png"/>
+                          <Card.Img id = {car.carId} variant = "top" src = "car-holder.png"/>
                           :
-                          <Card.Img variant = "top" src = {car.imageId}/>
+                          <Card.Img id = {car.carId} variant = "top" src = {car.imageUrl}/>
                         }
                         <Card.Body>
                           <Row>

@@ -4,6 +4,7 @@ export const car = {
   userCreated: "",
   carId: "",
   imageId: "",
+  imageUrl: "",
   year: "",
   make: "",
   model: "",
