@@ -91,5 +91,5 @@ export const publicFields = [
     modalColSpan: 12,
     modalSelectData: [],
     required: false
-  }
+  },
 ]

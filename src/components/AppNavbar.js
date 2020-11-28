@@ -21,6 +21,9 @@ function AppNavbar() {
       </Nav>
       <Nav className = "justify-content-end">
         <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+          🛎️
+        </Button>
+        <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
           ✉️
         </Button>
         <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>

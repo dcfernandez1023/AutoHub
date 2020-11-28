@@ -26,7 +26,7 @@ function HomeMobile(props) {
   const[cars, setCars] = useState(); //user's Cars
   const[newCar, setNewCar] = useState({}); //state object for creating a new car
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
-  const[isListView, setIsListView] = useState(false); //flag to toggle the mode of displaying cars (list vs. grid)
+  const[isListView, setIsListView] = useState(true); //flag to toggle the mode of displaying cars (list vs. grid)
   const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
 
   useEffect(() => {
@@ -357,27 +357,6 @@ function HomeMobile(props) {
                 </Card.Header>
                 <Card.Body>
                   You have nothing scheduled for your cars.
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-          <br/>
-          <Row>
-            <Col>
-              <Card>
-                <Card.Header>
-                  Your Services 🛎️
-                  <Button
-                    variant = "outline-dark"
-                    style = {{float: "right"}}
-                    size = "sm"
-                    disabled = {cars.length === 0}
-                  >
-                    +
-                  </Button>
-                </Card.Header>
-                <Card.Body>
-                  You have not added any services for your cars.
                 </Card.Body>
               </Card>
             </Col>

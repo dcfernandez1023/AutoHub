@@ -18,6 +18,7 @@ import Figure from 'react-bootstrap/Figure';
 import { v4 as uuidv4 } from 'uuid';
 
 const DB = require('../controllers/db.js');
+const STORAGE = require('../controllers/storage.js');
 const CARMODEL = require('../models/car.js');
 const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 
@@ -25,6 +26,7 @@ function Home(props) {
 
   const[cars, setCars] = useState(); //user's Cars
   const[newCar, setNewCar] = useState({}); //state object for creating a new car
+  const[newCarImage, setNewCarImage] = useState(); //temp holder for newCar image upload
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
   const[isListView, setIsListView] = useState(false); //flag to toggle the mode of displaying cars (list vs. grid)
   const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
@@ -60,13 +62,12 @@ function Home(props) {
     //TODO: add input validation
     var userCreated = props.userInfo.email;
     var carId = uuidv4().toString() + new Date().getTime();
-    var imageId = uuidv4().toString() + GENERICFUNCTIONS.getRandomString();
     newCar.userCreated = userCreated;
     newCar.carId = carId;
-    newCar.imageId = imageId;
     DB.writeOne(carId, newCar, "cars",
       function() {
         handleCarModalClose();
+        STORAGE.uploadFile(newCarImage, "images/"+props.userInfo.uid+"/"+newCarImage.name);
       },
       function(error) {
         //TODO: handle this error more elegantly
@@ -78,6 +79,7 @@ function Home(props) {
   //function to handle car modal closing
   function handleCarModalClose() {
     setNewCar(CARMODEL.car);
+    setNewCarImage();
     setShowCarModal(false);
     setCarModalFormValidated(false);
   }
@@ -102,6 +104,8 @@ function Home(props) {
     }
     else {
       addCar();
+      e.preventDefault();
+      e.stopPropagation();
     }
   }
 
@@ -209,7 +213,29 @@ function Home(props) {
                   <Form>
                     <Form.Group>
                       <Form.Label> Image </Form.Label>
-                      <Form.File id = "image" />
+                      <Form.File
+                        id = "image"
+                        onChange = {(e) => {
+                          var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                          var file = e.target.files[0];
+                          if(file) {
+                            var extension = file.name.split('.').pop();
+                            var imageId = uuidv4().toString() + GENERICFUNCTIONS.getRandomString();
+                            newCarCopy.imageId = imageId;
+                            var fileType = file.type;
+                            var renamedFile = new File([file], imageId + "." + extension, {
+                              type: fileType
+                            });
+                            setNewCarImage(renamedFile);
+                            setNewCar(newCarCopy);
+                          }
+                          else {
+                            setNewCarImage();
+                            newCarCopy.imageId = "";
+                            setNewCar(newCarCopy);
+                          }
+                        }}
+                      />
                     </Form.Group>
                   </Form>
                 </Col>
@@ -307,7 +333,11 @@ function Home(props) {
                   <Col md = {3} style = {{marginBottom: "5%"}}>
                     <a style = {{cursor: "pointer"}}>
                       <Card border = "dark">
-                        <Card.Img variant = "top" src = "car-holder.png"/>
+                        {car.imageId.toString().trim().length === 0 ?
+                          <Card.Img variant = "top" src = "car-holder.png"/>
+                          :
+                          <Card.Img variant = "top" src = {car.imageId}/>
+                        }
                         <Card.Body>
                           <Row>
                             <Col>
@@ -339,6 +369,7 @@ function Home(props) {
               <Card>
                 <Card.Header>
                   Upcoming Maintenance 🛠️
+                  {/*
                   <Button
                     variant = "outline-dark"
                     style = {{float: "right"}}
@@ -347,30 +378,10 @@ function Home(props) {
                   >
                     +
                   </Button>
+                  */}
                 </Card.Header>
                 <Card.Body>
                   You have nothing scheduled for your cars.
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-          <br/>
-          <Row>
-            <Col>
-              <Card>
-                <Card.Header>
-                  Your Services 🛎️
-                  <Button
-                    variant = "outline-dark"
-                    style = {{float: "right"}}
-                    size = "sm"
-                    disabled = {cars.length === 0}
-                  >
-                    +
-                  </Button>
-                </Card.Header>
-                <Card.Body>
-                  You have not added any services for your cars.
                 </Card.Body>
               </Card>
             </Col>
