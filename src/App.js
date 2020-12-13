@@ -19,7 +19,8 @@ const MOBILEBREAKPOINT = 500;
 function App() {
 
   const[userInfo, setUserInfo] = useState();
-  const[screenWidth, setScreenWidth] = useState(window.innerWidth); //pixel size of screen, used to determine when to render components for smaller devices
+  //const[screenWidth, setScreenWidth] = useState(window.innerWidth); //pixel size of screen, used to determine when to render components for smaller devices
+  const[isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     isUserSignedin();
@@ -37,7 +38,10 @@ function App() {
 
   //detects smaller device (mobile)
   function detectMobile() {
-    window.addEventListener("resize", setScreenWidth(window.innerWidth));
+    //window.addEventListener("resize", setScreenWidth(window.innerWidth));
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)) {
+      setIsMobile(true);
+    }
   }
 
   return (
@@ -53,7 +57,7 @@ function App() {
               </body>
             :
               <Container fluid>
-                {screenWidth < MOBILEBREAKPOINT ?
+                {isMobile ?
                   <div>
                     <AppNavbar/>
                     <HomeMobile

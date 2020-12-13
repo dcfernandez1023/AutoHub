@@ -29,6 +29,7 @@ function Home(props) {
   const[newCarImage, setNewCarImage] = useState(); //temp holder for newCar image upload
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
   const[isListView, setIsListView] = useState(false); //flag to toggle the mode of displaying cars (list vs. grid)
+  const[isLoading, setIsLoading] = useState(false); //flag to toggle spinner
   const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
 
   useEffect(() => {
@@ -45,7 +46,6 @@ function Home(props) {
     }
     DB.getQuerey("userCreated", props.userInfo.email, "cars").onSnapshot(quereySnapshot => {
       var cars = [];
-      console.log(cars);
       for(var i = 0; i < quereySnapshot.docs.length; i++) {
         cars.push(quereySnapshot.docs[i].data());
       }
@@ -59,8 +59,9 @@ function Home(props) {
       //TODO: handle this error more elegantly
       alert("User data undefined. Cannot add new car");
     }
+    setIsLoading(true);
     var userCreated = props.userInfo.email;
-    var carId = uuidv4().toString() + new Date().getTime();
+    var carId = GENERICFUNCTIONS.generateId();
     newCar.userCreated = userCreated;
     newCar.carId = carId;
     if(newCarImage !== undefined) {
@@ -70,10 +71,12 @@ function Home(props) {
           DB.writeOne(carId, newCar, "cars",
             function() {
               handleCarModalClose();
+              setIsLoading(false);
             },
             function(error) {
               //TODO: handle this error more elegantly
               alert(error.toString());
+              setIsLoading(false);
             }
           );
         }
@@ -83,10 +86,12 @@ function Home(props) {
       DB.writeOne(carId, newCar, "cars",
         function() {
           handleCarModalClose();
+          setIsLoading(false);
         },
         function(error) {
           //TODO: handle this error more elegantly
           alert(error.toString());
+          setIsLoading(false);
         }
       );
     }
@@ -142,13 +147,14 @@ function Home(props) {
     return (
       <Container fluid>
         <div style = {{textAlign: "center", marginTop: "3%"}}>
-          <Spinner animation = "border"/>
+          <Spinner animation = "grow"/>
         </div>
       </Container>
     );
   }
   return (
     <Container fluid>
+        {/*add car modal*/}
         <Modal
           show = {showCarModal}
           onHide = {handleCarModalClose}
@@ -257,7 +263,7 @@ function Home(props) {
                   </Form>
                 </Col>
                 <Col>
-                  <Button type = "submit" variant = "success" style = {{float: "right", marginTop: "10%"}}>
+                  <Button type = "submit" variant = "success" disabled = {isLoading} style = {{float: "right", marginTop: "10%"}}>
                     Add
                   </Button>
                 </Col>
@@ -268,7 +274,7 @@ function Home(props) {
       <Row style = {{marginTop: "2%"}}>
         <Col lg = {7}>
           <Row>
-            <Col xs = {6}>
+            <Col xs = {4}>
               <Button variant = "outline-dark" style = {{float: "left", marginRight: "3%"}}
                 onClick = {() => {setShowCarModal(true)}}
               >
@@ -276,10 +282,17 @@ function Home(props) {
               </Button>
               <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
             </Col>
+            <Col xs = {4} style = {{textAlign: "center"}}>
+              {isLoading ?
+                <Spinner animation = "border"/>
+                :
+                <div></div>
+              }
+            </Col>
             {cars.length === 0 ?
               <div></div>
               :
-              <Col xs = {6} style = {{textAlign: "right"}}>
+              <Col xs = {4} style = {{textAlign: "right"}}>
                 <Button variant = "light" style = {{marginRight: "1%"}}
                   onClick = {() => {setIsListView(true)}}
                 >

@@ -29,6 +29,7 @@ function HomeMobile(props) {
   const[newCarImage, setNewCarImage] = useState(); //temp holder for newCar image upload
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
   const[isListView, setIsListView] = useState(true); //flag to toggle the mode of displaying cars (list vs. grid)
+  const[isLoading, setIsLoading] = useState(false);
   const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
 
   useEffect(() => {
@@ -59,8 +60,9 @@ function HomeMobile(props) {
       //TODO: handle this error more elegantly
       alert("User data undefined. Cannot add new car");
     }
+    setIsLoading(true);
     var userCreated = props.userInfo.email;
-    var carId = uuidv4().toString() + new Date().getTime();
+    var carId = GENERICFUNCTIONS.generateId();
     newCar.userCreated = userCreated;
     newCar.carId = carId;
     if(newCarImage !== undefined) {
@@ -70,10 +72,12 @@ function HomeMobile(props) {
           DB.writeOne(carId, newCar, "cars",
             function() {
               handleCarModalClose();
+              setIsLoading(false);
             },
             function(error) {
               //TODO: handle this error more elegantly
               alert(error.toString());
+              setIsLoading(false);
             }
           );
         }
@@ -83,10 +87,12 @@ function HomeMobile(props) {
       DB.writeOne(carId, newCar, "cars",
         function() {
           handleCarModalClose();
+          setIsLoading(false);
         },
         function(error) {
           //TODO: handle this error more elegantly
           alert(error.toString());
+          setIsLoading(false);
         }
       );
     }
@@ -142,13 +148,14 @@ function HomeMobile(props) {
     return (
       <Container fluid>
         <div style = {{textAlign: "center", marginTop: "3%"}}>
-          <Spinner animation = "border"/>
+          <Spinner animation = "grow"/>
         </div>
       </Container>
     );
   }
   return (
     <Container fluid>
+      {/*add car modal*/}
       <Modal
         show = {showCarModal}
         onHide = {handleCarModalClose}
@@ -257,7 +264,7 @@ function HomeMobile(props) {
                 </Form>
               </Col>
               <Col>
-                <Button type = "submit" variant = "success" style = {{float: "right", marginTop: "10%"}}>
+                <Button type = "submit" variant = "success" disabled = {isLoading} style = {{float: "right", marginTop: "10%"}}>
                   Add
                 </Button>
               </Col>
@@ -274,6 +281,13 @@ function HomeMobile(props) {
               +
             </Button>
             <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
+            <Col style = {{textAlign: "right"}}>
+              {isLoading ?
+                <Spinner animation = "border"/>
+                :
+                <div></div>
+              }
+            </Col>
           </Row>
           {cars.length === 0 ?
             <div></div>
@@ -403,14 +417,6 @@ function HomeMobile(props) {
               <Card>
                 <Card.Header>
                   Upcoming Maintenance 🛠️
-                  <Button
-                    variant = "outline-dark"
-                    style = {{float: "right"}}
-                    size = "sm"
-                    disabled = {cars.length === 0}
-                  >
-                    +
-                  </Button>
                 </Card.Header>
                 <Card.Body>
                   You have nothing scheduled for your cars.
