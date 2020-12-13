@@ -19,12 +19,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 const DB = require('../controllers/db.js');
 const CARMODEL = require('../models/car.js');
+const STORAGE = require('../controllers/storage.js');
 const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 
 function HomeMobile(props) {
 
   const[cars, setCars] = useState(); //user's Cars
   const[newCar, setNewCar] = useState({}); //state object for creating a new car
+  const[newCarImage, setNewCarImage] = useState(); //temp holder for newCar image upload
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
   const[isListView, setIsListView] = useState(true); //flag to toggle the mode of displaying cars (list vs. grid)
   const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
@@ -57,28 +59,44 @@ function HomeMobile(props) {
       //TODO: handle this error more elegantly
       alert("User data undefined. Cannot add new car");
     }
-    //TODO: add input validation
     var userCreated = props.userInfo.email;
     var carId = uuidv4().toString() + new Date().getTime();
-    var imageId = uuidv4().toString() + GENERICFUNCTIONS.getRandomString();
     newCar.userCreated = userCreated;
     newCar.carId = carId;
-    newCar.imageId = imageId;
-    DB.writeOne(carId, newCar, "cars",
-      function() {
-        handleCarModalClose();
-      },
-      function(error) {
-        //TODO: handle this error more elegantly
-        alert(error.toString());
-      }
-    );
+    if(newCarImage !== undefined) {
+      STORAGE.uploadFile(newCarImage, "images/"+props.userInfo.uid+"/"+newCarImage.name,
+        function(url) {
+          newCar.imageUrl = url;
+          DB.writeOne(carId, newCar, "cars",
+            function() {
+              handleCarModalClose();
+            },
+            function(error) {
+              //TODO: handle this error more elegantly
+              alert(error.toString());
+            }
+          );
+        }
+      );
+    }
+    else {
+      DB.writeOne(carId, newCar, "cars",
+        function() {
+          handleCarModalClose();
+        },
+        function(error) {
+          //TODO: handle this error more elegantly
+          alert(error.toString());
+        }
+      );
+    }
   }
 
   //function to handle car modal closing
   function handleCarModalClose() {
     setNewCar(CARMODEL.car);
     setShowCarModal(false);
+    setNewCarImage();
     setCarModalFormValidated(false);
   }
 
@@ -102,6 +120,8 @@ function HomeMobile(props) {
     }
     else {
       addCar();
+      e.preventDefault();
+      e.stopPropagation();
     }
   }
 
@@ -121,7 +141,7 @@ function HomeMobile(props) {
   if(cars === undefined) {
     return (
       <Container fluid>
-        <div style = {{textAlign: "center", marginTop: "1%"}}>
+        <div style = {{textAlign: "center", marginTop: "3%"}}>
           <Spinner animation = "border"/>
         </div>
       </Container>
@@ -209,7 +229,30 @@ function HomeMobile(props) {
                 <Form>
                   <Form.Group>
                     <Form.Label> Image </Form.Label>
-                    <Form.File id = "image" />
+                    <Form.File
+                      id = "image"
+                      onChange = {(e) => {
+                        var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                        var file = e.target.files[0];
+                        if(file) {
+                          var extension = file.name.split('.').pop();
+                          var imageId = uuidv4().toString() + GENERICFUNCTIONS.getRandomString();
+                          var fileType = file.type;
+                          newCarCopy.imageId = imageId;
+                          newCarCopy.imageType = fileType;
+                          var renamedFile = new File([file], imageId + "." + extension, {
+                            type: fileType
+                          });
+                          setNewCarImage(renamedFile);
+                          setNewCar(newCarCopy);
+                        }
+                        else {
+                          setNewCarImage();
+                          newCarCopy.imageId = "";
+                          setNewCar(newCarCopy);
+                        }
+                      }}
+                    />
                   </Form.Group>
                 </Form>
               </Col>
@@ -278,13 +321,23 @@ function HomeMobile(props) {
                       <ListGroup.Item action style = {{width: "100%"}}>
                         <Row>
                           <Col xs = {5}>
-                            <Figure style = {{height: "50px", marginTop: "1%"}}>
-                              <Figure.Image
-                                width = {100}
-                                height = {100}
-                                src = "car-holder.png"
-                              />
-                            </Figure>
+                            {car.imageId.toString().trim().length === 0 ?
+                              <Figure style = {{height: "50px", marginTop: "1%"}}>
+                                <Figure.Image
+                                  width = {100}
+                                  height = {100}
+                                  src = "car-holder.png"
+                                />
+                              </Figure>
+                              :
+                              <Figure style = {{height: "50px", marginTop: "1%"}}>
+                                <Figure.Image
+                                  width = {100}
+                                  height = {100}
+                                  src = {car.imageUrl}
+                                />
+                              </Figure>
+                            }
                           </Col>
                           <Col xs = {7} style = {{float: "right"}}>
                             <Row>
@@ -314,7 +367,11 @@ function HomeMobile(props) {
                   <Col md = {3} style = {{marginBottom: "5%"}}>
                     <a style = {{cursor: "pointer"}}>
                       <Card border = "dark">
-                        <Card.Img variant = "top" src = "car-holder.png"/>
+                        {car.imageId.toString().trim().length === 0 ?
+                          <Card.Img id = {car.carId} variant = "top" src = "car-holder.png"/>
+                          :
+                          <Card.Img id = {car.carId} variant = "top" src = {car.imageUrl}/>
+                        }
                         <Card.Body>
                           <Row>
                             <Col>

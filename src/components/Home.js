@@ -141,7 +141,7 @@ function Home(props) {
   if(cars === undefined) {
     return (
       <Container fluid>
-        <div style = {{textAlign: "center", marginTop: "1%"}}>
+        <div style = {{textAlign: "center", marginTop: "3%"}}>
           <Spinner animation = "border"/>
         </div>
       </Container>
