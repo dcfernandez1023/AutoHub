@@ -12,6 +12,7 @@ import Login from './components/Login.js';
 import AppNavbar from './components/AppNavbar.js';
 import Home from './components/Home.js';
 import HomeMobile from './components/HomeMobile.js';
+import ScheduledServiceTypes from './pages/ScheduledServiceTypes.js';
 
 const AUTH = require('./controllers/auth.js');
 const MOBILEBREAKPOINT = 500;
@@ -57,16 +58,15 @@ function App() {
               </body>
             :
               <Container fluid>
+                <AppNavbar />
                 {isMobile ?
                   <div>
-                    <AppNavbar/>
                     <HomeMobile
                       userInfo = {userInfo}
                     />
                   </div>
                 :
                   <div>
-                    <AppNavbar/>
                     <Home
                       userInfo = {userInfo}
                     />
@@ -74,6 +74,12 @@ function App() {
                 }
               </Container>
           }
+        </Route>
+        <Route exact path = "/scheduledServiceTypes">
+          <Container fluid>
+            <AppNavbar />
+            <ScheduledServiceTypes />
+          </Container>
         </Route>
       </Switch>
     </Router>

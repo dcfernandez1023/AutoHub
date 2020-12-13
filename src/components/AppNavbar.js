@@ -6,6 +6,8 @@ import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip'
 
 function AppNavbar() {
   return (
@@ -20,15 +22,49 @@ function AppNavbar() {
       <Nav className = "mr-auto">
       </Nav>
       <Nav className = "justify-content-end">
-        <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
-          🛎️
-        </Button>
-        <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
-          ✉️
-        </Button>
-        <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
-          👤
-        </Button>
+        <OverlayTrigger
+          key = "scheduled-service-types"
+          placement = "bottom"
+          overlay = {
+            <Tooltip id = "scheduled-service-type">
+              Scheduled Service Types
+            </Tooltip>
+          }
+        >
+          <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
+            onClick = {() => {
+              window.location.pathname = "/scheduledServiceTypes";
+            }}
+          >
+            🛎️
+          </Button>
+        </OverlayTrigger>
+        <OverlayTrigger
+          key = "messages"
+          placement = "bottom"
+          overlay = {
+            <Tooltip id = "message">
+              Messages
+            </Tooltip>
+          }
+        >
+          <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+            ✉️
+          </Button>
+        </OverlayTrigger>
+        <OverlayTrigger
+          key = "profile"
+          placement = "bottom"
+          overlay = {
+            <Tooltip id = "my-profile">
+              Profile
+            </Tooltip>
+          }
+        >
+          <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+            👤
+          </Button>
+        </OverlayTrigger>
       </Nav>
     </Navbar>
   );
