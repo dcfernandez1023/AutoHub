@@ -13,6 +13,7 @@ import AppNavbar from './components/AppNavbar.js';
 import Home from './components/Home.js';
 import HomeMobile from './components/HomeMobile.js';
 import ScheduledServiceTypes from './pages/ScheduledServiceTypes.js';
+import CarInfo from './pages/CarInfo.js';
 
 const AUTH = require('./controllers/auth.js');
 const MOBILEBREAKPOINT = 500;
@@ -78,8 +79,23 @@ function App() {
         <Route exact path = "/scheduledServiceTypes">
           <Container fluid>
             <AppNavbar />
-            <ScheduledServiceTypes />
+            <ScheduledServiceTypes
+              userInfo = {userInfo}
+            />
           </Container>
+        </Route>
+        <Route
+          path = "/carInfo/:carId"
+          render = {(props) =>
+            <Container fluid>
+              <AppNavbar />
+              <CarInfo
+                {...props}
+                {...props}
+              />
+            </Container>
+          }
+        >
         </Route>
       </Switch>
     </Router>

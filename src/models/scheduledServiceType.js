@@ -2,8 +2,7 @@ export const scheduledServiceType = {
   userCreated: "",
   typeId: "",
   serviceName: "",
-  cars: [],
-  carDeadlines: {}
+  carsScheduled: {}
 }
 
 export const privateFields = [
@@ -19,14 +18,8 @@ export const publicFields = [
     required: true
   },
   {
-    value: "cars",
-    displayName: "Cars",
-    type: "array",
-    required: false
-  }.
-  {
-    value: "carDeadlines",
-    displayName: "Car Deadlines",
+    value: "carsScheduled",
+    displayName: "Cars Scheduled",
     type: "object",
     required: false
   }

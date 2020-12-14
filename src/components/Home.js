@@ -10,7 +10,7 @@ import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Modal from 'react-bootstrap/Modal'
+import Modal from 'react-bootstrap/Modal';
 import Badge from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import ListGroup from 'react-bootstrap/ListGroup';
@@ -326,7 +326,11 @@ function Home(props) {
                 return (
                   <Col xs = {12} style = {style}>
                     <ListGroup horizontal>
-                      <ListGroup.Item action style = {{width: "100%"}}>
+                      <ListGroup.Item action style = {{width: "100%"}}
+                        onClick = {() => {
+                          window.location.pathname = "/carInfo" + "/" + car.carId
+                        }}
+                      >
                         <Row>
                             {car.imageId.toString().trim().length === 0 ?
                               <Figure style = {{height: "50px", marginTop: "1%"}}>
@@ -371,7 +375,11 @@ function Home(props) {
               else {
                 return (
                   <Col md = {3} style = {{marginBottom: "5%"}}>
-                    <a style = {{cursor: "pointer"}}>
+                    <a style = {{cursor: "pointer"}}
+                      onClick = {() => {
+                        window.location.pathname = "/carInfo" + "/" + car.carId
+                      }}
+                    >
                       <Card border = "dark">
                         {car.imageId.toString().trim().length === 0 ?
                           <Card.Img id = {car.carId} variant = "top" src = "car-holder.png"/>

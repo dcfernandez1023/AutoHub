@@ -332,7 +332,11 @@ function HomeMobile(props) {
                 return (
                   <Col xs = {12} style = {style}>
                     <ListGroup horizontal>
-                      <ListGroup.Item action style = {{width: "100%"}}>
+                      <ListGroup.Item action style = {{width: "100%"}}
+                        onClick = {() => {
+                          window.location.pathname = "/carInfo" + "/" + car.carId
+                        }}
+                      >
                         <Row>
                           <Col xs = {5}>
                             {car.imageId.toString().trim().length === 0 ?
@@ -379,7 +383,11 @@ function HomeMobile(props) {
               else {
                 return (
                   <Col md = {3} style = {{marginBottom: "5%"}}>
-                    <a style = {{cursor: "pointer"}}>
+                    <a style = {{cursor: "pointer"}}
+                      onClick = {() => {
+                        window.location.pathname = "/carInfo" + "/" + car.carId
+                      }}
+                    >
                       <Card border = "dark">
                         {car.imageId.toString().trim().length === 0 ?
                           <Card.Img id = {car.carId} variant = "top" src = "car-holder.png"/>
