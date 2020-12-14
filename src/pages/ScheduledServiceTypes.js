@@ -47,30 +47,23 @@ function ScheduledServiceTypes(props) {
       <br/>
       <Row>
         <Col>
-          <h5> Implementation 1 - Standard Listing </h5>
-        </Col>
-      </Row>
-      <br/>
-      <Row>
-        <Col>
-          {testData.map((service, index) => {
-            if(index === 0) {
-              return (
-                <Row>
-                  <Col>
-                    <Row>
-                      <Col>
-                        <h6> {service.serviceName} </h6>
-                      </Col>
-                      <Col style = {{textAlign: "right"}}>
-                        <Button variant = "outline-dark" style = {{marginRight: "1%"}}>
-                          ✏️
-                        </Button>
-                        <Button variant = "outline-dark">
-                          🗑️
-                        </Button>
-                      </Col>
-                    </Row>
+          <Accordion>
+          {testData.map((service) => {
+            return (
+              <Card>
+                <Card.Header>
+                  <Accordion.Toggle as = {Button} variant = "light" eventKey = {service.typeId}>
+                    {service.serviceName}
+                  </Accordion.Toggle>
+                  <Button variant = "outline-dark" style = {{float: "right"}}>
+                    🗑️
+                  </Button>
+                  <Button variant = "outline-dark" style = {{float: "right", marginRight: "1%"}}>
+                    ✏️
+                  </Button>
+                </Card.Header>
+                <Accordion.Collapse eventKey = {service.typeId}>
+                  <Card.Body>
                     {Object.keys(service.carDeadlines).map((car) => {
                       return (
                         <Row>
@@ -81,111 +74,16 @@ function ScheduledServiceTypes(props) {
                               </Col>
                             </Row>
                             <Row style = {{marginLeft: "4%", marginBottom: "1%"}}>
-                              <p style = {{marginRight: "1%"}}> 📅 {service.carDeadlines[car].date} | </p>
-                              <p> 🚗 {service.carDeadlines[car].miles} </p>
+                              <p style = {{marginRight: "1%"}}> 📅 Date {service.carDeadlines[car].date} | </p>
+                              <p> 🚗 Miles {service.carDeadlines[car].miles} </p>
                             </Row>
                           </Col>
                         </Row>
                       );
                     })}
-                  </Col>
-                </Row>
-              );
-            }
-            return (
-              <Row>
-                <Col>
-                  <Row>
-                    <Col>
-                      <hr style = {{border: "1px solid lightGray"}} />
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
-                      <h6> {service.serviceName} </h6>
-                    </Col>
-                    <Col style = {{textAlign: "right"}}>
-                      <Button variant = "outline-dark" style = {{marginRight: "1%"}}>
-                        ✏️
-                      </Button>
-                      <Button variant = "outline-dark">
-                        🗑️
-                      </Button>
-                    </Col>
-                  </Row>
-                  {Object.keys(service.carDeadlines).map((car) => {
-                    return (
-                      <Row>
-                        <Col>
-                          <Row style = {{marginLeft: "1%"}}>
-                            <Col>
-                              <p> {car} </p>
-                            </Col>
-                          </Row>
-                          <Row style = {{marginLeft: "4%", marginBottom: "1%"}}>
-                            <p style = {{marginRight: "1%"}}> 📅 Date {service.carDeadlines[car].date} | </p>
-                            <p> 🚗 Miles {service.carDeadlines[car].miles} </p>
-                          </Row>
-                        </Col>
-                      </Row>
-                    );
-                  })}
-                </Col>
-              </Row>
-            );
-          })}
-        </Col>
-      </Row>
-      <br/>
-      <Row>
-        <Col>
-          <h5> Implementation 2 - Accordions </h5>
-        </Col>
-      </Row>
-      <br/>
-      <Row>
-        <Col>
-          <Accordion>
-          {testData.map((service) => {
-            return (
-                <Card>
-                  <Accordion.Toggle as = {Card.Header} eventKey = {service.typeId}>
-                    <Row>
-                      <Col>
-                        {service.serviceName}
-                      </Col>
-                      <Col style = {{textAlign: "right"}}>
-                        <Button variant = "outline-dark" style = {{marginRight: "1%"}}>
-                          ✏️
-                        </Button>
-                        <Button variant = "outline-dark">
-                          🗑️
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Accordion.Toggle>
-                  <Accordion.Collapse eventKey = {service.typeId}>
-                    <Card.Body>
-                      {Object.keys(service.carDeadlines).map((car) => {
-                        return (
-                          <Row>
-                            <Col>
-                              <Row style = {{marginLeft: "1%"}}>
-                                <Col>
-                                  <p> {car} </p>
-                                </Col>
-                              </Row>
-                              <Row style = {{marginLeft: "4%", marginBottom: "1%"}}>
-                                <p style = {{marginRight: "1%"}}> 📅 Date {service.carDeadlines[car].date} | </p>
-                                <p> 🚗 Miles {service.carDeadlines[car].miles} </p>
-                              </Row>
-                            </Col>
-                          </Row>
-                        );
-                      })}
-                    </Card.Body>
-                  </Accordion.Collapse>
-                </Card>
+                  </Card.Body>
+                </Accordion.Collapse>
+              </Card>
             );
           })}
           </Accordion>
