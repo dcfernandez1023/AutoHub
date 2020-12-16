@@ -9,6 +9,7 @@ import Modal from 'react-bootstrap/Modal';
 import Tooltip from 'react-bootstrap/Tooltip';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import ListGroup from 'react-bootstrap/ListGroup';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 function SSTModal(props) {
 
@@ -86,11 +87,11 @@ function SSTModal(props) {
           <hr style = {{border: "1px solid lightGray"}} />
           <Row>
             <Col xs = {9}>
-              <h5> Apply to Cars </h5>
+              <h5> Cars </h5>
             </Col>
             <Col xs = {3} style = {{textAlign: "right"}}>
               {!toggleApply ?
-                <Button variant = "outline-dark"
+                <Button variant = "outline-dark" size = "sm"
                   onClick = {() => {
                     setToggleApply(true);
                   }}
@@ -98,7 +99,7 @@ function SSTModal(props) {
                   ✏️
                 </Button>
                 :
-                <Button variant = "outline-dark"
+                <Button variant = "outline-dark" size = "sm"
                   onClick = {() => {
                     setToggleApply(false);
                   }}
@@ -116,13 +117,15 @@ function SSTModal(props) {
                   <Row>
                     <Col>
                       <ListGroup horizontal>
-                        <ListGroup.Item>
-                          <Row>
-                            <Col xs = {4} style = {{marginBottom: "5%"}}>
+                        <ListGroup.Item style = {{width: "100%"}}>
+                          <Row style = {{marginBottom: "3%"}}>
+                            <Col>
                               <p> <strong> {car.name} </strong> </p>
                             </Col>
-                            <Col sm = {4} style = {{marginBottom: "5%"}}>
-                              <Form.Label> 💨 Miles </Form.Label>
+                          </Row>
+                          <Row>
+                            <Col sm = {5} style = {{marginBottom: "3%"}}>
+                              <Form.Label> 💨 Mile Interval </Form.Label>
                               <Form.Control
                                 size = "sm"
                                 as = "input"
@@ -130,14 +133,20 @@ function SSTModal(props) {
                                 value = {sst.carsScheduled[car.carId].date}
                               />
                             </Col>
-                            <Col sm = {4}>
-                              <Form.Label> 📅 Date </Form.Label>
-                              <Form.Control
-                                size = "sm"
-                                as = "input"
-                                name = "date"
-                                value = {sst.carsScheduled[car.carId].date}
-                              />
+                            <Col sm = {7}>
+                              <Form.Label> 🕒 Time Interval </Form.Label>
+                              <InputGroup size = "sm">
+                                <Form.Control
+                                  as = "input"
+                                  style = {{marginRight: "2%"}}
+                                />
+                                <Form.Control
+                                  as = "select"
+                                >
+                                  <option> Day(s) </option>
+                                  <option> Week(s) </option>
+                                </Form.Control>
+                              </InputGroup>
                             </Col>
                           </Row>
                         </ListGroup.Item>
@@ -150,52 +159,58 @@ function SSTModal(props) {
             :
             <div>
               <Row>
-                <Col>
-                  <Form.Label> 💨 Miles </Form.Label>
+                <Col sm = {10}>
+                  <InputGroup size = "sm">
+                    <OverlayTrigger
+                      key = "apply-info"
+                      placement = "bottom"
+                      overlay = {
+                        <Tooltip id = "apply-info-tooltip">
+                          Enter the desired <strong> mile </strong> and/or <strong> time </strong> interval and click the 'Apply' button
+                          to apply it to the selected cars.
+                        </Tooltip>
+                      }
+                    >
+                      <Button size = "sm" variant = "light" style = {{marginRight: "2%"}}>
+                        🛈
+                      </Button>
+                    </OverlayTrigger>
+                    <div style = {{marginRight: "2%"}}>
+                      Every
+                    </div>
+                    <Form.Control
+                      as = "input"
+                      style = {{marginRight: "2%"}}
+                    />
+                    <div>
+                      miles
+                    </div>
+                    </InputGroup>
+                    <InputGroup size = "sm" style = {{marginTop: "5%"}}>
+                      <div style = {{marginRight: "2%"}}>
+                        or
+                      </div>
+                      <Form.Control
+                        as = "input"
+                        style = {{marginRight: "2%"}}
+                      />
+                      <Form.Control
+                        as = "select"
+                        style = {{marginRight: "2%"}}
+                      >
+                        <option> Day(s) </option>
+                        <option> Week(s) </option>
+                      </Form.Control>
+                    </InputGroup>
                 </Col>
-                <Col>
-                  <Form.Label> 📅 Date </Form.Label>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <Form.Control
-                    size = "sm"
-                    as = "input"
-                    name = "date"
-                  />
-                </Col>
-                <Col>
-                  <Form.Control
-                    size = "sm"
-                    as = "input"
-                    name = "date"
-                  />
+                <Col sm = {2} style = {{textAlign: "center"}}>
+                  <br/>
+                  <Button size = "sm" variant = "success">
+                    Apply
+                  </Button>
                 </Col>
               </Row>
               <br/>
-              <Row>
-                <Col style = {{textAlign: "right"}}>
-                  <Button size = "sm" variant = "success" style = {{marginRight: "1%"}}>
-                    Apply
-                  </Button>
-                  <OverlayTrigger
-                    key = "apply-info"
-                    placement = "bottom"
-                    overlay = {
-                      <Tooltip id = "apply-info-tooltip">
-                        Enter the desired mile and/or date interval above and click the 'Apply' button
-                        to apply it to the selected cars.
-                      </Tooltip>
-                    }
-                  >
-                    <Button size = "sm" variant = "light">
-                      ❓
-                    </Button>
-                  </OverlayTrigger>
-                </Col>
-              </Row>
-
               <Row>
                 <Col style = {{marginLeft: "1%"}}>
                   <Form.Check
@@ -211,33 +226,39 @@ function SSTModal(props) {
                     <Col>
                       <ListGroup horizontal>
                         <ListGroup.Item>
-                          <Row>
-                            <Col xs = {4} style = {{marginBottom: "5%"}}>
+                          <Row  style = {{marginBottom: "3%"}}>
+                            <Col>
                               <Form.Check
                                 type = "checkbox"
                                 id = "select-all"
-                                label = {<strong> {car.name} </strong>}
+                                label = {<p> <strong> {car.name} </strong> </p>}
                               />
                             </Col>
-                            <Col sm = {4} style = {{marginBottom: "5%"}}>
-                              <Form.Label> 💨 Miles </Form.Label>
+                          </Row>
+                          <Row>
+                            <Col sm = {5} style = {{marginBottom: "3%"}}>
+                              <Form.Label> 💨 Mile Interval </Form.Label>
                               <Form.Control
-                                disabled
                                 size = "sm"
                                 as = "input"
                                 name = "date"
                                 value = {sst.carsScheduled[car.carId].date}
                               />
                             </Col>
-                            <Col sm = {4}>
-                              <Form.Label> 📅 Date </Form.Label>
-                              <Form.Control
-                                disabled
-                                size = "sm"
-                                as = "input"
-                                name = "date"
-                                value = {sst.carsScheduled[car.carId].date}
-                              />
+                            <Col sm = {7}>
+                              <Form.Label> 🕒 Time Interval </Form.Label>
+                              <InputGroup size = "sm">
+                                <Form.Control
+                                  as = "input"
+                                  style = {{marginRight: "2%"}}
+                                />
+                                <Form.Control
+                                  as = "select"
+                                >
+                                  <option> Day(s) </option>
+                                  <option> Week(s) </option>
+                                </Form.Control>
+                              </InputGroup>
                             </Col>
                           </Row>
                         </ListGroup.Item>
