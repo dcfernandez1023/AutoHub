@@ -11,6 +11,8 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import ListGroup from 'react-bootstrap/ListGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 
+const SSTModel = require('../models/scheduledServiceType.js');
+
 function SSTModal(props) {
 
   const[cars, setCars] = useState();
@@ -19,33 +21,124 @@ function SSTModal(props) {
   const[title, setTitle] = useState("");
   const[validated, setValidated] = useState(false);
   const[toggleApply, setToggleApply] = useState(false);
+  const[selectedCars, setSelectedCars] = useState({});
+  const[globalInterval, setGlobalInterval] = useState()
 
   useEffect(() => {
     setShow(props.show);
     setTitle(props.title);
-    initializeSstFields(props.sst, props.cars);
+    setGlobalInterval(SSTModel.interval);
+    initialize(props.sst, props.cars);
   }, [props.sst, props.show, props.title, props.userInfo, props.cars])
 
-  function initializeSstFields(initSst, initCars) {
+  function initialize(initSst, initCars) {
     if(initSst === undefined || initCars === undefined) {
       return;
     }
     var len = Object.keys(initSst.carsScheduled).length;
-    if(len === 0) {
-      for(var i = 0; i < initCars.length; i++) {
-        var car = initCars[i];
-        initSst.carsScheduled[car.carId] = {date: "", miles: 0};
+    var selected = {};
+    for(var i = 0; i < initCars.length; i++) {
+      var car = initCars[i];
+      selected[car.carId] = false;
+      if(initSst.carsScheduled[car.carId] === undefined) {
+        initSst.carsScheduled[car.carId] = SSTModel.interval;
       }
     }
-    console.log(initSst);
+    setSelectedCars(selected);
     setSst(initSst);
     setCars(initCars);
   }
 
   function handleModalClose() {
     props.setShow(false);
+    setToggleApply(false);
+    setValidated(false);
     setSst();
     setTitle("");
+  }
+
+  function onChangeInterval(e, id, option) {
+    var name = [e.target.name][0];
+    var value = e.target.value;
+    var copy = JSON.parse(JSON.stringify(sst));
+    if(name === "time") {
+      if(option === "quantity" && isNaN(value)) {
+        return;
+      }
+      copy.carsScheduled[id].time[option] = value;
+    }
+    else {
+      if(isNaN(value)) {
+        return;
+      }
+      copy.carsScheduled[id].miles = value;
+    }
+    setSst(copy);
+  }
+
+  function onChangeGlobalInterval(e, option) {
+    var name = [e.target.name][0];
+    var value = e.target.value;
+    var copy = JSON.parse(JSON.stringify(globalInterval));
+    if(name === "time") {
+      if(option === "quantity" && isNaN(value)) {
+        return;
+      }
+      copy.time[option] = value;
+    }
+    else {
+      if(isNaN(value)) {
+        return;
+      }
+      copy.miles = value;
+    }
+    setGlobalInterval(copy);
+  }
+
+  function getNumSelected() {
+    var count = 0;
+    for(var key in selectedCars) {
+      if(selectedCars[key] === true) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  function selectAll() {
+    var len = Object.keys(selectedCars).length;
+    var selected = {};
+    for(var i = 0; i < cars.length; i++) {
+      var car = cars[i];
+      selected[car.carId] = true;
+    }
+    setSelectedCars(selected);
+  }
+
+  function unselectAll() {
+    var len = Object.keys(selectedCars).length;
+    var selected = {};
+    for(var i = 0; i < cars.length; i++) {
+      var car = cars[i];
+      selected[car.carId] = false;
+    }
+    setSelectedCars(selected);
+  }
+
+  function selectCar(id) {
+    var copy = JSON.parse(JSON.stringify(selectedCars));
+    copy[id] = !copy[id];
+    setSelectedCars(copy);
+  }
+
+  function applyGlobalInterval() {
+    var copy = JSON.parse(JSON.stringify(sst));
+    for(var key in copy.carsScheduled) {
+      if(selectedCars[key]) {
+        copy.carsScheduled[key] = globalInterval;
+      }
+    }
+    setSst(copy);
   }
 
   if(sst === undefined || cars === undefined || sst.carsScheduled === undefined) {
@@ -129,8 +222,15 @@ function SSTModal(props) {
                               <Form.Control
                                 size = "sm"
                                 as = "input"
-                                name = "date"
-                                value = {sst.carsScheduled[car.carId].date}
+                                name = "miles"
+                                value = {sst.carsScheduled[car.carId] !== undefined ?
+                                          sst.carsScheduled[car.carId].miles
+                                          :
+                                          SSTModel.interval.miles
+                                        }
+                                onChange = {(e) => {
+                                  onChangeInterval(e, car.carId);
+                                }}
                               />
                             </Col>
                             <Col sm = {7}>
@@ -138,13 +238,35 @@ function SSTModal(props) {
                               <InputGroup size = "sm">
                                 <Form.Control
                                   as = "input"
+                                  name = "time"
+                                  value = {sst.carsScheduled[car.carId] !== undefined ?
+                                            sst.carsScheduled[car.carId].time.quantity
+                                            :
+                                            SSTModel.interval.time.quantity
+                                          }
+                                  onChange = {(e) => {
+                                    onChangeInterval(e, car.carId, "quantity");
+                                  }}
                                   style = {{marginRight: "2%"}}
                                 />
                                 <Form.Control
                                   as = "select"
+                                  name = "time"
+                                  value = {sst.carsScheduled[car.carId] !== undefined ?
+                                            sst.carsScheduled[car.carId].time.units
+                                            :
+                                            SSTModel.interval.time.units
+                                          }
+                                  onChange = {(e) => {
+                                    onChangeInterval(e, car.carId, "units");
+                                  }}
                                 >
-                                  <option> Day(s) </option>
-                                  <option> Week(s) </option>
+                                  <option value = "" selected> Select </option>
+                                  {SSTModel.timeUnits.map((unit) => {
+                                    return (
+                                      <option value = {unit.value}> {unit.displayName} </option>
+                                    );
+                                  })}
                                 </Form.Control>
                               </InputGroup>
                             </Col>
@@ -180,6 +302,15 @@ function SSTModal(props) {
                     </div>
                     <Form.Control
                       as = "input"
+                      name = "miles"
+                      value = {globalInterval !== undefined ?
+                                globalInterval.miles
+                                :
+                                SSTModel.interval.miles
+                              }
+                      onChange = {(e) => {
+                        onChangeGlobalInterval(e);
+                      }}
                       style = {{marginRight: "2%"}}
                     />
                     <div>
@@ -192,46 +323,79 @@ function SSTModal(props) {
                       </div>
                       <Form.Control
                         as = "input"
+                        name = "time"
+                        value = {globalInterval !== undefined ?
+                                  globalInterval.time.quantity
+                                  :
+                                  SSTModel.interval.time.quantity
+                                }
+                        onChange = {(e) => {
+                          onChangeGlobalInterval(e, "quantity");
+                        }}
                         style = {{marginRight: "2%"}}
                       />
                       <Form.Control
                         as = "select"
-                        style = {{marginRight: "2%"}}
+                        name = "time"
+                        value = {globalInterval !== undefined ?
+                                  globalInterval.time.units
+                                  :
+                                  SSTModel.interval.time.units
+                                }
+                        onChange = {(e) => {
+                          onChangeGlobalInterval(e, "units");
+                        }}
                       >
-                        <option> Day(s) </option>
-                        <option> Week(s) </option>
+                        <option value = "" selected> Select </option>
+                        {SSTModel.timeUnits.map((unit) => {
+                          return (
+                            <option value = {unit.value}> {unit.displayName} </option>
+                          );
+                        })}
                       </Form.Control>
                     </InputGroup>
                 </Col>
-                <Col sm = {2} style = {{textAlign: "center"}}>
+                <Col sm = {2} style = {{textAlign: "right"}}>
                   <br/>
-                  <Button size = "sm" variant = "success">
+                  <Button size = "sm" variant = "success"
+                    onClick = {() => {applyGlobalInterval()}}
+                  >
                     Apply
                   </Button>
                 </Col>
               </Row>
               <br/>
-              <Row>
-                <Col style = {{marginLeft: "1%"}}>
-                  <Form.Check
-                    type = "checkbox"
-                    id = "select-all"
-                    label = "Select All"
-                  />
+              <Row style = {{marginBottom: "2%"}}>
+                <Col>
+                  {getNumSelected() !== 0 ?
+                    <Button variant = "secondary" size = "sm"
+                      onClick = {() => {unselectAll()}}
+                    >
+                      Unselect All
+                    </Button>
+                    :
+                    <Button variant = "secondary" size = "sm"
+                      onClick = {() => {selectAll()}}
+                    >
+                      Select All
+                    </Button>
+                  }
                 </Col>
               </Row>
-              {cars.map((car) => {
+              {cars.map((car, index) => {
                 return (
                   <Row>
                     <Col>
                       <ListGroup horizontal>
                         <ListGroup.Item>
-                          <Row  style = {{marginBottom: "3%"}}>
+                          <Row style = {{marginBottom: "3%"}}>
                             <Col>
                               <Form.Check
                                 type = "checkbox"
-                                id = "select-all"
+                                checked = {selectedCars[car.carId]}
+                                id = {car.carId + index}
                                 label = {<p> <strong> {car.name} </strong> </p>}
+                                onChange = {() => {selectCar(car.carId)}}
                               />
                             </Col>
                           </Row>
@@ -241,8 +405,15 @@ function SSTModal(props) {
                               <Form.Control
                                 size = "sm"
                                 as = "input"
-                                name = "date"
-                                value = {sst.carsScheduled[car.carId].date}
+                                name = "miles"
+                                value = {sst.carsScheduled[car.carId] !== undefined ?
+                                          sst.carsScheduled[car.carId].miles
+                                          :
+                                          SSTModel.interval.miles
+                                        }
+                                onChange = {(e) => {
+                                  onChangeInterval(e, car.carId);
+                                }}
                               />
                             </Col>
                             <Col sm = {7}>
@@ -250,13 +421,35 @@ function SSTModal(props) {
                               <InputGroup size = "sm">
                                 <Form.Control
                                   as = "input"
+                                  name = "time"
+                                  value = {sst.carsScheduled[car.carId] !== undefined ?
+                                            sst.carsScheduled[car.carId].time.quantity
+                                            :
+                                            SSTModel.interval.time.quantity
+                                          }
+                                  onChange = {(e) => {
+                                    onChangeInterval(e, car.carId, "quantity");
+                                  }}
                                   style = {{marginRight: "2%"}}
                                 />
                                 <Form.Control
                                   as = "select"
+                                  name = "time"
+                                  value = {sst.carsScheduled[car.carId] !== undefined ?
+                                            sst.carsScheduled[car.carId].time.units
+                                            :
+                                            SSTModel.interval.time.units
+                                          }
+                                  onChange = {(e) => {
+                                    onChangeInterval(e, car.carId, "units");
+                                  }}
                                 >
-                                  <option> Day(s) </option>
-                                  <option> Week(s) </option>
+                                  <option value = "" selected> Select </option>
+                                  {SSTModel.timeUnits.map((unit) => {
+                                    return (
+                                      <option value = {unit.value}> {unit.displayName} </option>
+                                    );
+                                  })}
                                 </Form.Control>
                               </InputGroup>
                             </Col>
