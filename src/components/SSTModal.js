@@ -12,6 +12,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 const SSTModel = require('../models/scheduledServiceType.js');
+const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 
 function SSTModal(props) {
 
@@ -74,6 +75,7 @@ function SSTModal(props) {
       copy.carsScheduled[id].miles = value;
     }
     setSst(copy);
+    setValidated(false);
   }
 
   function onChangeGlobalInterval(e, option) {
@@ -141,6 +143,45 @@ function SSTModal(props) {
     setSst(copy);
   }
 
+  function onSubmit(e) {
+    setValidated(true);
+    var isValid = checkSubmitFields();
+    if(isValid) {
+      if(props.userCreated !== undefined) {
+        sst.userCreated = props.userCreated;
+        sst.typeId = GENERICFUNCTIONS.generateId();
+        props.handleSubmit(sst);
+      }
+      else {
+        alert("Internal error. Could not add scheduled service type");
+      }
+    }
+  }
+
+  function checkSubmitFields() {
+    var isValid = true;
+    if(sst.serviceName.trim().length === 0) {
+      sst.serviceName = "";
+      isValid = false;
+    }
+    for(var key in sst.carsScheduled) {
+      var entry = sst.carsScheduled[key];
+      if(entry.miles.toString().trim().length === 0) {
+        sst.carsScheduled[key].miles = 0;
+      }
+      if(entry.time.quantity.toString().trim().length === 0) {
+        sst.carsScheduled[key].time.quantity = 0;
+      }
+      if(Number(entry.time.quantity.toString().trim()) > 0 && entry.time.units.trim() === "none") {
+        isValid = false;
+      }
+      if(entry.time.units.length !== 0 && entry.time.units !== "none" && entry.time.quantity === 0) {
+        isValid = false;
+      }
+    }
+    return isValid;
+  }
+
   if(sst === undefined || cars === undefined || sst.carsScheduled === undefined) {
     return <div></div>;
   }
@@ -156,12 +197,11 @@ function SSTModal(props) {
         <Modal.Title> {title} </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form noValidate validated = {validated} onSubmit = {props.handleSubmit}>
           <Row>
             <Col>
               <Form.Label> Service Name </Form.Label>
               <Form.Control
-                required = {true}
+                isInvalid = {validated ? sst.serviceName.trim().length === 0 : undefined}
                 size = "sm"
                 as = "input"
                 name = "serviceName"
@@ -175,6 +215,9 @@ function SSTModal(props) {
                   setValidated(false);
                 }}
               />
+              <Form.Control.Feedback type = "invalid">
+                Required
+              </Form.Control.Feedback>
             </Col>
           </Row>
           <hr style = {{border: "1px solid lightGray"}} />
@@ -244,6 +287,7 @@ function SSTModal(props) {
                                             :
                                             SSTModel.interval.time.quantity
                                           }
+                                  isInvalid = {validated ? sst.carsScheduled[car.carId].time.units.length !== 0 && sst.carsScheduled[car.carId].time.units !== "none" && sst.carsScheduled[car.carId].time.quantity === 0 : undefined}
                                   onChange = {(e) => {
                                     onChangeInterval(e, car.carId, "quantity");
                                   }}
@@ -257,11 +301,15 @@ function SSTModal(props) {
                                             :
                                             SSTModel.interval.time.units
                                           }
+                                  isInvalid = {validated ? Number(sst.carsScheduled[car.carId].time.quantity.toString().trim()) > 0 && sst.carsScheduled[car.carId].time.units === "none"
+                                              :
+                                              undefined
+                                              }
                                   onChange = {(e) => {
                                     onChangeInterval(e, car.carId, "units");
                                   }}
                                 >
-                                  <option value = "" selected> Select </option>
+                                  <option value = "none" selected> Select </option>
                                   {SSTModel.timeUnits.map((unit) => {
                                     return (
                                       <option value = {unit.value}> {unit.displayName} </option>
@@ -280,7 +328,7 @@ function SSTModal(props) {
             </div>
             :
             <div>
-              <Row>
+              <Row style = {{marginBottom: "5%"}}>
                 <Col sm = {10}>
                   <InputGroup size = "sm">
                     <OverlayTrigger
@@ -355,7 +403,7 @@ function SSTModal(props) {
                       </Form.Control>
                     </InputGroup>
                 </Col>
-                <Col sm = {2} style = {{textAlign: "right"}}>
+                <Col sm = {2} style = {{textAlign: "center"}}>
                   <br/>
                   <Button size = "sm" variant = "success"
                     onClick = {() => {applyGlobalInterval()}}
@@ -364,7 +412,6 @@ function SSTModal(props) {
                   </Button>
                 </Col>
               </Row>
-              <br/>
               <Row style = {{marginBottom: "2%"}}>
                 <Col>
                   {getNumSelected() !== 0 ?
@@ -444,7 +491,7 @@ function SSTModal(props) {
                                     onChangeInterval(e, car.carId, "units");
                                   }}
                                 >
-                                  <option value = "" selected> Select </option>
+                                  <option value = "none" selected> Select </option>
                                   {SSTModel.timeUnits.map((unit) => {
                                     return (
                                       <option value = {unit.value}> {unit.displayName} </option>
@@ -462,8 +509,16 @@ function SSTModal(props) {
               })}
             </div>
           }
-        </Form>
       </Modal.Body>
+      {!toggleApply ?
+        <Modal.Footer>
+          <Button onClick = {() => {onSubmit()}}>
+            Save
+          </Button>
+        </Modal.Footer>
+        :
+        <div></div>
+      }
     </Modal>
   );
 }

@@ -66,11 +66,19 @@ function ScheduledServiceTypes(props) {
     }
   ]
 
-  function addSst() {
-    return;
+  function addSst(sst) {
+    DB.writeOne(sst.typeId, sst, "scheduledServiceTypes",
+      function() {
+        setAddShow(false);
+      },
+      function(error) {
+        alert(error);
+      }
+    );
   }
 
   function editSst() {
+    alert("Edit sst");
     return;
   }
 

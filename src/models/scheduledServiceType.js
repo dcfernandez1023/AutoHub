@@ -27,7 +27,7 @@ export const publicFields = [
 
 export const interval = {
   miles: 0,
-  time: {quantity: 0, units: ""}
+  time: {quantity: 0, units: "none"}
 }
 
 export const timeUnits = [
