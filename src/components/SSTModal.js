@@ -13,6 +13,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 const SSTModel = require('../models/scheduledServiceType.js');
 const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
+const DB = require('../controllers/db.js');
 
 function SSTModal(props) {
 
@@ -149,11 +150,34 @@ function SSTModal(props) {
     if(isValid) {
       if(props.userCreated !== undefined) {
         sst.userCreated = props.userCreated;
-        sst.typeId = GENERICFUNCTIONS.generateId();
-        props.handleSubmit(sst);
+        if(sst.typeId.trim().length === 0) {
+          sst.typeId = GENERICFUNCTIONS.generateId();
+        }
+        saveSst();
       }
       else {
         alert("Internal error. Could not add scheduled service type");
+      }
+    }
+  }
+
+  function saveSst() {
+    massageSst();
+    DB.writeOne(sst.typeId, sst, "scheduledServiceTypes",
+      function() {
+        handleModalClose();
+      },
+      function(error) {
+        alert(error);
+      }
+    );
+  }
+
+  function massageSst() {
+    for(var key in sst.carsScheduled) {
+      var entry = sst.carsScheduled[key];
+      if(entry.miles === 0 && entry.time.quantity === 0 && entry.time.units === "none") {
+        delete sst.carsScheduled[key];
       }
     }
   }
@@ -287,7 +311,7 @@ function SSTModal(props) {
                                             :
                                             SSTModel.interval.time.quantity
                                           }
-                                  isInvalid = {validated ? sst.carsScheduled[car.carId].time.units.length !== 0 && sst.carsScheduled[car.carId].time.units !== "none" && sst.carsScheduled[car.carId].time.quantity === 0 : undefined}
+                                  isInvalid = {validated && sst.carsScheduled[car.carId] !== undefined ? sst.carsScheduled[car.carId].time.units.length !== 0 && sst.carsScheduled[car.carId].time.units !== "none" && sst.carsScheduled[car.carId].time.quantity === 0 : undefined}
                                   onChange = {(e) => {
                                     onChangeInterval(e, car.carId, "quantity");
                                   }}
@@ -301,7 +325,7 @@ function SSTModal(props) {
                                             :
                                             SSTModel.interval.time.units
                                           }
-                                  isInvalid = {validated ? Number(sst.carsScheduled[car.carId].time.quantity.toString().trim()) > 0 && sst.carsScheduled[car.carId].time.units === "none"
+                                  isInvalid = {validated&&  sst.carsScheduled[car.carId] !== undefined ? Number(sst.carsScheduled[car.carId].time.quantity.toString().trim()) > 0 && sst.carsScheduled[car.carId].time.units === "none"
                                               :
                                               undefined
                                               }
@@ -328,48 +352,33 @@ function SSTModal(props) {
             </div>
             :
             <div>
-              <Row style = {{marginBottom: "5%"}}>
-                <Col sm = {10}>
+              <Row style = {{marginBottom: "3%"}}>
+                <Col>
                   <InputGroup size = "sm">
-                    <OverlayTrigger
-                      key = "apply-info"
-                      placement = "bottom"
-                      overlay = {
-                        <Tooltip id = "apply-info-tooltip">
-                          Enter the desired <strong> mile </strong> and/or <strong> time </strong> interval and click the 'Apply' button
-                          to apply it to the selected cars.
-                        </Tooltip>
-                      }
-                    >
-                      <Button size = "sm" variant = "light" style = {{marginRight: "2%"}}>
-                        🛈
-                      </Button>
-                    </OverlayTrigger>
-                    <div style = {{marginRight: "2%"}}>
+                    <div style = {{marginRight: "1%"}}>
                       Every
                     </div>
-                    <Form.Control
-                      as = "input"
-                      name = "miles"
-                      value = {globalInterval !== undefined ?
-                                globalInterval.miles
-                                :
-                                SSTModel.interval.miles
-                              }
-                      onChange = {(e) => {
-                        onChangeGlobalInterval(e);
-                      }}
-                      style = {{marginRight: "2%"}}
-                    />
-                    <div>
-                      miles
-                    </div>
-                    </InputGroup>
-                    <InputGroup size = "sm" style = {{marginTop: "5%"}}>
-                      <div style = {{marginRight: "2%"}}>
-                        or
-                      </div>
+                    <div style = {{width: "15%", marginRight: "1%"}}>
                       <Form.Control
+                        size = "sm"
+                        as = "input"
+                        name = "miles"
+                        value = {globalInterval !== undefined ?
+                                  globalInterval.miles
+                                  :
+                                  SSTModel.interval.miles
+                                }
+                        onChange = {(e) => {
+                          onChangeGlobalInterval(e);
+                        }}
+                      />
+                    </div>
+                    <div style = {{marginRight: "1%"}}>
+                      miles or
+                    </div>
+                    <div style = {{width: "12%", marginRight: "1%"}}>
+                      <Form.Control
+                        size = "sm"
                         as = "input"
                         name = "time"
                         value = {globalInterval !== undefined ?
@@ -380,38 +389,54 @@ function SSTModal(props) {
                         onChange = {(e) => {
                           onChangeGlobalInterval(e, "quantity");
                         }}
-                        style = {{marginRight: "2%"}}
                       />
-                      <Form.Control
-                        as = "select"
-                        name = "time"
-                        value = {globalInterval !== undefined ?
-                                  globalInterval.time.units
-                                  :
-                                  SSTModel.interval.time.units
-                                }
-                        onChange = {(e) => {
-                          onChangeGlobalInterval(e, "units");
-                        }}
-                      >
-                        <option value = "" selected> Select </option>
-                        {SSTModel.timeUnits.map((unit) => {
-                          return (
-                            <option value = {unit.value}> {unit.displayName} </option>
-                          );
-                        })}
-                      </Form.Control>
-                    </InputGroup>
+                    </div>
+                    <Form.Control
+                      as = "select"
+                      name = "time"
+                      value = {globalInterval !== undefined ?
+                                globalInterval.time.units
+                                :
+                                SSTModel.interval.time.units
+                              }
+                      onChange = {(e) => {
+                        onChangeGlobalInterval(e, "units");
+                      }}
+                    >
+                      <option value = "" selected> Select </option>
+                      {SSTModel.timeUnits.map((unit) => {
+                        return (
+                          <option value = {unit.value}> {unit.displayName} </option>
+                        );
+                      })}
+                    </Form.Control>
+                  </InputGroup>
                 </Col>
-                <Col sm = {2} style = {{textAlign: "center"}}>
-                  <br/>
-                  <Button size = "sm" variant = "success"
+              </Row>
+              <Row style = {{marginBottom: "3%"}}>
+                <Col style = {{textAlign: "right"}}>
+                  <Button size = "sm" variant = "success" style = {{marginRight: "2%"}}
                     onClick = {() => {applyGlobalInterval()}}
                   >
                     Apply
                   </Button>
+                  <OverlayTrigger
+                    key = "apply-info"
+                    placement = "bottom"
+                    overlay = {
+                      <Tooltip id = "apply-info-tooltip">
+                        Enter the desired <strong> mile </strong> and/or <strong> time </strong> interval and click the 'Apply' button
+                        to apply it to the selected cars.
+                      </Tooltip>
+                    }
+                  >
+                    <Button size = "sm" variant = "light">
+                      🛈
+                    </Button>
+                  </OverlayTrigger>
                 </Col>
               </Row>
+              <hr style = {{border: "1px solid lightGray"}} />
               <Row style = {{marginBottom: "2%"}}>
                 <Col>
                   {getNumSelected() !== 0 ?
