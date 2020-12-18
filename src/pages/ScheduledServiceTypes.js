@@ -207,12 +207,10 @@ function ScheduledServiceTypes(props) {
                             <Row>
                               <Col>
                                 <Row style = {{marginBottom: "1%"}}>
-                                  <Col>
+                                  <Col md = {3}>
                                     <h5> {carLookup[key]} </h5>
                                   </Col>
-                                </Row>
-                                <Row>
-                                  <Col sm = {5} style = {{marginBottom: "1%"}}>
+                                  <Col md = {4} style = {{marginBottom: "1%"}}>
                                     <Form.Label> 💨 Mile Interval </Form.Label>
                                     <Form.Control
                                       size = "sm"
@@ -221,7 +219,7 @@ function ScheduledServiceTypes(props) {
                                       readOnly
                                     />
                                   </Col>
-                                  <Col sm = {7}>
+                                  <Col md = {5}>
                                     <Form.Label> 🕒 Time Interval </Form.Label>
                                       <Form.Control
                                         size = "sm"

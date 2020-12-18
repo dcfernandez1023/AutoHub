@@ -91,6 +91,7 @@ function App() {
               <AppNavbar />
               <CarInfo
                 {...props}
+                userInfo = {userInfo}
                 {...props}
               />
             </Container>

@@ -17,6 +17,8 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Figure from 'react-bootstrap/Figure';
 import { v4 as uuidv4 } from 'uuid';
 
+import CarModal from './CarModal.js';
+
 const DB = require('../controllers/db.js');
 const STORAGE = require('../controllers/storage.js');
 const CARMODEL = require('../models/car.js');
@@ -24,17 +26,12 @@ const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 
 function Home(props) {
 
-  const[cars, setCars] = useState(); //user's Cars
-  const[newCar, setNewCar] = useState({}); //state object for creating a new car
-  const[newCarImage, setNewCarImage] = useState(); //temp holder for newCar image upload
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
+  const[cars, setCars] = useState(); //user's Cars
   const[isListView, setIsListView] = useState(false); //flag to toggle the mode of displaying cars (list vs. grid)
-  const[isLoading, setIsLoading] = useState(false); //flag to toggle spinner
-  const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
 
   useEffect(() => {
     getCars();
-    setNewCar(CARMODEL.car);
   }, [props.userInfo])
 
   //CAR FUNCTIONS
@@ -53,96 +50,6 @@ function Home(props) {
     });
   }
 
-  //adds a car to the cars db collectionName
-  function addCar() {
-    if(props.userInfo === undefined) {
-      //TODO: handle this error more elegantly
-      alert("User data undefined. Cannot add new car");
-    }
-    setIsLoading(true);
-    var userCreated = props.userInfo.email;
-    var carId = GENERICFUNCTIONS.generateId();
-    newCar.userCreated = userCreated;
-    newCar.carId = carId;
-    if(newCarImage !== undefined) {
-      STORAGE.uploadFile(newCarImage, "images/"+props.userInfo.uid+"/"+newCarImage.name,
-        function(url) {
-          newCar.imageUrl = url;
-          DB.writeOne(carId, newCar, "cars",
-            function() {
-              handleCarModalClose();
-              setIsLoading(false);
-            },
-            function(error) {
-              //TODO: handle this error more elegantly
-              alert(error.toString());
-              setIsLoading(false);
-            }
-          );
-        }
-      );
-    }
-    else {
-      DB.writeOne(carId, newCar, "cars",
-        function() {
-          handleCarModalClose();
-          setIsLoading(false);
-        },
-        function(error) {
-          //TODO: handle this error more elegantly
-          alert(error.toString());
-          setIsLoading(false);
-        }
-      );
-    }
-  }
-
-  //function to handle car modal closing
-  function handleCarModalClose() {
-    setNewCar(CARMODEL.car);
-    setNewCarImage();
-    setShowCarModal(false);
-    setCarModalFormValidated(false);
-  }
-
-  //function to handle adding values to newCar
-  function onChangeNewCar(e) {
-    var newCarCopy = JSON.parse(JSON.stringify(newCar));
-    var name = [e.target.name][0];
-    var value = e.target.value;
-    newCarCopy[name] = value;
-    setNewCar(newCarCopy);
-    setCarModalFormValidated(false);
-  }
-
-  //handle submit for car modal form
-  function handleCarModalSubmit(e) {
-    const form = e.currentTarget;
-    setCarModalFormValidated(true);
-    if(checkNewCarFields() === false) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    else {
-      addCar();
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }
-
-  //check if required fields have been filled
-  function checkNewCarFields() {
-    var isValid = true;
-    for(var i = 0; i < CARMODEL.publicFields.length; i++) {
-      var field = CARMODEL.publicFields[i];
-      if(field.required && newCar[field.value].toString().trim().length === 0) {
-        newCar[field.value] = "";
-        isValid = false;
-      }
-    }
-    return isValid;
-  }
-
   if(cars === undefined) {
     return (
       <Container fluid>
@@ -154,127 +61,17 @@ function Home(props) {
   }
   return (
     <Container fluid>
-        {/*add car modal*/}
-        <Modal
-          show = {showCarModal}
-          onHide = {handleCarModalClose}
-          backdrop = "static"
-          keyboard = {false}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title> Add Car </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form noValidate validated = {carModalFormValidated} onSubmit = {handleCarModalSubmit}>
-              <Row style = {{marginLeft: "3%", marginRight: "3%"}}>
-                {CARMODEL.publicFields.map((field) => {
-                  if(field.inputType === "input") {
-                    return (
-                        <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
-                          <Form.Label> {field.displayName} </Form.Label>
-                          <Form.Control
-                            required = {field.required}
-                            as = {field.inputType}
-                            name = {field.value}
-                            value = {newCar[field.value]}
-                            onChange = {(e) => {
-                              onChangeNewCar(e);
-                            }}
-                          />
-                          <Form.Control.Feedback type = "invalid">
-                            Required
-                          </Form.Control.Feedback>
-                        </Col>
-                    );
-                  }
-                  else if(field.inputType === "select") {
-                    return (
-                        <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
-                          <Form.Label> {field.displayName} </Form.Label>
-                          <Form.Control
-                            required = {field.required}
-                            as = {field.inputType}
-                            name = {field.value}
-                            onChange = {(e) => {
-                              onChangeNewCar(e);
-                            }}
-                          >
-                            <option value = "" selected disabled hidden> Year </option>
-                              {field.modalSelectData.map((data) => {
-                                return (
-                                  <option value = {data}> {data} </option>
-                                );
-                              })}
-                          </Form.Control>
-                          <Form.Control.Feedback type = "invalid">
-                            Required
-                          </Form.Control.Feedback>
-                        </Col>
-                    );
-                  }
-                  else {
-                    return (
-                        <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
-                          <Form.Label> {field.displayName} </Form.Label>
-                          <Form.Control
-                            required = {field.required}
-                            as = {field.inputType}
-                            name = {field.value}
-                            value = {newCar[field.value]}
-                            onChange = {(e) => {
-                              onChangeNewCar(e);
-                            }}
-                          />
-                        </Col>
-                    );
-                  }
-                })}
-              </Row>
-              <Row>
-                <Col>
-                  <Form>
-                    <Form.Group>
-                      <Form.Label> Image </Form.Label>
-                      <Form.File
-                        id = "image"
-                        onChange = {(e) => {
-                          var newCarCopy = JSON.parse(JSON.stringify(newCar));
-                          var file = e.target.files[0];
-                          if(file) {
-                            var extension = file.name.split('.').pop();
-                            var imageId = uuidv4().toString() + GENERICFUNCTIONS.getRandomString();
-                            var fileType = file.type;
-                            newCarCopy.imageId = imageId;
-                            newCarCopy.imageType = fileType;
-                            var renamedFile = new File([file], imageId + "." + extension, {
-                              type: fileType
-                            });
-                            setNewCarImage(renamedFile);
-                            setNewCar(newCarCopy);
-                          }
-                          else {
-                            setNewCarImage();
-                            newCarCopy.imageId = "";
-                            setNewCar(newCarCopy);
-                          }
-                        }}
-                      />
-                    </Form.Group>
-                  </Form>
-                </Col>
-                <Col>
-                  <Button type = "submit" variant = "success" disabled = {isLoading} style = {{float: "right", marginTop: "10%"}}>
-                    Add
-                  </Button>
-                </Col>
-              </Row>
-            </Form>
-          </Modal.Body>
-        </Modal>
+      <CarModal
+        show = {showCarModal}
+        setShow = {setShowCarModal}
+        title = "Add Car"
+        car = {CARMODEL.car}
+        userInfo = {props.userInfo}
+      />
       <Row style = {{marginTop: "2%"}}>
         <Col lg = {7}>
           <Row>
-            <Col xs = {4}>
+            <Col xs = {6}>
               <Button variant = "outline-dark" style = {{float: "left", marginRight: "3%"}}
                 onClick = {() => {setShowCarModal(true)}}
               >
@@ -282,17 +79,10 @@ function Home(props) {
               </Button>
               <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
             </Col>
-            <Col xs = {4} style = {{textAlign: "center"}}>
-              {isLoading ?
-                <Spinner animation = "border"/>
-                :
-                <div></div>
-              }
-            </Col>
             {cars.length === 0 ?
               <div></div>
               :
-              <Col xs = {4} style = {{textAlign: "right"}}>
+              <Col xs = {6} style = {{textAlign: "right"}}>
                 <Button variant = "light" style = {{marginRight: "1%"}}
                   onClick = {() => {setIsListView(true)}}
                 >

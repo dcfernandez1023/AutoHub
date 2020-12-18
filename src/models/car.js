@@ -72,7 +72,7 @@ export const publicFields = [
     displayName: "License Plate #",
     type: "string",
     inputType: "input",
-    modalColSpan: 12,
+    modalColSpan: 6,
     modalSelectData: [],
     required: false
   },
@@ -81,7 +81,7 @@ export const publicFields = [
     displayName: "VIN #",
     type: "string",
     inputType: "input",
-    modalColSpan: 12,
+    modalColSpan: 6,
     modalSelectData: [],
     required: false
   },
