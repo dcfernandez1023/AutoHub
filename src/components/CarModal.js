@@ -17,8 +17,8 @@ function CarModal(props) {
 
   const[isLoading, setIsLoading] = useState(false); //flag to toggle spinner
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
-  const[newCar, setNewCar] = useState(); //state object for creating a new car
-  const[newCarImage, setNewCarImage] = useState(); //temp holder for newCar image upload
+  const[car, setNewCar] = useState(); //state object for creating a new car
+  const[carImage, setCarImage] = useState(); //temp holder for car image upload
   const[carModalFormValidated, setCarModalFormValidated] = useState(false); //flag to toggle form validation of the car modal
   const[title, setTitle] = useState("");
 
@@ -38,15 +38,26 @@ function CarModal(props) {
     }
     setIsLoading(true);
     var userCreated = props.userInfo.email;
-    if(newCar.carId.trim().length === 0) {
-      newCar.carId = GENERICFUNCTIONS.generateId();
+    if(car.carId.trim().length === 0) {
+      car.carId = GENERICFUNCTIONS.generateId();
     }
-    newCar.userCreated = userCreated;
-    if(newCarImage !== undefined) {
-      STORAGE.uploadFile(newCarImage, "images/"+props.userInfo.uid+"/"+newCarImage.name,
+    car.userCreated = userCreated;
+    if(carImage !== undefined) {
+      var extension = carImage.name.split('.').pop();
+      var imageId = GENERICFUNCTIONS.generateId();
+      var fileType = carImage.type;
+      var prevImageUrl = "";
+      if(car.imageUrl.trim().length !== 0) {
+        prevImageUrl = car.imageUrl;
+      }
+      car.imageId = imageId;
+      var renamedFile = new File([carImage], imageId + "." + extension, {
+        type: fileType
+      });
+      STORAGE.uploadFile(renamedFile, "images/"+props.userInfo.uid+"/"+carImage.name, prevImageUrl,
         function(url) {
-          newCar.imageUrl = url;
-          DB.writeOne(newCar.carId, newCar, "cars",
+          car.imageUrl = url;
+          DB.writeOne(car.carId, car, "cars",
             function() {
               handleCarModalClose();
               setIsLoading(false);
@@ -61,7 +72,7 @@ function CarModal(props) {
       );
     }
     else {
-      DB.writeOne(newCar.carId, newCar, "cars",
+      DB.writeOne(car.carId, car, "cars",
         function() {
           handleCarModalClose();
           setIsLoading(false);
@@ -79,18 +90,18 @@ function CarModal(props) {
   function handleCarModalClose() {
     props.setShow(false);
     setNewCar(CARMODEL.car);
-    setNewCarImage();
+    setCarImage();
     setShowCarModal(false);
     setCarModalFormValidated(false);
   }
 
-  //function to handle adding values to newCar
+  //function to handle adding values to car
   function onChangeNewCar(e) {
-    var newCarCopy = JSON.parse(JSON.stringify(newCar));
+    var carCopy = JSON.parse(JSON.stringify(car));
     var name = [e.target.name][0];
     var value = e.target.value;
-    newCarCopy[name] = value;
-    setNewCar(newCarCopy);
+    carCopy[name] = value;
+    setNewCar(carCopy);
     setCarModalFormValidated(false);
   }
 
@@ -114,15 +125,15 @@ function CarModal(props) {
     var isValid = true;
     for(var i = 0; i < CARMODEL.publicFields.length; i++) {
       var field = CARMODEL.publicFields[i];
-      if(field.required && newCar[field.value].toString().trim().length === 0) {
-        newCar[field.value] = "";
+      if(field.required && car[field.value].toString().trim().length === 0) {
+        car[field.value] = "";
         isValid = false;
       }
     }
     return isValid;
   }
 
-  if(newCar === undefined) {
+  if(car === undefined) {
     return <div></div>;
   }
 
@@ -148,7 +159,7 @@ function CarModal(props) {
                         required = {field.required}
                         as = {field.inputType}
                         name = {field.value}
-                        value = {newCar[field.value]}
+                        value = {car[field.value]}
                         onChange = {(e) => {
                           onChangeNewCar(e);
                         }}
@@ -160,7 +171,7 @@ function CarModal(props) {
                 );
               }
               else if(field.inputType === "select") {
-                console.log(newCar);
+                console.log(car);
                 return (
                     <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
                       <Form.Label> {field.displayName} </Form.Label>
@@ -172,13 +183,13 @@ function CarModal(props) {
                           onChangeNewCar(e);
                         }}
                       >
-                        {newCar.year.trim().length === 0 ?
+                        {car.year.trim().length === 0 ?
                           <option value = "" selected disabled hidden> Select </option>
                           :
                           <div></div>
                         }
                         {field.modalSelectData.map((data) => {
-                          if(data === Number(newCar.year)) {
+                          if(data === Number(car.year)) {
                             return (
                               <option value = {data} selected> {data} </option>
                             )
@@ -202,7 +213,7 @@ function CarModal(props) {
                         required = {field.required}
                         as = {field.inputType}
                         name = {field.value}
-                        value = {newCar[field.value]}
+                        value = {car[field.value]}
                         onChange = {(e) => {
                           onChangeNewCar(e);
                         }}
@@ -220,24 +231,16 @@ function CarModal(props) {
                   <Form.File
                     id = "image"
                     onChange = {(e) => {
-                      var newCarCopy = JSON.parse(JSON.stringify(newCar));
+                      var carCopy = JSON.parse(JSON.stringify(car));
                       var file = e.target.files[0];
                       if(file) {
-                        var extension = file.name.split('.').pop();
-                        var imageId = GENERICFUNCTIONS.generateId();
-                        var fileType = file.type;
-                        newCarCopy.imageId = imageId;
-                        newCarCopy.imageType = fileType;
-                        var renamedFile = new File([file], imageId + "." + extension, {
-                          type: fileType
-                        });
-                        setNewCarImage(renamedFile);
-                        setNewCar(newCarCopy);
+                        setCarImage(file);
+                        setNewCar(carCopy);
                       }
                       else {
-                        setNewCarImage();
-                        newCarCopy.imageId = "";
-                        setNewCar(newCarCopy);
+                        setCarImage();
+                        carCopy.imageId = "";
+                        setNewCar(carCopy);
                       }
                     }}
                   />

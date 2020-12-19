@@ -15,6 +15,7 @@ import Badge from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Figure from 'react-bootstrap/Figure';
+import Image from 'react-bootstrap/Image';
 import { v4 as uuidv4 } from 'uuid';
 
 import CarModal from './CarModal.js';
@@ -28,7 +29,7 @@ function HomeMobile(props) {
 
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
   const[cars, setCars] = useState(); //user's Cars
-  const[isListView, setIsListView] = useState(false); //flag to toggle the mode of displaying cars (list vs. grid)
+  const[isListView, setIsListView] = useState(true); //flag to toggle the mode of displaying cars (list vs. grid)
 
   useEffect(() => {
     getCars();
@@ -130,21 +131,9 @@ function HomeMobile(props) {
                         <Row>
                           <Col xs = {5}>
                             {car.imageId.toString().trim().length === 0 ?
-                              <Figure style = {{height: "50px", marginTop: "1%"}}>
-                                <Figure.Image
-                                  width = {100}
-                                  height = {100}
-                                  src = "car-holder.png"
-                                />
-                              </Figure>
+                              <Image src = "car-holder.png" style = {{width: "100%", height: "100px"}} />
                               :
-                              <Figure style = {{height: "50px", marginTop: "1%"}}>
-                                <Figure.Image
-                                  width = {100}
-                                  height = {100}
-                                  src = {car.imageUrl}
-                                />
-                              </Figure>
+                              <Image src = {car.imageUrl} style = {{width: "100%", height: "100px"}} />
                             }
                           </Col>
                           <Col xs = {7} style = {{float: "right"}}>
@@ -180,9 +169,9 @@ function HomeMobile(props) {
                     >
                       <Card border = "dark">
                         {car.imageId.toString().trim().length === 0 ?
-                          <Card.Img id = {car.carId} variant = "top" src = "car-holder.png"/>
+                          <Card.Img style = {{width: "100%", height: "175px"}}id = {car.carId} variant = "top" src = "car-holder.png" />
                           :
-                          <Card.Img id = {car.carId} variant = "top" src = {car.imageUrl}/>
+                          <Card.Img style = {{width: "100%", height: "175px"}} id = {car.carId} variant = "top" src = {car.imageUrl}/>
                         }
                         <Card.Body>
                           <Row>

@@ -7,18 +7,23 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 import Image from 'react-bootstrap/Image';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 import CarModal from '../components/CarModal.js';
 
 const DB = require('../controllers/db.js');
 const CARMODEL = require('../models/car.js');
+const STORAGE = require('../controllers/storage.js');
 
 function CarInfo(props) {
 
   const[car, setCar] = useState();
   const[show, setShow] = useState(false);
+  const[deleteShow, setDeleteShow] = useState(false);
 
   useEffect(() => {
     getCar(props.match.params.carId);
@@ -29,13 +34,46 @@ function CarInfo(props) {
       return;
     }
     DB.getQuerey("carId", carId, "cars").onSnapshot(quereySnapshot => {
-      if(quereySnapshot.docs.length > 1) {
+      if(quereySnapshot.docs.length > 1 || quereySnapshot.docs[0] === undefined) {
         alert("Internal error. Could not find car in database.");
       }
       else {
         setCar(quereySnapshot.docs[0].data());
       }
     });
+  }
+
+  function resetCarImageFields() {
+    var copy = JSON.parse(JSON.stringify(car));
+    copy.imageId = "";
+    copy.imageUrl = "";
+    DB.writeOne(copy.carId, copy, "cars",
+      function(data) {
+        setCar(data);
+        setDeleteShow(false);
+      },
+      function(error) {
+        alert(error);
+        setDeleteShow(false);
+      }
+    );
+  }
+
+  function deleteCarImage() {
+    if(car === undefined) {
+      alert("Internal error. Could not delete car image");
+      return;
+    }
+    STORAGE.deleteFile(car.imageUrl,
+      function() {
+        setDeleteShow(false);
+        resetCarImageFields();
+      },
+      function(error) {
+        alert(error);
+        setDeleteShow(false);
+      }
+    );
   }
 
   if(car === undefined) {
@@ -57,32 +95,62 @@ function CarInfo(props) {
         car = {car}
         userInfo = {props.userInfo}
       />
+      <Modal
+        show = {deleteShow}
+        onHide = {() => {setDeleteShow(false)}}
+        backdrop = "static"
+        keyboard = {false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title> Delete Car Image </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row>
+            <Col lg = {6} style = {{marginBottom: "5%"}}>
+              Are you sure you want to delete this image?
+            </Col>
+            <Col lg = {6} style = {{textAlign: "center"}}>
+              <Image src = {car.imageUrl} style = {{width: "175px", height: "175px"}} />
+            </Col>
+          </Row>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            onClick = {() => {deleteCarImage()}}
+          >
+            Yes
+          </Button>
+          <Button variant = "secondary"
+            onClick = {() => {setDeleteShow(false)}}
+          >
+            No
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <br/>
       <Row>
         <Col>
           <Tabs defaultActiveKey = "info" id = {car.carId}>
             <Tab eventKey = "info" title = "Info">
               <br/>
-              <Row style = {{marginLeft: "2%"}}>
+              <Row>
                 <Col md = {6}>
                   <Row>
                     <Col>
                       <Row>
                         <Col style = {{textAlign: "right"}}>
-                          <Button variant = "outline-dark"
-                            size = "sm"
-                            onClick = {() => {setShow(true)}}
-                          >
-                            ✏️
-                          </Button>
+                          <DropdownButton variant = "outline-dark">
+                            <Dropdown.Item onClick = {() => {setShow(true)}}> Edit </Dropdown.Item>
+                            <Dropdown.Item disabled = {car.imageUrl.trim().length === 0} onClick = {() => {setDeleteShow(true)}}> Delete Image </Dropdown.Item>
+                          </DropdownButton>
                         </Col>
                       </Row>
                       <Row>
                         <Col md = {12}>
                           <Row>
-                            <Col xl = {4} style = {{marginBottom: "3%"}}>
+                            <Col xl = {4} style = {{marginBottom: "2%", textAlign: "center"}}>
                               {car.imageUrl.trim().length === 0 ?
-                                <Image src = "car-holder.png" style = {{width: "175px", height: "175px"}} />
+                                <Image src = "/noImage.png" style = {{width: "175px", height: "175px"}} />
                                 :
                                 <Image src = {car.imageUrl} style = {{width: "175px", height: "175px"}} />
                               }

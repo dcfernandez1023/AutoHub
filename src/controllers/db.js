@@ -5,7 +5,7 @@ const DBFS = firebaseApp.app.firestore();
 export function writeOne(id, data, collectionName, callback, callbackOnError) {
 	try {
 		DBFS.collection(collectionName).doc(id).set(data)
-			.then((res) => {callback(res, data)});
+			.then((res) => {callback(data)});
 	}
 	catch(error) {
 		callbackOnError(error);

@@ -14,7 +14,7 @@ import Modal from 'react-bootstrap/Modal';
 import Badge from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import ListGroup from 'react-bootstrap/ListGroup';
-import Figure from 'react-bootstrap/Figure';
+import Image from 'react-bootstrap/Image';
 import { v4 as uuidv4 } from 'uuid';
 
 import CarModal from './CarModal.js';
@@ -122,24 +122,14 @@ function Home(props) {
                         }}
                       >
                         <Row>
+                          <Col xs = {3}>
                             {car.imageId.toString().trim().length === 0 ?
-                              <Figure style = {{height: "50px", marginTop: "1%"}}>
-                                <Figure.Image
-                                  width = {100}
-                                  height = {100}
-                                  src = "car-holder.png"
-                                />
-                              </Figure>
+                              <Image src = "car-holder.png" style = {{width: "100%", height: "125px"}} />
                               :
-                              <Figure style = {{height: "50px", marginTop: "1%"}}>
-                                <Figure.Image
-                                  width = {100}
-                                  height = {100}
-                                  src = {car.imageUrl}
-                                />
-                              </Figure>
+                              <Image src = {car.imageUrl} style = {{width: "100%", height: "125px"}} />
                             }
-                          <Col>
+                          </Col>
+                          <Col xs = {9}>
                             <Row>
                               <Col>
                                 <p> <b> {car.name} </b> </p>
@@ -172,9 +162,9 @@ function Home(props) {
                     >
                       <Card border = "dark">
                         {car.imageId.toString().trim().length === 0 ?
-                          <Card.Img id = {car.carId} variant = "top" src = "car-holder.png"/>
+                          <Card.Img style = {{width: "100%", height: "125px"}}id = {car.carId} variant = "top" src = "car-holder.png" />
                           :
-                          <Card.Img id = {car.carId} variant = "top" src = {car.imageUrl}/>
+                          <Card.Img style = {{width: "100%", height: "125px"}} id = {car.carId} variant = "top" src = {car.imageUrl}/>
                         }
                         <Card.Body>
                           <Row>
