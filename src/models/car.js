@@ -5,6 +5,8 @@ export const car = {
   carId: "",
   imageId: "",
   imageUrl: "",
+  totalScheduledCost: {total: 0, partsCost: 0, laborCost: 0},
+  totalRepairCost: {total: 0, partsCost: 0, laborCost: 0},
   year: "",
   make: "",
   model: "",
@@ -87,6 +89,7 @@ export const publicFields = [
   },
   {
     value: "notes",
+    type: "string",
     displayName: "Notes",
     inputType: "textarea",
     modalColSpan: 12,

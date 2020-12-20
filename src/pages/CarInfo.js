@@ -14,6 +14,8 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import CarModal from '../components/CarModal.js';
+import ScheduledLog from '../components/ScheduledLog.js';
+import RepairLog from '../components/RepairLog.js';
 
 const DB = require('../controllers/db.js');
 const CARMODEL = require('../models/car.js');
@@ -22,12 +24,14 @@ const STORAGE = require('../controllers/storage.js');
 function CarInfo(props) {
 
   const[car, setCar] = useState();
+  const[ssts, setSsts] = useState();
   const[show, setShow] = useState(false);
   const[deleteShow, setDeleteShow] = useState(false);
 
   useEffect(() => {
     getCar(props.match.params.carId);
-  }, [props.match.params.carId])
+    getSsts();
+  }, [props.match.params.carId, props.userInfo])
 
   function getCar(carId) {
     if(carId === undefined || carId === null) {
@@ -40,6 +44,19 @@ function CarInfo(props) {
       else {
         setCar(quereySnapshot.docs[0].data());
       }
+    });
+  }
+
+  function getSsts() {
+    if(props.userInfo === undefined) {
+      return;
+    }
+    DB.getQuerey("userCreated", props.userInfo.email, "scheduledServiceTypes").onSnapshot(quereySnapshot => {
+      var ssts = [];
+      for(var i = 0; i < quereySnapshot.docs.length; i++) {
+        ssts.push(quereySnapshot.docs[i].data());
+      }
+      setSsts(ssts);
     });
   }
 
@@ -76,7 +93,7 @@ function CarInfo(props) {
     );
   }
 
-  if(car === undefined) {
+  if(car === undefined || ssts === undefined) {
     return (
       <Container>
         <div style = {{textAlign: "center", marginTop: "3%"}}>
@@ -161,7 +178,9 @@ function CarInfo(props) {
                                   <Form.Label> {CARMODEL.publicFields[0].displayName} </Form.Label>
                                   <Form.Control
                                     as = "input"
+                                    size = "sm"
                                     readOnly
+                                    style = {{backgroundColor: "#F4F6F6"}}
                                     value = {car[CARMODEL.publicFields[0].value]}
                                   />
                                 </Col>
@@ -171,7 +190,9 @@ function CarInfo(props) {
                                   <Form.Label> {CARMODEL.publicFields[1].displayName} </Form.Label>
                                   <Form.Control
                                     as = "input"
+                                    size = "sm"
                                     readOnly
+                                    style = {{backgroundColor: "#F4F6F6"}}
                                     value = {car[CARMODEL.publicFields[1].value]}
                                   />
                                 </Col>
@@ -190,7 +211,9 @@ function CarInfo(props) {
                               <Form.Label> {field.displayName} </Form.Label>
                               <Form.Control
                                 as = {field.inputType === "select" ? "input" : field.inputType}
+                                size = "sm"
                                 readOnly
+                                style = {{backgroundColor: "#F4F6F6"}}
                                 value = {car[field.value]}
                               />
                             </Col>
@@ -203,8 +226,18 @@ function CarInfo(props) {
               </Row>
             </Tab>
             <Tab eventKey = "scheduled-maintenance-log" title = "Scheduled Log">
+              <br/>
+              <ScheduledLog
+                userInfo = {props.userInfo}
+                ssts = {ssts}
+              />
             </Tab>
             <Tab eventKey = "repair-maintenance-log" title = "Repair Log">
+              <br/>
+              <RepairLog
+              />
+            </Tab>
+            <Tab eventKey = "analytics" title = "Analytics">
             </Tab>
           </Tabs>
         </Col>

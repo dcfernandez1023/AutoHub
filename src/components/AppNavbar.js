@@ -31,7 +31,7 @@ function AppNavbar() {
             </Tooltip>
           }
         >
-          <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
+          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
             onClick = {() => {
               window.location.pathname = "/scheduledServiceTypes";
             }}
@@ -48,7 +48,7 @@ function AppNavbar() {
             </Tooltip>
           }
         >
-          <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
             ✉️
           </Button>
         </OverlayTrigger>
@@ -61,7 +61,7 @@ function AppNavbar() {
             </Tooltip>
           }
         >
-          <Button size = "lg" variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
             👤
           </Button>
         </OverlayTrigger>
