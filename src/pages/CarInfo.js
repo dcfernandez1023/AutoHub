@@ -24,6 +24,7 @@ const STORAGE = require('../controllers/storage.js');
 function CarInfo(props) {
 
   const[car, setCar] = useState();
+  const[serviceLog, setServiceLog] = useState();
   const[ssts, setSsts] = useState();
   const[show, setShow] = useState(false);
   const[deleteShow, setDeleteShow] = useState(false);
@@ -31,6 +32,7 @@ function CarInfo(props) {
   useEffect(() => {
     getCar(props.match.params.carId);
     getSsts();
+    getServiceLog(props.match.params.carId);
   }, [props.match.params.carId, props.userInfo])
 
   function getCar(carId) {
@@ -43,6 +45,20 @@ function CarInfo(props) {
       }
       else {
         setCar(quereySnapshot.docs[0].data());
+      }
+    });
+  }
+
+  function getServiceLog(carId) {
+    if(carId === undefined || carId === null) {
+      return;
+    }
+    DB.getQuerey("carReferenceId", carId, "serviceLogs").onSnapshot(quereySnapshot => {
+      if(quereySnapshot.docs.length > 1 || quereySnapshot.docs[0] === undefined) {
+        alert("Internal error. Could not find car's service log in database.");
+      }
+      else {
+        setServiceLog(quereySnapshot.docs[0].data());
       }
     });
   }
@@ -93,7 +109,7 @@ function CarInfo(props) {
     );
   }
 
-  if(car === undefined || ssts === undefined) {
+  if(car === undefined || ssts === undefined || serviceLog === undefined) {
     return (
       <Container>
         <div style = {{textAlign: "center", marginTop: "3%"}}>
@@ -229,15 +245,17 @@ function CarInfo(props) {
               <br/>
               <ScheduledLog
                 userInfo = {props.userInfo}
+                serviceLog = {serviceLog}
                 ssts = {ssts}
               />
             </Tab>
             <Tab eventKey = "repair-maintenance-log" title = "Repair Log">
               <br/>
               <RepairLog
+                userInfo = {props.userInfo}
+                serviceLog = {serviceLog}
+                ssts = {ssts}
               />
-            </Tab>
-            <Tab eventKey = "analytics" title = "Analytics">
             </Tab>
           </Tabs>
         </Col>

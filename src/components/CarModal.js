@@ -9,6 +9,7 @@ import Modal from 'react-bootstrap/Modal';
 import { v4 as uuidv4 } from 'uuid';
 
 const DB = require('../controllers/db.js');
+const LOGMODEL = require('../models/serviceLog.js');
 const STORAGE = require('../controllers/storage.js');
 const CARMODEL = require('../models/car.js');
 const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
@@ -38,8 +39,10 @@ function CarModal(props) {
     }
     setIsLoading(true);
     var userCreated = props.userInfo.email;
+    var isNew = false;
     if(car.carId.trim().length === 0) {
       car.carId = GENERICFUNCTIONS.generateId();
+      isNew = true;
     }
     car.userCreated = userCreated;
     if(carImage !== undefined) {
@@ -59,8 +62,13 @@ function CarModal(props) {
           car.imageUrl = url;
           DB.writeOne(car.carId, car, "cars",
             function() {
-              handleCarModalClose();
-              setIsLoading(false);
+              if(isNew) {
+                saveNewServiceLog(car.carId);
+              }
+              else {
+                setIsLoading(false);
+                handleCarModalClose();
+              }
             },
             function(error) {
               //TODO: handle this error more elegantly
@@ -74,8 +82,13 @@ function CarModal(props) {
     else {
       DB.writeOne(car.carId, car, "cars",
         function() {
-          handleCarModalClose();
-          setIsLoading(false);
+          if(isNew) {
+            saveNewServiceLog(car.carId);
+          }
+          else {
+            setIsLoading(false);
+            handleCarModalClose();
+          }
         },
         function(error) {
           //TODO: handle this error more elegantly
@@ -84,6 +97,22 @@ function CarModal(props) {
         }
       );
     }
+  }
+
+  function saveNewServiceLog(carId) {
+    var serviceLog = JSON.parse(JSON.stringify(LOGMODEL.serviceLog));
+    serviceLog.userCreated = props.userInfo.email;
+    serviceLog.logId = GENERICFUNCTIONS.generateId();
+    serviceLog.carReferenceId = carId;
+    DB.writeOne(serviceLog.logId, serviceLog, "serviceLogs",
+      function() {
+        handleCarModalClose();
+        setIsLoading(false);
+      },
+      function(error) {
+        alert(error);
+        setIsLoading(false);
+      });
   }
 
   //function to handle car modal closing

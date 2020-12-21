@@ -24,16 +24,21 @@ function ScheduledLog(props) {
   const[services, setServices] = useState([]);
   const[isSaved, setIsSaved] = useState(true);
   const[cars, setCars] = useState();
+  const[servicesToDelete, setServicesToDelete] = useState([]);
   const[show, setShow] = useState(false);
 
   useEffect(() => {
     getCars();
-  }, [props.userInfo])
+    if(props.serviceLog !== undefined) {
+      setServices(props.serviceLog.scheduledLog);
+    }
+  }, [props.userInfo, props.serviceLog])
 
   function addRow() {
     var newRow = JSON.parse(JSON.stringify(SSMODEL.scheduledService));
     var arr = services.slice();
     newRow.serviceId = GENERICFUNCTIONS.generateId();
+    newRow.userCreated = props.userInfo.email;
     arr.push(newRow);
     setServices(arr);
     setIsSaved(false);
@@ -41,8 +46,12 @@ function ScheduledLog(props) {
 
   function deleteRow(index) {
     var arr = services.slice();
+    var deleteArr = servicesToDelete.slice();
+    var serviceTemp = JSON.parse(JSON.stringify(arr[index]));
     arr.splice(index, 1);
+    deleteArr.push(serviceTemp);
     setServices(arr);
+    setServicesToDelete(deleteArr);
     setIsSaved(false);
   }
 
@@ -70,6 +79,56 @@ function ScheduledLog(props) {
       setCars(cars);
     });
   }
+
+  function saveServiceLog() {
+    var serviceLog = JSON.parse(JSON.stringify(props.serviceLog));
+    serviceLog.scheduledLog = services;
+    DB.writeOne(props.serviceLog.logId, serviceLog, "serviceLogs",
+      function() {
+        setIsSaved(true);
+      },
+      function(error) {
+        alert(error);
+      }
+    );
+  }
+
+
+/*
+  function getServices() {
+    if(props.userInfo === undefined) {
+      return;
+    }
+    DB.getQuerey("userCreated", props.userInfo.email, "scheduledServices").onSnapshot(quereySnapshot => {
+      var services = [];
+      for(var i = 0; i < quereySnapshot.docs.length; i++) {
+        services.push(quereySnapshot.docs[i].data());
+      }
+      setServices(services);
+    });
+  }
+
+  function saveRows() {
+    DB.writeMany("serviceId", services, "scheduledServices")
+      .then((res) => {
+        if(servicesToDelete.length !== 0) {
+          DB.deleteMany("serviceId", servicesToDelete, "scheduledServices")
+            .then((res) => {
+              setIsSaved(true);
+            })
+            .catch((error) => {
+              alert(error);
+            });
+        }
+        else {
+          setIsSaved(true);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+  */
 
   return (
     <Container fluid>
@@ -129,7 +188,7 @@ function ScheduledLog(props) {
         </Col>
         <Col xs = {3} style = {{textAlign: "right"}}>
           <Button size = "sm" variant = "success" disabled = {isSaved}
-            onClick = {() => {setIsSaved(true)}}
+            onClick = {() => {saveServiceLog()}}
           >
             Save
           </Button>
