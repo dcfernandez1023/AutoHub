@@ -23,7 +23,7 @@ export const publicFields = [
     displayName: "Date Performed",
     type: "string",
     inputType: "input",
-    tableWidth: "100px",
+    tableWidth: "125px",
     containsPrepend: false,
     prependValue: ""
   },

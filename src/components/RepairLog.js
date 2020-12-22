@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import "react-datepicker/dist/react-datepicker.css";
+
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -10,6 +12,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { v4 as uuidv4 } from 'uuid';
+import DatePicker from "react-datepicker";
 
 import SSTModal from './SSTModal.js';
 
@@ -39,6 +42,7 @@ function RepairLog(props) {
     var arr = services.slice();
     newRow.serviceId = GENERICFUNCTIONS.generateId();
     newRow.userCreated = props.userInfo.email;
+    newRow.datePerformed = new Date();
     arr.push(newRow);
     setServices(arr);
     setIsSaved(false);
@@ -66,6 +70,15 @@ function RepairLog(props) {
     setIsSaved(false);
   }
 
+  function onChangeDate(date, index) {
+    var arr = services.slice();
+    var copy = JSON.parse(JSON.stringify(arr[index]));
+    copy.datePerformed = date;
+    arr[index] = copy;
+    setServices(arr);
+    setIsSaved(false);
+  }
+
   //gets all of the user's cars from db & sets a listener on the car collection with documents matching the user's email
   function getCars() {
     if(props.userInfo === undefined) {
@@ -81,8 +94,12 @@ function RepairLog(props) {
   }
 
   function saveServiceLog() {
+    var copy = services.slice();
+    for(var i = 0; i < copy.length; i++) {
+      copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
+    }
     var serviceLog = JSON.parse(JSON.stringify(props.serviceLog));
-    serviceLog.repairLog = services;
+    serviceLog.repairLog = copy;
     DB.writeOne(props.serviceLog.logId, serviceLog, "serviceLogs",
       function() {
         setIsSaved(true);
@@ -220,6 +237,17 @@ function RepairLog(props) {
                 </td>
                 {RSMODEL.publicFields.map((field) => {
                   if(field.inputType === "input") {
+                    if(field.value === "datePerformed") {
+                      return (
+                        <td style = {{minWidth: field.tableWidth}}>
+                          <DatePicker
+                            selected = {typeof(services[index].datePerformed) === "string" ? new Date(services[index].datePerformed) : services[index].datePerformed}
+                            onChange = {(date) => {onChangeDate(date, index)}}
+                            customInput = {<Form.Control as = "input" size = "sm"/>}
+                          />
+                        </td>
+                      );
+                    }
                     if(field.containsPrepend) {
                       return (
                         <td style = {{minWidth: field.tableWidth}}>

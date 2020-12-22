@@ -6,7 +6,7 @@ export const scheduledService = {
   serviceName: "",
   mileage: "",
   nextServiceDate: "",
-  nextServiceMileage: 0,
+  nextServiceMileage: "",
   partsCost: 0,
   laborCost: 0,
   totalCost: 0,
@@ -25,10 +25,11 @@ export const publicFields = [
     displayName: "Date Performed",
     type: "string",
     inputType: "input",
-    tableWidth: "100px",
+    tableWidth: "125px",
     containsPrepend: false,
     prependValue: "",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: false
   },
   {
     value: "serviceName",
@@ -38,7 +39,8 @@ export const publicFields = [
     tableWidth: "200px",
     containsPrepend: false,
     prependValue: "",
-    headerButtonValue: "+"
+    headerButtonValue: "+",
+    disabled: false
   },
   {
     value: "mileage",
@@ -48,7 +50,8 @@ export const publicFields = [
     tableWidth: "100px",
     containsPrepend: false,
     prependValue: "",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: false
   },
   {
     value: "nextServiceDate",
@@ -58,7 +61,8 @@ export const publicFields = [
     tableWidth: "125px",
     containsPrepend: false,
     prependValue: "",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: true
   },
   {
     value: "nextServiceMileage",
@@ -68,7 +72,8 @@ export const publicFields = [
     tableWidth: "125px",
     containsPrepend: false,
     prependValue: "",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: true
   },
   {
     value: "partsCost",
@@ -78,7 +83,8 @@ export const publicFields = [
     tableWidth: "125px",
     containsPrepend: true,
     prependValue: "$",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: false
   },
   {
     value: "laborCost",
@@ -88,7 +94,8 @@ export const publicFields = [
     tableWidth: "125px",
     containsPrepend: true,
     prependValue: "$",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: false
   },
   {
     value: "totalCost",
@@ -98,7 +105,8 @@ export const publicFields = [
     tableWidth: "125px",
     containsPrepend: true,
     prependValue: "$",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: false
   },
   {
     value: "notes",
@@ -108,6 +116,7 @@ export const publicFields = [
     tableWidth: "225px",
     containsPrepend: false,
     prependValue: "",
-    headerButtonValue: ""
+    headerButtonValue: "",
+    disabled: false
   }
 ]

@@ -58,7 +58,27 @@ function CarInfo(props) {
         alert("Internal error. Could not find car's service log in database.");
       }
       else {
-        setServiceLog(quereySnapshot.docs[0].data());
+        var serviceLog = quereySnapshot.docs[0].data();
+        if(serviceLog !== undefined) {
+          var len;
+          var repairLen = serviceLog.repairLog.length;
+          var scheduledLen = serviceLog.scheduledLog.length;
+          if(repairLen > scheduledLen) {
+            len = serviceLog.repairLog.length;
+          }
+          else {
+            len = serviceLog.scheduledLog.length;
+          }
+          for(var i = 0; i < len; i++) {
+            if(i < repairLen && repairLen !== 0) {
+              serviceLog.repairLog[i].datePerformed = new Date(serviceLog.repairLog[i].datePerformed);
+            }
+            if(i < scheduledLen && scheduledLen !== 0) {
+              serviceLog.scheduledLog[i].datePerformed = new Date(serviceLog.scheduledLog[i].datePerformed);
+            }
+          }
+        }
+        setServiceLog(serviceLog);
       }
     });
   }
