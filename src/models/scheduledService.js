@@ -4,13 +4,15 @@ export const scheduledService = {
   serviceType: "scheduled",
   datePerformed: "",
   serviceName: "",
-  mileage: "",
+  sstRefId: "",
+  mileage: 0,
   nextServiceDate: "",
   nextServiceMileage: "",
   partsCost: 0,
   laborCost: 0,
   totalCost: 0,
-  notes: ""
+  notes: "",
+  test: ""
 }
 
 export const privateFields = [

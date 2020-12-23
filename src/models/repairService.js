@@ -4,7 +4,7 @@ export const repairService = {
   serviceType: "repair",
   datePerformed: "",
   serviceName: "",
-  mileage: "",
+  mileage: 0,
   partsCost: 0,
   laborCost: 0,
   totalCost: 0,

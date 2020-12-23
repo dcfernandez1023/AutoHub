@@ -61,10 +61,30 @@ function ScheduledLog(props) {
 
   function onChangeCol(e, index) {
     var arr = services.slice();
-    var copy = JSON.parse(JSON.stringify(arr[index]));
+    //var copy = JSON.parse(JSON.stringify(arr[index]));
+    var copy = arr[index];
+    copy.datePerformed = new Date(copy.datePerformed);
     var name = [e.target.name][0];
     var value = e.target.value;
-    copy[name] = value;
+    if(name === "serviceName") {
+      if(value.length === 0) {
+        copy.sstRefId = value;
+        copy.serviceName = "";
+      }
+      else {
+        for(var i = 0; i < props.ssts.length; i++) {
+          if(props.ssts[i].typeId === value) {
+            copy.sstRefId = value;
+            copy.serviceName = props.ssts[i].serviceName;
+            break;
+          }
+        }
+      }
+    }
+    else {
+      copy[name] = value;
+    }
+    //copy[name] = value;
     arr[index] = copy;
     setServices(arr);
     setIsSaved(false);
@@ -72,7 +92,8 @@ function ScheduledLog(props) {
 
   function onChangeDate(date, index) {
     var arr = services.slice();
-    var copy = JSON.parse(JSON.stringify(arr[index]));
+    //var copy = JSON.parse(JSON.stringify(arr[index]));
+    var copy = arr[index];
     copy.datePerformed = date;
     arr[index] = copy;
     setServices(arr);
@@ -98,9 +119,13 @@ function ScheduledLog(props) {
     var copy = services.slice();
     console.log(copy);
     for(var i = 0; i < copy.length; i++) {
+      if(copy[i].datePerformed === null || copy[i].datePerformed === undefined) {
+        copy[i].datePerformed = new Date();
+      }
       copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
     }
     var serviceLog = JSON.parse(JSON.stringify(props.serviceLog));
+  //  var serviceLog = props.serviceLog;
     serviceLog.scheduledLog = copy;
     DB.writeOne(props.serviceLog.logId, serviceLog, "serviceLogs",
       function() {
@@ -112,6 +137,21 @@ function ScheduledLog(props) {
         alert(error);
       }
     );
+  }
+
+  function getNextServiceMileage(sstId, serviceIndex) {
+    for(var i = 0; i < props.ssts.length; i++) {
+      if(props.ssts[i].typeId === sstId) {
+        if(Object.keys(props.ssts[i].carsScheduled).length !== 0) {
+          return (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(services[serviceIndex].mileage));
+        }
+      }
+    }
+    return "None";
+  }
+
+  function getNextServiceDate(id) {
+      return;
   }
 
 
@@ -257,6 +297,19 @@ function ScheduledLog(props) {
                 </td>
                 {SSMODEL.publicFields.map((field) => {
                   if(field.inputType === "input") {
+                    if(field.value === "nextServiceMileage") {
+                      return (
+                        <td style = {{minWidth: field.tableWidth}}>
+                          <Form.Control
+                            size = "sm"
+                            as = {field.inputType}
+                            name = {field.value}
+                            value = {getNextServiceMileage(service.sstRefId, index)}
+                            disabled = {field.disabled}
+                          />
+                        </td>
+                      );
+                    }
                     if(field.value === "datePerformed") {
                       return (
                         <td style = {{minWidth: field.tableWidth}}>
@@ -307,14 +360,17 @@ function ScheduledLog(props) {
                           size = "sm"
                           as = {field.inputType}
                           name = {field.value}
-                          value = {services[index][field.value]}
-                          onChange = {(e) => {onChangeCol(e, index)}}
+                          value = {services[index].sstRefId}
+                          onChange = {(e) => {
+                            onChangeCol(e, index);
+                          }}
                           disabled = {field.disabled}
                         >
                           <option value = "" selected> Select </option>
-                          {props.ssts.map((sst, index) => {
+                          {props.ssts.map((sst, sstIndex) => {
+                            var strIndex = sstIndex.toString();
                             return (
-                              <option value = {sst.serviceName}> {sst.serviceName} </option>
+                              <option value = {sst.typeId}> {sst.serviceName} </option>
                             );
                           })}
                         </Form.Control>

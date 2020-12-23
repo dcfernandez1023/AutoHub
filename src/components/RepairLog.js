@@ -62,6 +62,8 @@ function RepairLog(props) {
   function onChangeCol(e, index) {
     var arr = services.slice();
     var copy = JSON.parse(JSON.stringify(arr[index]));
+    copy.datePerformed = new Date(copy.datePerformed);
+    var copy = arr[index];
     var name = [e.target.name][0];
     var value = e.target.value;
     copy[name] = value;
@@ -72,7 +74,8 @@ function RepairLog(props) {
 
   function onChangeDate(date, index) {
     var arr = services.slice();
-    var copy = JSON.parse(JSON.stringify(arr[index]));
+    //var copy = JSON.parse(JSON.stringify(arr[index]));
+    var copy = arr[index];
     copy.datePerformed = date;
     arr[index] = copy;
     setServices(arr);
@@ -96,6 +99,9 @@ function RepairLog(props) {
   function saveServiceLog() {
     var copy = services.slice();
     for(var i = 0; i < copy.length; i++) {
+      if(copy[i].datePerformed === null || copy[i].datePerformed === undefined) {
+        copy[i].datePerformed = new Date();
+      }
       copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
     }
     var serviceLog = JSON.parse(JSON.stringify(props.serviceLog));

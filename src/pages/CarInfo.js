@@ -267,6 +267,7 @@ function CarInfo(props) {
                 userInfo = {props.userInfo}
                 serviceLog = {serviceLog}
                 ssts = {ssts}
+                carId = {props.match.params.carId}
               />
             </Tab>
             <Tab eventKey = "repair-maintenance-log" title = "Repair Log">
