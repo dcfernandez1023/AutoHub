@@ -9,6 +9,28 @@ export function getYears(startYear) {
   return years;
 }
 
+//returns an incremented date Object
+/*
+  dateObj - the date the increment
+  timeUnits - time measurement (day, week, month, or year)
+  timeStep - quantity to increment by
+*/
+export function incrementDate(dateObj, timeUnits, timeStep) {
+  if(timeUnits === "day") {
+    dateObj.setDate(dateObj.getDate() + timeStep);
+  }
+  else if(timeUnits === "week") {
+    dateObj.setDate(dateObj.getDate() + (7*timeStep))
+  }
+  else if(timeUnits === "month") {
+    dateObj.setMonth(dateObj.getMonth() + timeStep);
+  }
+  else if(timeUnits === "year") {
+    dateObj.setFullYear(dateObj.getFullYear() + timeStep);
+  }
+  return dateObj;
+}
+
 export function imageToBase64(file, callback, callbackOnError) {
   var reader = new FileReader();
   reader.readAsDataURL(file);

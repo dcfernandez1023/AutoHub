@@ -142,7 +142,10 @@ function ScheduledLog(props) {
   function getNextServiceMileage(sstId, serviceIndex) {
     for(var i = 0; i < props.ssts.length; i++) {
       if(props.ssts[i].typeId === sstId) {
-        if(Object.keys(props.ssts[i].carsScheduled).length !== 0) {
+        if(Object.keys(props.ssts[i].carsScheduled).length !== 0 && Number(props.ssts[i].carsScheduled[props.carId].miles) !== 0) {
+          if(Number(services[serviceIndex].mileage) === 0) {
+            return (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(props.car.mileage));
+          }
           return (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(services[serviceIndex].mileage));
         }
       }
@@ -150,8 +153,18 @@ function ScheduledLog(props) {
     return "None";
   }
 
-  function getNextServiceDate(id) {
-      return;
+  function getNextServiceDate(sstId, serviceIndex) {
+    for(var i = 0; i < props.ssts.length; i++) {
+      if(props.ssts[i].typeId === sstId) {
+        if(Object.keys(props.ssts[i].carsScheduled).length !== 0 && Number(props.ssts[i].carsScheduled[props.carId].time.quantity !== 0)) {
+          var dateObj = new Date(services[serviceIndex].datePerformed);
+          var timeUnits = props.ssts[i].carsScheduled[props.carId].time.units;
+          var timeStep = Number(props.ssts[i].carsScheduled[props.carId].time.quantity);
+          return GENERICFUNCTIONS.incrementDate(dateObj,timeUnits, timeStep).toLocaleDateString();
+        }
+      }
+    }
+    return "None";
   }
 
 
@@ -305,6 +318,19 @@ function ScheduledLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {getNextServiceMileage(service.sstRefId, index)}
+                            disabled = {field.disabled}
+                          />
+                        </td>
+                      );
+                    }
+                    if(field.value === "nextServiceDate") {
+                      return (
+                        <td style = {{minWidth: field.tableWidth}}>
+                          <Form.Control
+                            size = "sm"
+                            as = {field.inputType}
+                            name = {field.value}
+                            value = {getNextServiceDate(service.sstRefId, index)}
                             disabled = {field.disabled}
                           />
                         </td>

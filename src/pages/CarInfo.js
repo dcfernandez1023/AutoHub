@@ -267,6 +267,7 @@ function CarInfo(props) {
                 userInfo = {props.userInfo}
                 serviceLog = {serviceLog}
                 ssts = {ssts}
+                car = {car}
                 carId = {props.match.params.carId}
               />
             </Tab>
