@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import DatePicker from "react-datepicker";
 
 import SSTModal from './SSTModal.js';
+import LogFilters from './LogFilters.js';
 
 const RSMODEL = require('../models/repairService.js');
 const LOGOPTIONS = require('../models/logOptions.js');
@@ -165,17 +166,8 @@ function RepairLog(props) {
       <Row>
         <Col xs = {6}>
           <DropdownButton variant = "dark" size = "sm" title = "Filter By">
-            {LOGOPTIONS.filterOptions.map((option, index) => {
-              return (
-                <div style = {{margin: "5%"}}>
-                  <Form.Check
-                    id = {option.value + index.toString()}
-                    type = "checkbox"
-                    label = {option.displayName}
-                  />
-                </div>
-              );
-            })}
+            <LogFilters
+            />
           </DropdownButton>
         </Col>
         <Col xs = {6} style = {{textAlign: "right"}}>
