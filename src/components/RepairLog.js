@@ -30,6 +30,7 @@ function RepairLog(props) {
   const[cars, setCars] = useState();
   const[servicesToDelete, setServicesToDelete] = useState([]);
   const[show, setShow] = useState(false);
+  const[filtered, setFiltered] = useState([]);
 
   useEffect(() => {
     getCars();

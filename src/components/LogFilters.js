@@ -8,12 +8,15 @@ import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 import ListGroup from 'react-bootstrap/ListGroup';
 
+const LOGMODEL = require('../models/logOptions.js');
+
 function LogFilters(props) {
 
-  const[selectedFilter, setSelectedFilter] = useState("");
+  const[selectedFilters, setSelectedFilters] = useState([]);
+  const[filterValues, setFilterValues] = useState(LOGMODEL.filterValues);
 
-  const[startDate, setStartDate] = useState();
-  const[endDate, setEndDate] = useState();
+  const[startDate, setStartDate] = useState(null);
+  const[endDate, setEndDate] = useState(null);
 
   const[startMileage, setStartMileage] = useState(0);
   const[endMileage, setEndMileage] = useState(0);
@@ -27,144 +30,207 @@ function LogFilters(props) {
     }
   }, [props.serviceNames]);
 
-  const FILTERS = [
-    {value: "date", displayName: "Date"},
-    {value: "mileage", displayName: "Mileage"},
-    {value: "serviceName", displayName: "Service Name"}
-  ];
-
-  function renderFilterOptions() {
-    if(selectedFilter.trim().length === 0) {
-      return <div></div>;
+  function isInDateRange(date) {
+    if(startDate === null || startDate === undefined || endDate === null || endDate === undefined) {
+      return false;
     }
-    if(selectedFilter === "date") {
-      return (
-        <Row>
-          <Col sm = {6}>
-            <DatePicker
-              selected = {startDate}
-              onChange = {(date) => {setStartDate(date)}}
-              customInput = {
-                <div>
-                  <Form.Label> Start Date </Form.Label>
-                  <Form.Control
-                    as = "input"
-                    size = "sm"
-                  />
-                </div>
-              }
-            />
-          </Col>
-          <Col sm = {6}>
-            <DatePicker
-              selected = {endDate}
-              onChange = {(date) => {setEndDate(date)}}
-              customInput = {
-                <div>
-                  <Form.Label> End Date </Form.Label>
-                  <Form.Control
-                    as = "input"
-                    size = "sm"
-                  />
-                </div>
-              }
-            />
-          </Col>
-        </Row>
-      );
+    var time = date.getTime();
+    if(startDate.getTime() <= time && time <= endDate.getTime()) {
+      return true;
     }
-    if(selectedFilter === "mileage") {
-      return (
-        <Row>
-          <Col sm = {6}>
-            <Form.Label> Start Mileage </Form.Label>
-            <Form.Control
-              as = "input"
-              size = "sm"
-              value = {startMileage}
-              onChange = {(e) => {
-                if(!isNaN(e.target.value)) {
-                  setStartMileage(e.target.value);
-                }
-              }}
-            />
-          </Col>
-          <Col sm = {6}>
-            <Form.Label> End Mileage </Form.Label>
-            <Form.Control
-              as = "input"
-              size = "sm"
-              value = {endMileage}
-              onChange = {(e) => {
-                if(!isNaN(e.target.value)) {
-                  setEndMileage(e.target.value);
-                }
-              }}
-            />
-          </Col>
-        </Row>
-      );
-    }
-    if(selectedFilter === "serviceName") {
-      return (
-        <Row>
-          <Col>
-            <Row>
-              <Col>
-                <Form.Control
-                  autoFocus
-                  placeholder = "Enter a service name"
-                  as = "input"
-                  size = "sm"
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                {names.map((name) => {
-                  return (
-                    <ListGroup flush>
-                      <ListGroup.Item> {name} </ListGroup.Item>
-                    </ListGroup>
-                  );
-                })}
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      );
-    }
+    return false;
   }
 
-  return (
-    <div style = {{margin: "3%"}}>
+  function isInMileageRange(mileage) {
+    if(startMileage === undefined || endMileage === undefined) {
+      return false;
+    }
+    if(startMileage <= mileage && mileage <= endMileage) {
+      return true;
+    }
+    return false;
+  }
+
+  function isSameServiceName(name) {
+    if(name.trim() === serviceName.trim()) {
+      return true;
+    }
+    return false;
+  }
+
+  //TODO: make this dynamic based off the model
+  function renderFilterOptions() {
+    return (
       <Row>
-        {FILTERS.map((filter, index) => {
-          return (
-            <Col sm = {12}>
+        <Col>
+          <Row style = {{marginBottom: "2%"}}>
+            <Col>
               <Form.Check
                 type = "checkbox"
-                checked = {selectedFilter === filter.value}
-                id = {index.toString() + filter.value}
-                label = {filter.displayName}
+                id = "date-filter"
+                label = "Date"
                 onChange = {() => {
-                  if(selectedFilter === filter.value) {
-                    setSelectedFilter("");
+                  var filters = selectedFilters.slice();
+                  if(filters.includes("date")) {
+                    filters.splice(filters.indexOf("date"), 1)
                   }
                   else {
-                    setSelectedFilter(filter.value);
+                    filters.push("date");
+                  }
+                  props.applyFilters(filters, filterValues);
+                  setSelectedFilters(filters);
+                }}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col sm = {6}>
+              <div> Start Date </div>
+              <DatePicker
+                selected = {typeof(filterValues.startDate) === "string" ? new Date(filterValues.startDate) : filterValues.startDate}
+                onChange = {(date) => {
+                  var values = JSON.parse(JSON.stringify(filterValues));
+                  values.startDate = date;
+                  setFilterValues(values);
+                }}
+                customInput = {
+                  <Form.Control
+                    as = "input"
+                    size = "sm"
+                  />
+                }
+              />
+            </Col>
+            <Col sm = {6}>
+              <div> End Date </div>
+              <DatePicker
+                selected = {typeof(filterValues.endDate) === "string" ? new Date(filterValues.endDate) : filterValues.endDate}
+                onChange = {(date) => {
+                  var values = JSON.parse(JSON.stringify(filterValues));
+                  values.endDate = date;
+                  setFilterValues(values);
+                }}
+                customInput = {
+                  <Form.Control
+                    as = "input"
+                    size = "sm"
+                  />
+                }
+              />
+            </Col>
+          </Row>
+          <hr style = {{border: "1px solid black"}} />
+          <Row style = {{marginBottom: "2%"}}>
+            <Col>
+              <Form.Check
+                type = "checkbox"
+                id = "mileage-filter"
+                label = "Mileage"
+                onChange = {() => {
+                  var filters = selectedFilters.slice();
+                  if(filters.includes("mileage")) {
+                    filters.splice(filters.indexOf("mileage"), 1)
+                  }
+                  else {
+                    filters.push("mileage");
+                  }
+                  props.applyFilters(filters, filterValues);
+                  setSelectedFilters(filters);
+                }}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col sm = {6}>
+              <div> Start Mileage </div>
+              <Form.Control
+                as = "input"
+                size = "sm"
+                value = {filterValues.startMileage}
+                onChange = {(e) => {
+                  if(!isNaN(e.target.value)) {
+                    var values = JSON.parse(JSON.stringify(filterValues));
+                    values.startMileage = e.target.value;
+                    setFilterValues(values);
                   }
                 }}
               />
             </Col>
-          );
-        })}
-      </Row>
-      <Row>
-        <Col>
-          <hr style = {{border: "1px solid lightGray"}} />
+            <Col sm = {6}>
+              <div> End Mileage </div>
+              <Form.Control
+                as = "input"
+                size = "sm"
+                value = {filterValues.endMileage}
+                onChange = {(e) => {
+                  if(!isNaN(e.target.value)) {
+                    var values = JSON.parse(JSON.stringify(filterValues));
+                    values.endMileage = e.target.value;
+                    setFilterValues(values);
+                  }
+                }}
+              />
+            </Col>
+          </Row>
+          <hr style = {{border: "1px solid black"}} />
+          <Row style = {{marginBottom: "2%"}}>
+            <Col>
+              <Form.Check
+                type = "checkbox"
+                id = "name-filter"
+                label = "Service Name"
+                onChange = {() => {
+                  var filters = selectedFilters.slice();
+                  if(filters.includes("serviceName")) {
+                    filters.splice(filters.indexOf("serviceName"), 1)
+                  }
+                  else {
+                    filters.push("serviceName");
+                  }
+                  props.applyFilters(filters, filterValues);
+                  setSelectedFilters(filters);
+                }}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Row>
+                <Col>
+                  <Form.Control
+                    placeholder = "Enter a service name"
+                    as = "input"
+                    size = "sm"
+                    name = "serviceName"
+                    value = {filterValues.serviceName}
+                    onChange = {(e) => {
+                      var values = JSON.parse(JSON.stringify(filterValues));
+                      values.serviceName = e.target.value;
+                      setFilterValues(values);
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  {names.map((name) => {
+                    return (
+                      <ListGroup flush>
+                        <ListGroup.Item> {name} </ListGroup.Item>
+                      </ListGroup>
+                    );
+                  })}
+                </Col>
+              </Row>
+            </Col>
+          </Row>
         </Col>
       </Row>
+    );
+  }
+
+  return (
+    <div style = {{margin: "2%"}}>
       <Row>
         <Col>
           {renderFilterOptions()}

@@ -18,7 +18,7 @@ import SSTModal from './SSTModal.js';
 import LogFilters from './LogFilters.js';
 
 const SSMODEL = require('../models/scheduledService.js');
-const LOGOPTIONS = require('../models/logOptions.js');
+const LOGMODEL = require('../models/logOptions.js');
 const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 const DB = require('../controllers/db.js');
 const SSTModel = require('../models/scheduledServiceType.js');
@@ -30,6 +30,7 @@ function ScheduledLog(props) {
   const[cars, setCars] = useState();
   const[servicesToDelete, setServicesToDelete] = useState([]);
   const[show, setShow] = useState(false);
+  const[filtered, setFiltered] = useState([]);
 
   useEffect(() => {
     getCars();
@@ -44,6 +45,7 @@ function ScheduledLog(props) {
     newRow.serviceId = GENERICFUNCTIONS.generateId();
     newRow.userCreated = props.userInfo.email;
     newRow.datePerformed = new Date();
+    newRow.mileage = props.car.mileage;
     arr.push(newRow);
     setServices(arr);
     setIsSaved(false);
@@ -168,6 +170,59 @@ function ScheduledLog(props) {
     return "None";
   }
 
+  //filters the services into another array based on the selected filters
+  //passed as props to LogFilters.js (the intended user of this function)
+  /*
+    filterNames - array of filters to apply (expecting "date", "mileage", and or "serviceName")
+    filterValues - JSON object of filter values (ex: {startDate: "12/26/20", endDate: "12/28/20"} )
+  */
+  function applyFilters(filterNames, filteredValues) {
+    var filtered = services.slice();
+    for(var i = 0; i < filterNames.length; i++) {
+      var filter = filterNames[i];
+      var option = LOGMODEL.filterOptions[filter];
+      var isValid = true;
+      //if option is range, then check if filter values for the range filter have been satisfied
+      //if values have been satisfied, then apply the filter
+      //if values have not been satisfied, then do not apply the filter
+      if(option !== undefined && option.filterType === "range") {
+        console.log("yoo");
+        if(filteredValues[option.rangeOptions[0].name] === LOGMODEL.filterValues[option.rangeOptions[0].name] || filteredValues[option.rangeOptions[1].name] === LOGMODEL.filterValues[option.rangeOptions[1].name]) {
+          console.log("nahh");
+          isValid = false;
+        }
+        if(isValid) {
+          if(filter === "date") {
+            filtered = filtered.filter(service =>
+              new Date(filteredValues[option.rangeOptions[0].name]).getTime() <= new Date(service.datePerformed).getTime() && new Date(service.datePerformed).getTime() <= new Date(filteredValues[option.rangeOptions[1].name]).getTime());
+          }
+          else {
+            console.log("hereee");
+            filtered = filtered.filter(service =>
+              Number(filteredValues[option.rangeOptions[0].name]) <= Number(service[filter]) && Number(service[filter]) <= Number(filteredValues[option.rangeOptions[1].name]));
+            for(var j = 0; j < services.length; j++) {
+              var service = services[i];
+              var test = (Number(filteredValues[option.rangeOptions[0].name]) <= Number(service[filter]) && Number(service[filter]) <= Number(filteredValues[option.rangeOptions[1].name]));
+              console.log(test);
+            }
+          }
+        }
+      }
+      //same as above, except for compare filter values
+      else if(option !== undefined && option.filterType === "compare") {
+        if(filteredValues[filter] === undefined || filteredValues[filter].trim().length === 0) {
+          isValid = false;
+        }
+        if(isValid) {
+          filtered = filtered.filter(service => filteredValues[filter] === service[filter]);
+        }
+      }
+      console.log(filtered);
+      setFiltered(filtered);
+    }
+
+  }
+
 
 /*
   function getServices() {
@@ -219,6 +274,7 @@ function ScheduledLog(props) {
         <Col xs = {6}>
           <DropdownButton variant = "dark" size = "sm" title = "Filter By">
             <LogFilters
+              applyFilters = {applyFilters}
             />
           </DropdownButton>
         </Col>
@@ -243,7 +299,7 @@ function ScheduledLog(props) {
                 size = "sm"
               >
                 <option value = "" selected> None </option>
-                {LOGOPTIONS.sortOptions.map((option) => {
+                {LOGMODEL.sortOptions.map((option) => {
                   return (
                     <option value = {option.value}> {option.displayName} </option>
                   );
@@ -264,7 +320,7 @@ function ScheduledLog(props) {
         </Col>
       </Row>
       <br/>
-      <Table responsive bordered>
+      <Table responsive>
         <thead>
           <tr>
             <th style = {{minWidth: "50px"}}> # </th>
@@ -289,117 +345,231 @@ function ScheduledLog(props) {
             })}
           </tr>
         </thead>
-        <tbody>
-          {services.map((service, index) => {
-            return (
-              <tr key = {service.serviceId}>
-                <td style = {{minWidth: "50px"}}>
-                  <Button size = "sm" variant = "outline-dark"
-                    onClick = {() => {deleteRow(index)}}
-                  >
-                    🗑️
-                  </Button>
-                </td>
-                {SSMODEL.publicFields.map((field) => {
-                  if(field.inputType === "input") {
-                    if(field.value === "nextServiceMileage") {
-                      return (
-                        <td style = {{minWidth: field.tableWidth}}>
-                          <Form.Control
-                            size = "sm"
-                            as = {field.inputType}
-                            name = {field.value}
-                            value = {getNextServiceMileage(service.sstRefId, index)}
-                            disabled = {field.disabled}
-                          />
-                        </td>
-                      );
-                    }
-                    if(field.value === "nextServiceDate") {
-                      return (
-                        <td style = {{minWidth: field.tableWidth}}>
-                          <Form.Control
-                            size = "sm"
-                            as = {field.inputType}
-                            name = {field.value}
-                            value = {getNextServiceDate(service.sstRefId, index)}
-                            disabled = {field.disabled}
-                          />
-                        </td>
-                      );
-                    }
-                    if(field.value === "datePerformed") {
-                      return (
-                        <td style = {{minWidth: field.tableWidth}}>
-                          <DatePicker
-                            selected = {typeof(services[index].datePerformed) === "string" ? new Date(services[index].datePerformed) : services[index].datePerformed}
-                            onChange = {(date) => {onChangeDate(date, index)}}
-                            customInput = {<Form.Control as = "input" size = "sm"/>}
-                          />
-                        </td>
-                      );
-                    }
-                    if(field.containsPrepend) {
-                      return (
-                        <td style = {{minWidth: field.tableWidth}}>
-                          <InputGroup size = "sm">
-                            <InputGroup.Prepend>
-                              <InputGroup.Text> {field.prependValue} </InputGroup.Text>
-                            </InputGroup.Prepend>
+        {filtered.length === 0 ?
+          <tbody>
+            {services.map((service, index) => {
+              return (
+                <tr key = {service.serviceId}>
+                  <td style = {{minWidth: "50px"}}>
+                    <Button size = "sm" variant = "outline-dark"
+                      onClick = {() => {deleteRow(index)}}
+                    >
+                      🗑️
+                    </Button>
+                  </td>
+                  {SSMODEL.publicFields.map((field) => {
+                    if(field.inputType === "input") {
+                      if(field.value === "nextServiceMileage") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
                             <Form.Control
                               size = "sm"
                               as = {field.inputType}
                               name = {field.value}
-                              value = {services[index][field.value]}
-                              onChange = {(e) => {onChangeCol(e, index)}}
+                              value = {getNextServiceMileage(service.sstRefId, index)}
                               disabled = {field.disabled}
                             />
-                          </InputGroup>
+                          </td>
+                        );
+                      }
+                      if(field.value === "nextServiceDate") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <Form.Control
+                              size = "sm"
+                              as = {field.inputType}
+                              name = {field.value}
+                              value = {getNextServiceDate(service.sstRefId, index)}
+                              disabled = {field.disabled}
+                            />
+                          </td>
+                        );
+                      }
+                      if(field.value === "datePerformed") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <DatePicker
+                              selected = {typeof(services[index].datePerformed) === "string" ? new Date(services[index].datePerformed) : services[index].datePerformed}
+                              onChange = {(date) => {onChangeDate(date, index)}}
+                              customInput = {<Form.Control as = "input" size = "sm"/>}
+                            />
+                          </td>
+                        );
+                      }
+                      if(field.containsPrepend) {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <InputGroup size = "sm">
+                              <InputGroup.Prepend>
+                                <InputGroup.Text> {field.prependValue} </InputGroup.Text>
+                              </InputGroup.Prepend>
+                              <Form.Control
+                                size = "sm"
+                                as = {field.inputType}
+                                name = {field.value}
+                                value = {services[index][field.value]}
+                                onChange = {(e) => {onChangeCol(e, index)}}
+                                disabled = {field.disabled}
+                              />
+                            </InputGroup>
+                          </td>
+                        );
+                      }
+                      return (
+                        <td style = {{minWidth: field.tableWidth}}>
+                          <Form.Control
+                            size = "sm"
+                            as = {field.inputType}
+                            name = {field.value}
+                            value = {services[index][field.value]}
+                            onChange = {(e) => {onChangeCol(e, index)}}
+                            disabled = {field.disabled}
+                          />
                         </td>
                       );
                     }
-                    return (
-                      <td style = {{minWidth: field.tableWidth}}>
-                        <Form.Control
-                          size = "sm"
-                          as = {field.inputType}
-                          name = {field.value}
-                          value = {services[index][field.value]}
-                          onChange = {(e) => {onChangeCol(e, index)}}
-                          disabled = {field.disabled}
-                        />
-                      </td>
-                    );
-                  }
-                  else if(field.inputType === "select") {
-                    return (
-                      <td style = {{minWidth: field.tableWidth}}>
-                        <Form.Control
-                          size = "sm"
-                          as = {field.inputType}
-                          name = {field.value}
-                          value = {services[index].sstRefId}
-                          onChange = {(e) => {
-                            onChangeCol(e, index);
-                          }}
-                          disabled = {field.disabled}
-                        >
-                          <option value = "" selected> Select </option>
-                          {props.ssts.map((sst, sstIndex) => {
-                            var strIndex = sstIndex.toString();
-                            return (
-                              <option value = {sst.typeId}> {sst.serviceName} </option>
-                            );
-                          })}
-                        </Form.Control>
-                      </td>
-                    );
-                  }
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
+                    else if(field.inputType === "select") {
+                      return (
+                        <td style = {{minWidth: field.tableWidth}}>
+                          <Form.Control
+                            size = "sm"
+                            as = {field.inputType}
+                            name = {field.value}
+                            value = {services[index].sstRefId}
+                            onChange = {(e) => {
+                              onChangeCol(e, index);
+                            }}
+                            disabled = {field.disabled}
+                          >
+                            <option value = "" selected> Select </option>
+                            {props.ssts.map((sst, sstIndex) => {
+                              var strIndex = sstIndex.toString();
+                              return (
+                                <option value = {sst.typeId}> {sst.serviceName} </option>
+                              );
+                            })}
+                          </Form.Control>
+                        </td>
+                      );
+                    }
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+          :
+          <tbody>
+            {filtered.map((service, index) => {
+              return (
+                <tr key = {service.serviceId}>
+                  <td style = {{minWidth: "50px"}}>
+                    <Button size = "sm" variant = "outline-dark"
+                      onClick = {() => {deleteRow(index)}}
+                    >
+                      🗑️
+                    </Button>
+                  </td>
+                  {SSMODEL.publicFields.map((field) => {
+                    if(field.inputType === "input") {
+                      if(field.value === "nextServiceMileage") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <Form.Control
+                              size = "sm"
+                              as = {field.inputType}
+                              name = {field.value}
+                              value = {getNextServiceMileage(service.sstRefId, index)}
+                              disabled = {field.disabled}
+                            />
+                          </td>
+                        );
+                      }
+                      if(field.value === "nextServiceDate") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <Form.Control
+                              size = "sm"
+                              as = {field.inputType}
+                              name = {field.value}
+                              value = {getNextServiceDate(service.sstRefId, index)}
+                              disabled = {field.disabled}
+                            />
+                          </td>
+                        );
+                      }
+                      if(field.value === "datePerformed") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <DatePicker
+                              selected = {typeof(services[index].datePerformed) === "string" ? new Date(services[index].datePerformed) : services[index].datePerformed}
+                              onChange = {(date) => {onChangeDate(date, index)}}
+                              customInput = {<Form.Control as = "input" size = "sm"/>}
+                            />
+                          </td>
+                        );
+                      }
+                      if(field.containsPrepend) {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <InputGroup size = "sm">
+                              <InputGroup.Prepend>
+                                <InputGroup.Text> {field.prependValue} </InputGroup.Text>
+                              </InputGroup.Prepend>
+                              <Form.Control
+                                size = "sm"
+                                as = {field.inputType}
+                                name = {field.value}
+                                value = {services[index][field.value]}
+                                onChange = {(e) => {onChangeCol(e, index)}}
+                                disabled = {field.disabled}
+                              />
+                            </InputGroup>
+                          </td>
+                        );
+                      }
+                      return (
+                        <td style = {{minWidth: field.tableWidth}}>
+                          <Form.Control
+                            size = "sm"
+                            as = {field.inputType}
+                            name = {field.value}
+                            value = {services[index][field.value]}
+                            onChange = {(e) => {onChangeCol(e, index)}}
+                            disabled = {field.disabled}
+                          />
+                        </td>
+                      );
+                    }
+                    else if(field.inputType === "select") {
+                      return (
+                        <td style = {{minWidth: field.tableWidth}}>
+                          <Form.Control
+                            size = "sm"
+                            as = {field.inputType}
+                            name = {field.value}
+                            value = {services[index].sstRefId}
+                            onChange = {(e) => {
+                              onChangeCol(e, index);
+                            }}
+                            disabled = {field.disabled}
+                          >
+                            <option value = "" selected> Select </option>
+                            {props.ssts.map((sst, sstIndex) => {
+                              var strIndex = sstIndex.toString();
+                              return (
+                                <option value = {sst.typeId}> {sst.serviceName} </option>
+                              );
+                            })}
+                          </Form.Control>
+                        </td>
+                      );
+                    }
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        }
       </Table>
       {services.length === 0 ?
         <div>
