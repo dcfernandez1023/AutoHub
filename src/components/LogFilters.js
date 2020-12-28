@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 import ListGroup from 'react-bootstrap/ListGroup';
+import Button from 'react-bootstrap/Button';
 
 const LOGMODEL = require('../models/logOptions.js');
 
@@ -77,7 +78,6 @@ function LogFilters(props) {
                   else {
                     filters.push("date");
                   }
-                  props.applyFilters(filters, filterValues);
                   setSelectedFilters(filters);
                 }}
               />
@@ -134,7 +134,6 @@ function LogFilters(props) {
                   else {
                     filters.push("mileage");
                   }
-                  props.applyFilters(filters, filterValues);
                   setSelectedFilters(filters);
                 }}
               />
@@ -187,7 +186,6 @@ function LogFilters(props) {
                   else {
                     filters.push("serviceName");
                   }
-                  props.applyFilters(filters, filterValues);
                   setSelectedFilters(filters);
                 }}
               />
@@ -222,6 +220,18 @@ function LogFilters(props) {
                   })}
                 </Col>
               </Row>
+            </Col>
+          </Row>
+          <hr style = {{border: "1px solid black"}}/>
+          <Row>
+            <Col style = {{textAlign: "right"}}>
+              <Button variant = "success" size = "sm"
+                onClick = {() => {
+                  props.applyFilters(selectedFilters, filterValues);
+                }}
+              >
+                Apply
+              </Button>
             </Col>
           </Row>
         </Col>
