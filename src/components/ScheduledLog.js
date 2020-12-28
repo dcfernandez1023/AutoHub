@@ -200,11 +200,6 @@ function ScheduledLog(props) {
             console.log("hereee");
             filtered = filtered.filter(service =>
               Number(filteredValues[option.rangeOptions[0].name]) <= Number(service[filter]) && Number(service[filter]) <= Number(filteredValues[option.rangeOptions[1].name]));
-            for(var j = 0; j < services.length; j++) {
-              var service = services[i];
-              var test = (Number(filteredValues[option.rangeOptions[0].name]) <= Number(service[filter]) && Number(service[filter]) <= Number(filteredValues[option.rangeOptions[1].name]));
-              console.log(test);
-            }
           }
         }
       }
@@ -220,45 +215,16 @@ function ScheduledLog(props) {
       console.log(filtered);
       setFiltered(filtered);
     }
-
   }
 
-
-/*
-  function getServices() {
-    if(props.userInfo === undefined) {
-      return;
-    }
-    DB.getQuerey("userCreated", props.userInfo.email, "scheduledServices").onSnapshot(quereySnapshot => {
-      var services = [];
-      for(var i = 0; i < quereySnapshot.docs.length; i++) {
-        services.push(quereySnapshot.docs[i].data());
+  function isInFiltered(id) {
+    for(var i = 0; i < filtered.length; i++) {
+      if(id === filtered[i].serviceId) {
+        return true;
       }
-      setServices(services);
-    });
+    }
+    return false;
   }
-
-  function saveRows() {
-    DB.writeMany("serviceId", services, "scheduledServices")
-      .then((res) => {
-        if(servicesToDelete.length !== 0) {
-          DB.deleteMany("serviceId", servicesToDelete, "scheduledServices")
-            .then((res) => {
-              setIsSaved(true);
-            })
-            .catch((error) => {
-              alert(error);
-            });
-        }
-        else {
-          setIsSaved(true);
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
-  }
-  */
 
   return (
     <Container fluid>
@@ -459,7 +425,10 @@ function ScheduledLog(props) {
           </tbody>
           :
           <tbody>
-            {filtered.map((service, index) => {
+            {services.map((service, index) => {
+              if(!isInFiltered(service.serviceId)) {
+                return null;
+              }
               return (
                 <tr key = {service.serviceId}>
                   <td style = {{minWidth: "50px"}}>
