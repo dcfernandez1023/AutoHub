@@ -13,6 +13,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { v4 as uuidv4 } from 'uuid';
 import DatePicker from "react-datepicker";
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
 
 import SSTModal from './SSTModal.js';
 import LogFilters from './LogFilters.js';
@@ -28,9 +30,10 @@ function ScheduledLog(props) {
   const[services, setServices] = useState([]);
   const[isSaved, setIsSaved] = useState(true);
   const[cars, setCars] = useState();
-  const[servicesToDelete, setServicesToDelete] = useState([]);
   const[show, setShow] = useState(false);
   const[filtered, setFiltered] = useState([]);
+  const[isFiltering, setIsFiltering] = useState(false);
+  const[sortToggleValue, setSortToggleValue] = useState("");
 
   useEffect(() => {
     getCars();
@@ -53,18 +56,13 @@ function ScheduledLog(props) {
 
   function deleteRow(index) {
     var arr = services.slice();
-    var deleteArr = servicesToDelete.slice();
-    var serviceTemp = JSON.parse(JSON.stringify(arr[index]));
     arr.splice(index, 1);
-    deleteArr.push(serviceTemp);
     setServices(arr);
-    setServicesToDelete(deleteArr);
     setIsSaved(false);
   }
 
   function onChangeCol(e, index) {
     var arr = services.slice();
-    //var copy = JSON.parse(JSON.stringify(arr[index]));
     var copy = arr[index];
     copy.datePerformed = new Date(copy.datePerformed);
     var name = [e.target.name][0];
@@ -118,9 +116,7 @@ function ScheduledLog(props) {
   }
 
   function saveServiceLog() {
-    console.log(services);
     var copy = services.slice();
-    console.log(copy);
     for(var i = 0; i < copy.length; i++) {
       if(copy[i].datePerformed === null || copy[i].datePerformed === undefined) {
         copy[i].datePerformed = new Date();
@@ -186,9 +182,7 @@ function ScheduledLog(props) {
       //if values have been satisfied, then apply the filter
       //if values have not been satisfied, then do not apply the filter
       if(option !== undefined && option.filterType === "range") {
-        console.log("yoo");
         if(filteredValues[option.rangeOptions[0].name] === LOGMODEL.filterValues[option.rangeOptions[0].name] || filteredValues[option.rangeOptions[1].name] === LOGMODEL.filterValues[option.rangeOptions[1].name]) {
-          console.log("nahh");
           isValid = false;
         }
         if(isValid) {
@@ -197,7 +191,6 @@ function ScheduledLog(props) {
               new Date(filteredValues[option.rangeOptions[0].name]).getTime() <= new Date(service.datePerformed).getTime() && new Date(service.datePerformed).getTime() <= new Date(filteredValues[option.rangeOptions[1].name]).getTime());
           }
           else {
-            console.log("hereee");
             filtered = filtered.filter(service =>
               Number(filteredValues[option.rangeOptions[0].name]) <= Number(service[filter]) && Number(service[filter]) <= Number(filteredValues[option.rangeOptions[1].name]));
           }
@@ -212,7 +205,6 @@ function ScheduledLog(props) {
           filtered = filtered.filter(service => filteredValues[filter] === service[filter]);
         }
       }
-      console.log(filtered);
       setFiltered(filtered);
     }
   }
@@ -224,6 +216,10 @@ function ScheduledLog(props) {
       }
     }
     return false;
+  }
+
+  function toggleFiltering(filters) {
+    setIsFiltering(filters.length !== 0);
   }
 
   return (
@@ -241,6 +237,7 @@ function ScheduledLog(props) {
           <DropdownButton variant = "dark" size = "sm" title = "Filter By">
             <LogFilters
               applyFilters = {applyFilters}
+              toggleFiltering = {toggleFiltering}
             />
           </DropdownButton>
         </Col>
@@ -254,12 +251,12 @@ function ScheduledLog(props) {
       </Row>
       <br style = {{height: "50%"}}/>
       <Row>
-        <Col xs = {9}>
+        <Col xs = {8}>
           <InputGroup size = "sm">
             <InputGroup.Prepend size = "sm">
-              <InputGroup.Text> Sort By: </InputGroup.Text>
+              <InputGroup.Text> Sort By </InputGroup.Text>
             </InputGroup.Prepend>
-            <div>
+            <div style = {{marginRight: "1%"}}>
               <Form.Control
                 as = "select"
                 size = "sm"
@@ -272,12 +269,50 @@ function ScheduledLog(props) {
                 })}
               </Form.Control>
             </div>
+            <ButtonGroup toggle size = "sm"
+            >
+              <ToggleButton
+                variant = "light"
+                value = "ascending"
+                type = "checkbox"
+                name = "checkbox"
+                value = {sortToggleValue}
+                checked = {sortToggleValue === "ascending"}
+                onChange = {() => {
+                  if(sortToggleValue === "ascending") {
+                    setSortToggleValue("");
+                  }
+                  else {
+                    setSortToggleValue("ascending");
+                  }
+                }}
+              >
+                ⬆️
+              </ToggleButton>
+              <ToggleButton
+                variant = "light"
+                value = "descending"
+                type = "checkbox"
+                name = "checkbox"
+                value = {sortToggleValue}
+                checked = {sortToggleValue === "descending"}
+                onChange = {() => {
+                  if(sortToggleValue === "descending") {
+                    setSortToggleValue("");
+                  }
+                  else {
+                    setSortToggleValue("descending");
+                  }
+                }}
+              >
+                ⬇️
+              </ToggleButton>
+            </ButtonGroup>
           </InputGroup>
         </Col>
-        <Col xs = {3} style = {{textAlign: "right"}}>
+        <Col xs = {4} style = {{textAlign: "right"}}>
           <Button size = "sm" variant = "success" disabled = {isSaved}
             onClick = {() => {
-              console.log(services);
               saveServiceLog();
             }}
           >
@@ -311,7 +346,7 @@ function ScheduledLog(props) {
             })}
           </tr>
         </thead>
-        {filtered.length === 0 ?
+        {!isFiltering ?
           <tbody>
             {services.map((service, index) => {
               return (

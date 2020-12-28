@@ -65,34 +65,30 @@ function LogFilters(props) {
       <Row>
         <Col>
           <Row style = {{marginBottom: "2%"}}>
-            <Col>
-              <Form.Check
-                type = "checkbox"
-                id = "date-filter"
-                label = "Date"
-                onChange = {() => {
+            <Col style = {{textAlign: "left"}}>
+              <div> <strong> Date </strong> </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col sm = {6}>
+              <DatePicker
+                placeholderText = "Start"
+                selected = {typeof(filterValues.startDate) === "string" ? new Date(filterValues.startDate) : filterValues.startDate}
+                onChange = {(date) => {
+                  var values = JSON.parse(JSON.stringify(filterValues));
                   var filters = selectedFilters.slice();
-                  if(filters.includes("date")) {
-                    filters.splice(filters.indexOf("date"), 1)
+                  values.startDate = date;
+                  setFilterValues(values);
+                  if(values.startDate === null && values.endDate === null) {
+                    if(filters.includes("date")) {
+                      filters.splice(filters.indexOf("date"), 1);
+                    }
                   }
-                  else {
+                  else if(!filters.includes("date")) {
                     filters.push("date");
                   }
                   setSelectedFilters(filters);
                 }}
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col sm = {6}>
-              <div> Start Date </div>
-              <DatePicker
-                selected = {typeof(filterValues.startDate) === "string" ? new Date(filterValues.startDate) : filterValues.startDate}
-                onChange = {(date) => {
-                  var values = JSON.parse(JSON.stringify(filterValues));
-                  values.startDate = date;
-                  setFilterValues(values);
-                }}
                 customInput = {
                   <Form.Control
                     as = "input"
@@ -102,13 +98,23 @@ function LogFilters(props) {
               />
             </Col>
             <Col sm = {6}>
-              <div> End Date </div>
               <DatePicker
+                placeholderText = "End"
                 selected = {typeof(filterValues.endDate) === "string" ? new Date(filterValues.endDate) : filterValues.endDate}
                 onChange = {(date) => {
                   var values = JSON.parse(JSON.stringify(filterValues));
+                  var filters = selectedFilters.slice();
                   values.endDate = date;
                   setFilterValues(values);
+                  if(values.startDate === null && values.endDate === null) {
+                    if(filters.includes("date")) {
+                      filters.splice(filters.indexOf("date"), 1);
+                    }
+                  }
+                  else if(!filters.includes("date")) {
+                    filters.push("date");
+                  }
+                  setSelectedFilters(filters);
                 }}
                 customInput = {
                   <Form.Control
@@ -119,96 +125,99 @@ function LogFilters(props) {
               />
             </Col>
           </Row>
-          <hr style = {{border: "1px solid black"}} />
+          <br style = {{height: "50%"}} />
           <Row style = {{marginBottom: "2%"}}>
-            <Col>
-              <Form.Check
-                type = "checkbox"
-                id = "mileage-filter"
-                label = "Mileage"
-                onChange = {() => {
-                  var filters = selectedFilters.slice();
-                  if(filters.includes("mileage")) {
-                    filters.splice(filters.indexOf("mileage"), 1)
-                  }
-                  else {
-                    filters.push("mileage");
-                  }
-                  setSelectedFilters(filters);
-                }}
-              />
+            <Col style = {{textAlign: "left"}}>
+              <div> <strong> Mileage </strong> </div>
             </Col>
           </Row>
           <Row>
             <Col sm = {6}>
-              <div> Start Mileage </div>
               <Form.Control
+                placeholder = "Start"
                 as = "input"
                 size = "sm"
                 value = {filterValues.startMileage}
                 onChange = {(e) => {
                   if(!isNaN(e.target.value)) {
                     var values = JSON.parse(JSON.stringify(filterValues));
+                    var filters = selectedFilters.slice();
                     values.startMileage = e.target.value;
                     setFilterValues(values);
+                    if(values.startMileage.trim().length === 0 && values.endMileage.trim().length === 0) {
+                      if(filters.includes("mileage")) {
+                        filters.splice(filters.indexOf("mileage"), 1);
+                      }
+                    }
+                    else if(!filters.includes("mileage")) {
+                      filters.push("mileage");
+                    }
+                    setSelectedFilters(filters);
                   }
                 }}
               />
             </Col>
             <Col sm = {6}>
-              <div> End Mileage </div>
               <Form.Control
+                placeholder = "End"
                 as = "input"
                 size = "sm"
                 value = {filterValues.endMileage}
                 onChange = {(e) => {
                   if(!isNaN(e.target.value)) {
                     var values = JSON.parse(JSON.stringify(filterValues));
+                    var filters = selectedFilters.slice();
                     values.endMileage = e.target.value;
                     setFilterValues(values);
+                    if(values.startMileage.trim().length === 0 && values.endMileage.trim().length === 0) {
+                      if(filters.includes("mileage")) {
+                        filters.splice(filters.indexOf("mileage"), 1);
+                      }
+                    }
+                    else if(!filters.includes("mileage")) {
+                      filters.push("mileage");
+                    }
+                    setSelectedFilters(filters);
                   }
                 }}
               />
             </Col>
           </Row>
-          <hr style = {{border: "1px solid black"}} />
-          <Row style = {{marginBottom: "2%"}}>
-            <Col>
-              <Form.Check
-                type = "checkbox"
-                id = "name-filter"
-                label = "Service Name"
-                onChange = {() => {
-                  var filters = selectedFilters.slice();
-                  if(filters.includes("serviceName")) {
-                    filters.splice(filters.indexOf("serviceName"), 1)
-                  }
-                  else {
-                    filters.push("serviceName");
-                  }
-                  setSelectedFilters(filters);
-                }}
-              />
-            </Col>
-          </Row>
+          <br style = {{height: "50%"}} />
           <Row>
             <Col>
+            <Row style = {{marginBottom: "2%"}}>
+              <Col style = {{textAlign: "left"}}>
+                <div> <strong> Service Name </strong> </div>
+              </Col>
+            </Row>
               <Row>
                 <Col>
                   <Form.Control
-                    placeholder = "Enter a service name"
+                    placeholder = "e.g. Oil Change"
                     as = "input"
                     size = "sm"
                     name = "serviceName"
                     value = {filterValues.serviceName}
                     onChange = {(e) => {
                       var values = JSON.parse(JSON.stringify(filterValues));
+                      var filters = selectedFilters.slice();
                       values.serviceName = e.target.value;
                       setFilterValues(values);
+                      if(values.serviceName.trim().length === 0) {
+                        if(filters.includes("serviceName")) {
+                          filters.splice(filters.indexOf("serviceName"), 1);
+                        }
+                      }
+                      else if(!filters.includes("serviceName")) {
+                        filters.push("serviceName");
+                      }
+                      setSelectedFilters(filters);
                     }}
                   />
                 </Col>
               </Row>
+              <br style = {{height: "50%"}} />
               <Row>
                 <Col>
                   {names.map((name) => {
@@ -222,12 +231,12 @@ function LogFilters(props) {
               </Row>
             </Col>
           </Row>
-          <hr style = {{border: "1px solid black"}}/>
           <Row>
             <Col style = {{textAlign: "right"}}>
               <Button variant = "success" size = "sm"
                 onClick = {() => {
                   props.applyFilters(selectedFilters, filterValues);
+                  props.toggleFiltering(selectedFilters);
                 }}
               >
                 Apply
