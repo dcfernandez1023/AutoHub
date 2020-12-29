@@ -34,6 +34,7 @@ function RepairLog(props) {
   const[filtered, setFiltered] = useState([]);
   const[isFiltering, setIsFiltering] = useState(false);
   const[sortToggleValue, setSortToggleValue] = useState("");
+  const[sortValue, setSortValue] = useState("");
 
   useEffect(() => {
     getCars();
@@ -174,6 +175,36 @@ function RepairLog(props) {
     setIsFiltering(filters.length !== 0);
   }
 
+  function sortAscending(value) {
+    var copy = services.slice();
+    copy.sort(
+      function(serviceA, serviceB) {
+        if(value === "date") {
+          return new Date(serviceA.datePerformed).getTime() - new Date(serviceB.datePerformed).getTime();
+        }
+        else {
+          return Number(serviceA[value]) - Number(serviceB[value]);
+        }
+      }
+    );
+    setServices(copy);
+  }
+
+  function sortDescending(value) {
+    var copy = services.slice();
+    copy.sort(
+      function(serviceA, serviceB) {
+        if(value === "date") {
+          return new Date(serviceB.datePerformed).getTime() - new Date(serviceA.datePerformed).getTime();
+        }
+        else {
+          return  Number(serviceB[value]) - Number(serviceA[value]);
+        }
+      }
+    );
+    setServices(copy);
+  }
+
   return (
     <Container fluid>
       <SSTModal
@@ -212,6 +243,20 @@ function RepairLog(props) {
               <Form.Control
                 as = "select"
                 size = "sm"
+                name = "sortBy"
+                value = {sortValue}
+                onChange = {(e) => {
+                  var value = e.target.value;
+                  setSortValue(value);
+                  if(value.trim().length !== 0 && sortToggleValue.trim().length !== 0) {
+                    if(sortToggleValue === "ascending") {
+                      sortAscending(value);
+                    }
+                    else if(sortToggleValue === "descending") {
+                      sortDescending(value);
+                    }
+                  }
+                }}
               >
                 <option value = "" selected> None </option>
                 {LOGMODEL.sortOptions.map((option) => {
@@ -236,6 +281,9 @@ function RepairLog(props) {
                   }
                   else {
                     setSortToggleValue("ascending");
+                    if(sortValue.trim().length !== 0) {
+                      sortAscending(sortValue);
+                    }
                   }
                 }}
               >
@@ -254,6 +302,9 @@ function RepairLog(props) {
                   }
                   else {
                     setSortToggleValue("descending");
+                    if(sortValue.trim().length !== 0) {
+                      sortDescending(sortValue);
+                    }
                   }
                 }}
               >

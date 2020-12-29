@@ -35,7 +35,6 @@ function ScheduledLog(props) {
   const[isFiltering, setIsFiltering] = useState(false);
   const[sortToggleValue, setSortToggleValue] = useState("");
   const[sortValue, setSortValue] = useState("");
-  const[sortList, setSortList] = useState([]);
 
   useEffect(() => {
     getCars();
