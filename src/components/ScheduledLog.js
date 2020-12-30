@@ -15,6 +15,9 @@ import { v4 as uuidv4 } from 'uuid';
 import DatePicker from "react-datepicker";
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Modal from 'react-bootstrap/Modal';
 
 import SSTModal from './SSTModal.js';
 import LogFilters from './LogFilters.js';
@@ -35,6 +38,7 @@ function ScheduledLog(props) {
   const[isFiltering, setIsFiltering] = useState(false);
   const[sortToggleValue, setSortToggleValue] = useState("");
   const[sortValue, setSortValue] = useState("");
+  const[toggleNotes, setToggleNotes] = useState("");
 
   useEffect(() => {
     getCars();
@@ -443,6 +447,60 @@ function ScheduledLog(props) {
                               onChange = {(date) => {onChangeDate(date, index)}}
                               customInput = {<Form.Control as = "input" size = "sm"/>}
                             />
+                          </td>
+                        );
+                      }
+                      if(field.value === "notes") {
+                        const popover = (
+                          <Popover id = {"notes-popover" + service.serviceId} style = {{height: "100%"}}>
+                            <Modal.Header closeButton style = {{backgroundColor: "#F2F4F4"}}>
+                              Notes
+                            </Modal.Header>
+                            <Popover.Content>
+                              Testing the popover component to display the notes for this service fjsdkfjsdklfjskdlfjsdklfjsdklfjskldfjslkdfjskldfjslkdfjskldfjkldsfjksldfjksldfjsdklfjskldfjsdfkjksldfjskdlfjsdklfjskdlfjdsklfdjslfjsdklfjsdlfjsdlkfjksldfjsdlfjskdlfjsldfjskdlfjsdklfjsdklfjsdklfjsdkljlkjfkdlsfjdkslfjslkdfjskldfjlskfjskldfjlsdjfljklfjdsklfjsdlkfjdlfjsdljfklj
+                            </Popover.Content>
+                          </Popover>
+                        );
+                        if(toggleNotes === service.serviceId) {
+                          return (
+                            <td style = {{minWidth: field.tableWidth}}>
+                              <Form.Control
+                                size = "sm"
+                                as = "textarea"
+                                name = {field.value}
+                                value = {services[index][field.value]}
+                                onChange = {(e) => {onChangeCol(e, index)}}
+                                disabled = {field.disabled}
+                                style = {{height: "150px"}}
+                              />
+                              <Button variant = "link" size = "sm" style = {{float: "right"}}
+                                onClick = {() => {
+                                  setToggleNotes("");
+                                }}
+                              >
+                                Done
+                              </Button>
+                            </td>
+                          );
+                        }
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <Form.Control
+                              size = "sm"
+                              as = {field.inputType}
+                              name = {field.value}
+                              value = {services[index][field.value]}
+                              onChange = {(e) => {onChangeCol(e, index)}}
+                              disabled = {field.disabled}
+                              readOnly
+                            />
+                            <Button variant = "link" size = "sm" style = {{float: "right"}}
+                              onClick = {() => {
+                                setToggleNotes(service.serviceId);
+                              }}
+                            >
+                              Edit
+                            </Button>
                           </td>
                         );
                       }
