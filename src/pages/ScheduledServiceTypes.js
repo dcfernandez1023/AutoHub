@@ -100,6 +100,16 @@ function ScheduledServiceTypes(props) {
     setSstToDelete();
   }
 
+  function isAppliedToCars(sst) {
+    for(var key in sst.carsScheduled) {
+      //if there is a car that this scheduled service type is applied to, return true
+      if(sst.carsScheduled[key].miles !== 0 || sst.carsScheduled[key].time.quantity !== 0 || sst.carsScheduled[key].time.units !== "none") {
+        return true;
+      }
+    }
+    return false;
+  }
+
   return (
     <Container>
       <SSTModal
@@ -183,63 +193,72 @@ function ScheduledServiceTypes(props) {
                 </Card.Header>
                 <Accordion.Collapse eventKey = {service.typeId}>
                   <Card.Body>
-                    {Object.keys(service.carsScheduled).map((key) => {
-                      var mileValue;
-                      var timeValue;
-                      if(Number(service.carsScheduled[key].miles) > 0) {
-                        mileValue = "Every " + service.carsScheduled[key].miles;
-                      }
-                      else {
-                        mileValue = "None";
-                      }
-                      if(Number(service.carsScheduled[key].time.quantity) > 1) {
-                        timeValue = "Every " + service.carsScheduled[key].time.quantity + " " + service.carsScheduled[key].time.units + "s";
-                      }
-                      else if(Number(service.carsScheduled[key].time.quantity) === 1) {
-                        timeValue = "Every " + service.carsScheduled[key].time.quantity + " " + service.carsScheduled[key].time.units;
-                      }
-                      else {
-                        timeValue = "None"
-                      }
-                      return (
-                        <Row>
-                          <Col>
-                            <Row>
-                              <Col>
-                                <Row style = {{marginBottom: "1%"}}>
-                                  <Col md = {3}>
-                                    <h5> {carLookup[key]} </h5>
-                                  </Col>
-                                  <Col md = {4} style = {{marginBottom: "1%"}}>
-                                    <Form.Label> 💨 Mile Interval </Form.Label>
-                                    <Form.Control
-                                      size = "sm"
-                                      as = "input"
-                                      value = {mileValue}
-                                      readOnly
-                                    />
-                                  </Col>
-                                  <Col md = {5}>
-                                    <Form.Label> 🕒 Time Interval </Form.Label>
+                    {!isAppliedToCars(service) ?
+                      <div> This scheduled service type has not been applied to any cars </div>
+                    :
+                    <div>
+                      {Object.keys(service.carsScheduled).map((key) => {
+                        var mileValue;
+                        var timeValue;
+                        if(Number(service.carsScheduled[key].miles) > 0) {
+                          mileValue = "Every " + service.carsScheduled[key].miles;
+                        }
+                        else {
+                          mileValue = "None";
+                        }
+                        if(Number(service.carsScheduled[key].time.quantity) > 1) {
+                          timeValue = "Every " + service.carsScheduled[key].time.quantity + " " + service.carsScheduled[key].time.units + "s";
+                        }
+                        else if(Number(service.carsScheduled[key].time.quantity) === 1) {
+                          timeValue = "Every " + service.carsScheduled[key].time.quantity + " " + service.carsScheduled[key].time.units;
+                        }
+                        else {
+                          timeValue = "None"
+                        }
+                        if(timeValue === "None" && mileValue === "None") {
+                          return null;
+                        }
+                        return (
+                          <Row>
+                            <Col>
+                              <Row>
+                                <Col>
+                                  <Row style = {{marginBottom: "1%"}}>
+                                    <Col md = {3}>
+                                      <h5> {carLookup[key]} </h5>
+                                    </Col>
+                                    <Col md = {4} style = {{marginBottom: "1%"}}>
+                                      <Form.Label> 💨 Mile Interval </Form.Label>
                                       <Form.Control
                                         size = "sm"
-                                        value = {timeValue}
                                         as = "input"
+                                        value = {mileValue}
                                         readOnly
                                       />
-                                  </Col>
-                                </Row>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col>
-                                <hr style = {{border: "1px solid lightGray"}} />
-                              </Col>
-                            </Row>
-                          </Col>
-                        </Row>
-                      );
-                    })}
+                                    </Col>
+                                    <Col md = {5}>
+                                      <Form.Label> 🕒 Time Interval </Form.Label>
+                                        <Form.Control
+                                          size = "sm"
+                                          value = {timeValue}
+                                          as = "input"
+                                          readOnly
+                                        />
+                                    </Col>
+                                  </Row>
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col>
+                                  <hr style = {{border: "1px solid lightGray"}} />
+                                </Col>
+                              </Row>
+                            </Col>
+                          </Row>
+                        );
+                      })}
+                    </div>
+                    }
                   </Card.Body>
                 </Accordion.Collapse>
               </Card>

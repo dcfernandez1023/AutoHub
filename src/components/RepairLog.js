@@ -52,7 +52,7 @@ function RepairLog(props) {
     var arr = services.slice();
     newRow.serviceId = GENERICFUNCTIONS.generateId();
     newRow.userCreated = props.userInfo.email;
-    newRow.datePerformed = new Date();
+    newRow.datePerformed = new Date().toLocaleDateString();
     newRow.mileage = props.car.mileage;
     arr.push(newRow);
     setServices(arr);
@@ -66,13 +66,15 @@ function RepairLog(props) {
     setIsSaved(false);
   }
 
-  function onChangeCol(e, index) {
+  function onChangeCol(e, index, type) {
     var arr = services.slice();
     var copy = arr[index];
-    copy.datePerformed = new Date(copy.datePerformed);
     var copy = arr[index];
     var name = [e.target.name][0];
     var value = e.target.value;
+    if(type === "number" && isNaN(value)) {
+      return;
+    }
     copy[name] = value;
     arr[index] = copy;
     setServices(arr);
@@ -83,7 +85,7 @@ function RepairLog(props) {
     var arr = services.slice();
     //var copy = JSON.parse(JSON.stringify(arr[index]));
     var copy = arr[index];
-    copy.datePerformed = date;
+    copy.datePerformed = date.toLocaleDateString();
     arr[index] = copy;
     setServices(arr);
     setIsSaved(false);
@@ -107,9 +109,10 @@ function RepairLog(props) {
     var copy = services.slice();
     for(var i = 0; i < copy.length; i++) {
       if(copy[i].datePerformed === null || copy[i].datePerformed === undefined) {
-        copy[i].datePerformed = new Date();
+        copy[i].datePerformed = new Date().toLocaleDateString();
       }
-      copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
+      copy[i] = GENERICFUNCTIONS.trimInputs(copy[i]);
+      //copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
     }
     var serviceLog = JSON.parse(JSON.stringify(props.serviceLog));
     serviceLog.repairLog = copy;
@@ -383,7 +386,7 @@ function RepairLog(props) {
                                 as = "textarea"
                                 name = {field.value}
                                 value = {services[index][field.value]}
-                                onChange = {(e) => {onChangeCol(e, index)}}
+                                onChange = {(e) => {onChangeCol(e, index, field.type)}}
                                 disabled = {field.disabled}
                                 style = {{height: "150px"}}
                               />
@@ -404,7 +407,7 @@ function RepairLog(props) {
                               as = {field.inputType}
                               name = {field.value}
                               value = {services[index][field.value]}
-                              onChange = {(e) => {onChangeCol(e, index)}}
+                              onChange = {(e) => {onChangeCol(e, index, field.type)}}
                               disabled = {field.disabled}
                               readOnly
                             />
@@ -430,7 +433,7 @@ function RepairLog(props) {
                                 as = {field.inputType}
                                 name = {field.value}
                                 value = {services[index][field.value]}
-                                onChange = {(e) => {onChangeCol(e, index)}}
+                                onChange = {(e) => {onChangeCol(e, index, field.type)}}
                               />
                             </InputGroup>
                           </td>
@@ -443,7 +446,7 @@ function RepairLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index][field.value]}
-                            onChange = {(e) => {onChangeCol(e, index)}}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                           />
                         </td>
                       );
@@ -456,7 +459,7 @@ function RepairLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index][field.value]}
-                            onChange = {(e) => {onChangeCol(e, index)}}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                           >
                             <option value = "" selected> Select </option>
                             {props.ssts.map((sst, index) => {
@@ -513,7 +516,7 @@ function RepairLog(props) {
                                 as = {field.inputType}
                                 name = {field.value}
                                 value = {services[index][field.value]}
-                                onChange = {(e) => {onChangeCol(e, index)}}
+                                onChange = {(e) => {onChangeCol(e, index, field.type)}}
                               />
                             </InputGroup>
                           </td>
@@ -526,7 +529,7 @@ function RepairLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index][field.value]}
-                            onChange = {(e) => {onChangeCol(e, index)}}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                           />
                         </td>
                       );
@@ -539,7 +542,7 @@ function RepairLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index][field.value]}
-                            onChange = {(e) => {onChangeCol(e, index)}}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                           >
                             <option value = "" selected> Select </option>
                             {props.ssts.map((sst, index) => {

@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
 import { v4 as uuidv4 } from 'uuid';
+import Spinner from 'react-bootstrap/Spinner';
 
 const DB = require('../controllers/db.js');
 const LOGMODEL = require('../models/serviceLog.js');
@@ -66,7 +67,6 @@ function CarModal(props) {
                 saveNewServiceLog(car.carId);
               }
               else {
-                setIsLoading(false);
                 handleCarModalClose();
               }
             },
@@ -86,7 +86,6 @@ function CarModal(props) {
             saveNewServiceLog(car.carId);
           }
           else {
-            setIsLoading(false);
             handleCarModalClose();
           }
         },
@@ -107,7 +106,6 @@ function CarModal(props) {
     DB.writeOne(serviceLog.logId, serviceLog, "serviceLogs",
       function() {
         handleCarModalClose();
-        setIsLoading(false);
       },
       function(error) {
         alert(error);
@@ -117,6 +115,7 @@ function CarModal(props) {
 
   //function to handle car modal closing
   function handleCarModalClose() {
+    setIsLoading(false);
     props.setShow(false);
     setNewCar(CARMODEL.car);
     setCarImage();
@@ -125,10 +124,13 @@ function CarModal(props) {
   }
 
   //function to handle adding values to car
-  function onChangeNewCar(e) {
+  function onChangeNewCar(e, type) {
     var carCopy = JSON.parse(JSON.stringify(car));
     var name = [e.target.name][0];
     var value = e.target.value;
+    if(type === "number" && isNaN(value)) {
+      return;
+    }
     carCopy[name] = value;
     setNewCar(carCopy);
     setCarModalFormValidated(false);
@@ -158,6 +160,7 @@ function CarModal(props) {
         car[field.value] = "";
         isValid = false;
       }
+      car[field.value] = car[field.value].trim();
     }
     return isValid;
   }
@@ -190,7 +193,7 @@ function CarModal(props) {
                         name = {field.value}
                         value = {car[field.value]}
                         onChange = {(e) => {
-                          onChangeNewCar(e);
+                          onChangeNewCar(e, field.type);
                         }}
                       />
                       <Form.Control.Feedback type = "invalid">
@@ -209,7 +212,7 @@ function CarModal(props) {
                         as = {field.inputType}
                         name = {field.value}
                         onChange = {(e) => {
-                          onChangeNewCar(e);
+                          onChangeNewCar(e, field.type);
                         }}
                       >
                         {car.year.trim().length === 0 ?
@@ -244,7 +247,7 @@ function CarModal(props) {
                         name = {field.value}
                         value = {car[field.value]}
                         onChange = {(e) => {
-                          onChangeNewCar(e);
+                          onChangeNewCar(e, field.type);
                         }}
                       />
                     </Col>
@@ -278,6 +281,11 @@ function CarModal(props) {
             </Col>
             <Col>
               <Button type = "submit" variant = "success" disabled = {isLoading} style = {{float: "right", marginTop: "10%"}}>
+                {isLoading ?
+                  <Spinner animation = "border" size = "sm" status = "role"/>
+                  :
+                  <div></div>
+                }
                 Save
               </Button>
             </Col>

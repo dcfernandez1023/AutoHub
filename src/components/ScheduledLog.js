@@ -52,7 +52,7 @@ function ScheduledLog(props) {
     var arr = services.slice();
     newRow.serviceId = GENERICFUNCTIONS.generateId();
     newRow.userCreated = props.userInfo.email;
-    newRow.datePerformed = new Date();
+    newRow.datePerformed = new Date().toLocaleDateString();
     newRow.mileage = props.car.mileage;
     arr.push(newRow);
     setServices(arr);
@@ -66,12 +66,14 @@ function ScheduledLog(props) {
     setIsSaved(false);
   }
 
-  function onChangeCol(e, index) {
+  function onChangeCol(e, index, type) {
     var arr = services.slice();
     var copy = arr[index];
-    copy.datePerformed = new Date(copy.datePerformed);
     var name = [e.target.name][0];
     var value = e.target.value;
+    if(type === "number" && isNaN(value)) {
+      return;
+    }
     if(name === "serviceName") {
       if(value.length === 0) {
         copy.sstRefId = value;
@@ -100,7 +102,7 @@ function ScheduledLog(props) {
     var arr = services.slice();
     //var copy = JSON.parse(JSON.stringify(arr[index]));
     var copy = arr[index];
-    copy.datePerformed = date;
+    copy.datePerformed = date.toLocaleDateString();
     arr[index] = copy;
     setServices(arr);
     setIsSaved(false);
@@ -124,9 +126,10 @@ function ScheduledLog(props) {
     var copy = services.slice();
     for(var i = 0; i < copy.length; i++) {
       if(copy[i].datePerformed === null || copy[i].datePerformed === undefined) {
-        copy[i].datePerformed = new Date();
+        copy[i].datePerformed = new Date().toLocaleDateString();
       }
-      copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
+      copy[i] = GENERICFUNCTIONS.trimInputs(copy[i]);
+      //copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
     }
     var serviceLog = JSON.parse(JSON.stringify(props.serviceLog));
   //  var serviceLog = props.serviceLog;
@@ -469,7 +472,7 @@ function ScheduledLog(props) {
                                 as = "textarea"
                                 name = {field.value}
                                 value = {services[index][field.value]}
-                                onChange = {(e) => {onChangeCol(e, index)}}
+                                onChange = {(e) => {onChangeCol(e, index, field.type)}}
                                 disabled = {field.disabled}
                                 style = {{height: "150px"}}
                               />
@@ -490,7 +493,7 @@ function ScheduledLog(props) {
                               as = {field.inputType}
                               name = {field.value}
                               value = {services[index][field.value]}
-                              onChange = {(e) => {onChangeCol(e, index)}}
+                              onChange = {(e) => {onChangeCol(e, index, field.type)}}
                               disabled = {field.disabled}
                               readOnly
                             />
@@ -516,7 +519,7 @@ function ScheduledLog(props) {
                                 as = {field.inputType}
                                 name = {field.value}
                                 value = {services[index][field.value]}
-                                onChange = {(e) => {onChangeCol(e, index)}}
+                                onChange = {(e) => {onChangeCol(e, index, field.type)}}
                                 disabled = {field.disabled}
                               />
                             </InputGroup>
@@ -530,7 +533,7 @@ function ScheduledLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index][field.value]}
-                            onChange = {(e) => {onChangeCol(e, index)}}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                             disabled = {field.disabled}
                           />
                         </td>
@@ -544,9 +547,7 @@ function ScheduledLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index].sstRefId}
-                            onChange = {(e) => {
-                              onChangeCol(e, index);
-                            }}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                             disabled = {field.disabled}
                           >
                             <option value = "" selected> Select </option>
@@ -613,7 +614,7 @@ function ScheduledLog(props) {
                           <td style = {{minWidth: field.tableWidth}}>
                             <DatePicker
                               selected = {typeof(services[index].datePerformed) === "string" ? new Date(services[index].datePerformed) : services[index].datePerformed}
-                              onChange = {(date) => {onChangeDate(date, index)}}
+                              onChange = {(e) => {onChangeCol(e, index, field.type)}}
                               customInput = {<Form.Control as = "input" size = "sm"/>}
                             />
                           </td>
@@ -631,7 +632,7 @@ function ScheduledLog(props) {
                                 as = {field.inputType}
                                 name = {field.value}
                                 value = {services[index][field.value]}
-                                onChange = {(e) => {onChangeCol(e, index)}}
+                                onChange = {(e) => {onChangeCol(e, index, field.type)}}
                                 disabled = {field.disabled}
                               />
                             </InputGroup>
@@ -645,7 +646,7 @@ function ScheduledLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index][field.value]}
-                            onChange = {(e) => {onChangeCol(e, index)}}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                             disabled = {field.disabled}
                           />
                         </td>
@@ -659,9 +660,7 @@ function ScheduledLog(props) {
                             as = {field.inputType}
                             name = {field.value}
                             value = {services[index].sstRefId}
-                            onChange = {(e) => {
-                              onChangeCol(e, index);
-                            }}
+                            onChange = {(e) => {onChangeCol(e, index, field.type)}}
                             disabled = {field.disabled}
                           >
                             <option value = "" selected> Select </option>

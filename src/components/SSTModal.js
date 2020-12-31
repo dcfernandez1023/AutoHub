@@ -10,6 +10,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import ListGroup from 'react-bootstrap/ListGroup';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Spinner from 'react-bootstrap/Spinner';
 
 const SSTModel = require('../models/scheduledServiceType.js');
 const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
@@ -24,7 +25,8 @@ function SSTModal(props) {
   const[validated, setValidated] = useState(false);
   const[toggleApply, setToggleApply] = useState(false);
   const[selectedCars, setSelectedCars] = useState({});
-  const[globalInterval, setGlobalInterval] = useState()
+  const[globalInterval, setGlobalInterval] = useState();
+  const[isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setShow(props.show);
@@ -52,6 +54,7 @@ function SSTModal(props) {
   }
 
   function handleModalClose() {
+    setIsLoading(false);
     props.setShow(false);
     setToggleApply(false);
     setValidated(false);
@@ -162,23 +165,26 @@ function SSTModal(props) {
   }
 
   function saveSst() {
-    massageSst();
+    trimSst();
+    setIsLoading(true);
     DB.writeOne(sst.typeId, sst, "scheduledServiceTypes",
       function() {
         handleModalClose();
       },
       function(error) {
         alert(error);
+        setIsLoading(false);
       }
     );
   }
 
-  function massageSst() {
+  function trimSst() {
+    sst.serviceName = sst.serviceName.trim();
     for(var key in sst.carsScheduled) {
       var entry = sst.carsScheduled[key];
-      if(entry.miles === 0 && entry.time.quantity === 0 && entry.time.units === "none") {
-        delete sst.carsScheduled[key];
-      }
+      entry.miles = Number(entry.miles.toString().trim());
+      entry.time.quantity = Number(entry.time.quantity.toString().trim());
+      entry.time.units = entry.time.units.trim();
     }
   }
 
@@ -325,7 +331,7 @@ function SSTModal(props) {
                                             :
                                             SSTModel.interval.time.units
                                           }
-                                  isInvalid = {validated&&  sst.carsScheduled[car.carId] !== undefined ? Number(sst.carsScheduled[car.carId].time.quantity.toString().trim()) > 0 && sst.carsScheduled[car.carId].time.units === "none"
+                                  isInvalid = {validated && sst.carsScheduled[car.carId] !== undefined ? Number(sst.carsScheduled[car.carId].time.quantity.toString().trim()) > 0 && sst.carsScheduled[car.carId].time.units === "none"
                                               :
                                               undefined
                                               }
@@ -537,7 +543,12 @@ function SSTModal(props) {
       </Modal.Body>
       {!toggleApply ?
         <Modal.Footer>
-          <Button onClick = {() => {onSubmit()}}>
+          <Button disabled = {isLoading} onClick = {() => {onSubmit()}}>
+            {isLoading ?
+              <Spinner animation = "border" size = "sm" status = "role"/>
+              :
+              <div></div>
+            }
             Save
           </Button>
         </Modal.Footer>

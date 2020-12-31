@@ -9,6 +9,20 @@ export function getYears(startYear) {
   return years;
 }
 
+export function trimInputs(jsonData) {
+  for(var key in jsonData) {
+    console.log(jsonData[key]);
+    console.log(typeof(jsonData[key]));
+    if(typeof(jsonData[key]) === "string" || isNaN(jsonData[key])) {
+      jsonData[key] = jsonData[key].trim();
+    }
+    else if(!isNaN(jsonData[key])) {
+      jsonData[key] = Number(jsonData[key].toString().trim());
+    }
+  }
+  return jsonData;
+}
+
 //returns an incremented date Object
 /*
   dateObj - the date the increment

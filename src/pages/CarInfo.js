@@ -69,6 +69,7 @@ function CarInfo(props) {
           else {
             len = serviceLog.scheduledLog.length;
           }
+          /*
           for(var i = 0; i < len; i++) {
             if(i < repairLen && repairLen !== 0) {
               serviceLog.repairLog[i].datePerformed = new Date(serviceLog.repairLog[i].datePerformed);
@@ -77,6 +78,7 @@ function CarInfo(props) {
               serviceLog.scheduledLog[i].datePerformed = new Date(serviceLog.scheduledLog[i].datePerformed);
             }
           }
+          */
         }
         setServiceLog(serviceLog);
       }
@@ -211,7 +213,7 @@ function CarInfo(props) {
                             <Col xl = {8}>
                               <Row>
                                 <Col md = {12}>
-                                  <Form.Label> {CARMODEL.publicFields[0].displayName} </Form.Label>
+                                  <div style = {{marginBottom: "1%"}}> {CARMODEL.publicFields[0].displayName} </div>
                                   <Form.Control
                                     as = "input"
                                     size = "sm"
@@ -223,7 +225,7 @@ function CarInfo(props) {
                               </Row>
                               <Row>
                                 <Col md = {12}>
-                                  <Form.Label> {CARMODEL.publicFields[1].displayName} </Form.Label>
+                                  <div style = {{marginBottom: "1%"}}> {CARMODEL.publicFields[1].displayName} </div>
                                   <Form.Control
                                     as = "input"
                                     size = "sm"
@@ -233,18 +235,50 @@ function CarInfo(props) {
                                   />
                                 </Col>
                               </Row>
+                              <Row>
+                                <Col sm = {4}>
+                                  <div style = {{marginBottom: "1%"}}> {CARMODEL.publicFields[2].displayName} </div>
+                                  <Form.Control
+                                    as = "input"
+                                    size = "sm"
+                                    readOnly
+                                    style = {{backgroundColor: "#F4F6F6"}}
+                                    value = {car[CARMODEL.publicFields[2].value]}
+                                  />
+                                </Col>
+                                <Col sm = {4}>
+                                  <div style = {{marginBottom: "1%"}}> {CARMODEL.publicFields[3].displayName} </div>
+                                  <Form.Control
+                                    as = "input"
+                                    size = "sm"
+                                    readOnly
+                                    style = {{backgroundColor: "#F4F6F6"}}
+                                    value = {car[CARMODEL.publicFields[3].value]}
+                                  />
+                                </Col>
+                                <Col sm = {4}>
+                                  <div style = {{marginBottom: "1%"}}> {CARMODEL.publicFields[4].displayName} </div>
+                                  <Form.Control
+                                    as = "input"
+                                    size = "sm"
+                                    readOnly
+                                    style = {{backgroundColor: "#F4F6F6"}}
+                                    value = {car[CARMODEL.publicFields[4].value]}
+                                  />
+                                </Col>
+                              </Row>
                             </Col>
                           </Row>
                         </Col>
                         {CARMODEL.publicFields.map((field, index) => {
-                          if(index < 2) {
+                          if(index < 5) {
                             return (
                               <div></div>
                             );
                           }
                           return (
                             <Col md = {field.modalColSpan}>
-                              <Form.Label> {field.displayName} </Form.Label>
+                              <div style = {{marginBottom: "1%"}}> {field.displayName} </div>
                               <Form.Control
                                 as = {field.inputType === "select" ? "input" : field.inputType}
                                 size = "sm"
