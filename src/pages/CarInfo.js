@@ -28,6 +28,8 @@ function CarInfo(props) {
   const[ssts, setSsts] = useState();
   const[show, setShow] = useState(false);
   const[deleteShow, setDeleteShow] = useState(false);
+  const[deleteCarShow, setDeleteCarShow] = useState(false);
+  const[showEmpty, setShowEmpty] = useState(false);
 
   useEffect(() => {
     getCar(props.match.params.carId);
@@ -41,7 +43,8 @@ function CarInfo(props) {
     }
     DB.getQuerey("carId", carId, "cars").onSnapshot(quereySnapshot => {
       if(quereySnapshot.docs.length > 1 || quereySnapshot.docs[0] === undefined) {
-        alert("Internal error. Could not find car in database.");
+        //alert("Internal error. Could not find car in database.");
+        setShowEmpty(true);
       }
       else {
         setCar(quereySnapshot.docs[0].data());
@@ -55,7 +58,8 @@ function CarInfo(props) {
     }
     DB.getQuerey("carReferenceId", carId, "serviceLogs").onSnapshot(quereySnapshot => {
       if(quereySnapshot.docs.length > 1 || quereySnapshot.docs[0] === undefined) {
-        alert("Internal error. Could not find car's service log in database.");
+        //alert("Internal error. Could not find car's service log in database.");
+        setShowEmpty(true);
       }
       else {
         var serviceLog = quereySnapshot.docs[0].data();
@@ -122,16 +126,88 @@ function CarInfo(props) {
     STORAGE.deleteFile(car.imageUrl,
       function() {
         setDeleteShow(false);
+        if(showEmpty || deleteCarShow) {
+          return;
+        }
         resetCarImageFields();
       },
       function(error) {
         alert(error);
         setDeleteShow(false);
+        setDeleteCarShow(false);
       }
     );
   }
 
-  if(car === undefined || ssts === undefined || serviceLog === undefined) {
+  function deleteServiceLog() {
+    DB.deleteOne(serviceLog.logId, "serviceLogs",
+      function() {
+        return;
+      },
+      function(error) {
+        alert(error);
+      }
+    );
+  }
+
+  //deletes car and all other objects associated with it
+  function deleteCar() {
+    DB.deleteOne(car.carId, "cars",
+      function() {
+        removeCarFromSsts();
+        deleteServiceLog();
+        if(car.imageId.length !== 0 && car.imageUrl.length !== 0) {
+          deleteCarImage();
+        }
+        setDeleteCarShow(false);
+        setShowEmpty(true);
+      },
+      function(error) {
+        setDeleteCarShow(false);
+        alert(error);
+      }
+    );
+  }
+
+  function removeCarFromSsts() {
+    for(var i = 0; i < ssts.length; i++) {
+      var sst = ssts[i];
+      if(sst.carsScheduled[car.carId] !== undefined) {
+        delete sst.carsScheduled[car.carId];
+        DB.writeOne(sst.typeId, sst, "scheduledServiceTypes",
+          function() {
+            return;
+          },
+          function(error) {
+            setDeleteCarShow(false);
+            alert(error);
+          }
+        );
+      }
+    }
+  }
+
+  if(car === undefined || ssts === undefined || serviceLog === undefined || showEmpty) {
+    if(showEmpty) {
+      return (
+        <Container>
+          <br/>
+          <Row>
+            <Col style = {{textAlign: "center"}}>
+              <h5> This car does not exist 😯 </h5>
+            </Col>
+          </Row>
+          <br/>
+          <Row>
+            <Col style = {{textAlign: "center"}}>
+              <Button onClick = {() => {window.location.pathname = "/"}}>
+                Return home
+              </Button>
+            </Col>
+          </Row>
+        </Container>
+      );
+    }
     return (
       <Container>
         <div style = {{textAlign: "center", marginTop: "3%"}}>
@@ -182,6 +258,31 @@ function CarInfo(props) {
           </Button>
         </Modal.Footer>
       </Modal>
+      <Modal
+        show = {deleteCarShow}
+        onHide = {() => {setDeleteCarShow(false)}}
+        backdrop = "static"
+        keyboard = {false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title> Delete Car </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this car? (this is irreversible)
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            onClick = {() => {deleteCar()}}
+          >
+            Yes
+          </Button>
+          <Button variant = "secondary"
+            onClick = {() => {setDeleteCarShow(false)}}
+          >
+            No
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <br/>
       <Row>
         <Col>
@@ -194,9 +295,11 @@ function CarInfo(props) {
                     <Col>
                       <Row>
                         <Col style = {{textAlign: "right"}}>
-                          <DropdownButton variant = "outline-dark">
+                          <DropdownButton title = "⚙️" variant = "outline-dark">
                             <Dropdown.Item onClick = {() => {setShow(true)}}> Edit </Dropdown.Item>
+                            <Dropdown.Item> Export Data </Dropdown.Item>
                             <Dropdown.Item disabled = {car.imageUrl.trim().length === 0} onClick = {() => {setDeleteShow(true)}}> Delete Image </Dropdown.Item>
+                            <Dropdown.Item onClick = {() => {setDeleteCarShow(true)}}> Delete Car </Dropdown.Item>
                           </DropdownButton>
                         </Col>
                       </Row>

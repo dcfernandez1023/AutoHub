@@ -138,7 +138,6 @@ function CarModal(props) {
 
   //handle submit for car modal form
   function handleCarModalSubmit(e) {
-    const form = e.currentTarget;
     setCarModalFormValidated(true);
     if(checkNewCarFields() === false) {
       e.preventDefault();
@@ -160,7 +159,12 @@ function CarModal(props) {
         car[field.value] = "";
         isValid = false;
       }
-      car[field.value] = car[field.value].trim();
+      if(field.type === "number") {
+        car[field.value] = Number(car[field.value].toString().trim());
+      }
+      else {
+        car[field.value] = car[field.value].trim();
+      }
     }
     return isValid;
   }
