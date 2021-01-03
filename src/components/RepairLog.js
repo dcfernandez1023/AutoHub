@@ -18,6 +18,7 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Modal from 'react-bootstrap/Modal';
+import Badge from 'react-bootstrap/Badge';
 
 import SSTModal from './SSTModal.js';
 import LogFilters from './LogFilters.js';
@@ -39,6 +40,7 @@ function RepairLog(props) {
   const[sortToggleValue, setSortToggleValue] = useState("");
   const[sortValue, setSortValue] = useState("");
   const[toggleNotes, setToggleNotes] = useState("");
+  const[currMileageId, setCurrMileageId] = useState({serviceId: "", mileage: -1});
 
   useEffect(() => {
     getCars();
@@ -115,15 +117,44 @@ function RepairLog(props) {
       //copy[i].datePerformed = copy[i].datePerformed.toLocaleDateString();
     }
     var serviceLog = JSON.parse(JSON.stringify(props.serviceLog));
+    var car = JSON.parse(JSON.stringify(props.car));
+    car.repairCost = calculateScheduledLogCost(copy);
     serviceLog.repairLog = copy;
     DB.writeOne(props.serviceLog.logId, serviceLog, "serviceLogs",
       function() {
+        if(currMileageId.serviceId.trim().length !== 0) {
+          if(currMileageId.mileage.toString().trim().length === 0) {
+            car.mileage = 0;
+          }
+          else {
+            car.mileage = Number(currMileageId.mileage.toString().trim());
+          }
+        }
+        DB.writeOne(car.carId, car, "cars",
+          function() {
+            return;
+          },
+          function(error) {
+            alert(error);
+          }
+        );
         setIsSaved(true);
+        setCurrMileageId({serviceId: "", mileage: -1})
       },
       function(error) {
         alert(error);
       }
     );
+  }
+
+  function calculateScheduledLogCost(serviceLog) {
+    var costs = {laborCost: 0, partsCost: 0};
+    for(var i = 0; i < services.length; i++) {
+      costs.laborCost += Number(services[i].laborCost);
+      costs.partsCost += Number(services[i].partsCost);
+    }
+    console.log(costs);
+    return costs;
   }
 
   //filters the services into another array based on the selected filters
@@ -222,6 +253,15 @@ function RepairLog(props) {
         setShow = {setShow}
         title = "Add Scheduled Service Type"
       />
+      <Row>
+        <Col style = {{textAlign: "center"}}>
+          <h5>
+            {props.car.name + " "}
+            <Badge variant = "secondary"> {props.car.mileage + " miles"} </Badge>
+          </h5>
+        </Col>
+      </Row>
+      <br style = {{height: "50%"}} />
       <Row>
         <Col xs = {6}>
           <DropdownButton variant = "dark" size = "sm" title = "Filter By">
@@ -356,6 +396,36 @@ function RepairLog(props) {
                   </td>
                   {RSMODEL.publicFields.map((field) => {
                     if(field.inputType === "input") {
+                      if(field.value === "mileage") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <Form.Control
+                              size = "sm"
+                              as = {field.inputType}
+                              name = {field.value}
+                              value = {services[index][field.value]}
+                              onChange = {(e) => {onChangeCol(e, index, field.type)}}
+                              disabled = {field.disabled}
+                            />
+                            <Form.Check
+                              size = "sm"
+                              type = "checkbox"
+                              id = "apply-mileage"
+                              onChange = {() => {
+                                setIsSaved(false);
+                                if(service.serviceId === currMileageId.serviceId) {
+                                  setCurrMileageId({serviceId: "", mileage: -1});
+                                }
+                                else {
+                                  setCurrMileageId({serviceId: service.serviceId, mileage: service.mileage});
+                                }
+                              }}
+                              label = {<small> Use as current mileage </small>}
+                              checked = {service.serviceId === currMileageId.serviceId}
+                            />
+                          </td>
+                        );
+                      }
                       if(field.value === "datePerformed") {
                         return (
                           <td style = {{minWidth: field.tableWidth}}>

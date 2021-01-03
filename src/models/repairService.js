@@ -41,7 +41,7 @@ export const publicFields = [
     displayName: "Mileage",
     type: "number",
     inputType: "input",
-    tableWidth: "100px",
+    tableWidth: "130px",
     containsPrepend: false,
     prependValue: ""
   },
@@ -50,7 +50,7 @@ export const publicFields = [
     displayName: "Parts Cost",
     type: "number",
     inputType: "input",
-    tableWidth: "125px",
+    tableWidth: "120px",
     containsPrepend: true,
     prependValue: "$"
   },
@@ -59,7 +59,7 @@ export const publicFields = [
     displayName: "Labor Cost",
     type: "number",
     inputType: "input",
-    tableWidth: "125px",
+    tableWidth: "120px",
     containsPrepend: true,
     prependValue: "$"
   },
@@ -68,7 +68,7 @@ export const publicFields = [
     displayName: "Total Cost",
     type: "number",
     inputType: "input",
-    tableWidth: "125px",
+    tableWidth: "120px",
     containsPrepend: true,
     prependValue: "$"
   },
@@ -77,7 +77,7 @@ export const publicFields = [
     displayName: "Notes",
     type: "string",
     inputType: "input",
-    tableWidth: "225px",
+    tableWidth: "210px",
     containsPrepend: false,
     prependValue: ""
   }

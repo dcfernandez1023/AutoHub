@@ -12,6 +12,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import Image from 'react-bootstrap/Image';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Alert from 'react-bootstrap/Alert';
 
 import CarModal from '../components/CarModal.js';
 import ScheduledLog from '../components/ScheduledLog.js';
@@ -268,7 +269,12 @@ function CarInfo(props) {
           <Modal.Title> Delete Car </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete this car? (this is irreversible)
+          <Alert variant = "danger">
+            <Alert.Heading>
+              Warning
+            </Alert.Heading>
+            Are you sure you want to delete this car? (all of this car's data will be lost)
+          </Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button

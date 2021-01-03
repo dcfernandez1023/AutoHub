@@ -11,8 +11,6 @@ export function getYears(startYear) {
 
 export function trimInputs(jsonData) {
   for(var key in jsonData) {
-    console.log(jsonData[key]);
-    console.log(typeof(jsonData[key]));
     if(typeof(jsonData[key]) === "string" || isNaN(jsonData[key])) {
       jsonData[key] = jsonData[key].trim();
     }
