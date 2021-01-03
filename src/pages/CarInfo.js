@@ -13,6 +13,8 @@ import Image from 'react-bootstrap/Image';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Alert from 'react-bootstrap/Alert';
+import Pie from 'react-chartjs-2';
+import Card from 'react-bootstrap/Card';
 
 import CarModal from '../components/CarModal.js';
 import ScheduledLog from '../components/ScheduledLog.js';
@@ -21,6 +23,7 @@ import RepairLog from '../components/RepairLog.js';
 const DB = require('../controllers/db.js');
 const CARMODEL = require('../models/car.js');
 const STORAGE = require('../controllers/storage.js');
+const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 
 function CarInfo(props) {
 
@@ -188,6 +191,25 @@ function CarInfo(props) {
     }
   }
 
+  function calculateCostBreakdown() {
+    var costs = [];
+    var colors = ["red", "green", "blue", "orange"];
+    //var colors = GENERICFUNCTIONS.randomColors(4);
+    costs.push(Number(car.scheduledCost.partsCost));
+    costs.push(Number(car.scheduledCost.laborCost));
+    costs.push(Number(car.repairCost.partsCost));
+    costs.push(Number(car.repairCost.laborCost));
+    var data = {
+      datasets: [{
+        data: costs,
+        backgroundColor: colors,
+        hoverBackgroundColor: colors
+      }],
+      labels: ["Scheduled Parts Cost", "Scheduled Labor Cost", "Repair Parts Cost", "Repair Labor Cost"],
+    };
+    return data;
+  }
+
   if(car === undefined || ssts === undefined || serviceLog === undefined || showEmpty) {
     if(showEmpty) {
       return (
@@ -296,7 +318,7 @@ function CarInfo(props) {
             <Tab eventKey = "info" title = "Info">
               <br/>
               <Row>
-                <Col md = {6}>
+                <Col md = {6} style = {{marginBottom: "5%"}}>
                   <Row>
                     <Col>
                       <Row>
@@ -401,6 +423,21 @@ function CarInfo(props) {
                       </Row>
                     </Col>
                   </Row>
+                </Col>
+                <Col md = {6}>
+                  <Card border = "light">
+                    <Card.Header> Cost Breakdown 💰 </Card.Header>
+                    <Card.Body>
+                      <Card.Text>
+                        <Pie
+                          data = {calculateCostBreakdown()}
+                          options = {{ maintainAspectRatio: false }}
+                          height = {250}
+                          width = {250}
+                        />
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
                 </Col>
               </Row>
             </Tab>

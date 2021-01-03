@@ -21,6 +21,27 @@ export function trimInputs(jsonData) {
   return jsonData;
 }
 
+export function randomColors(numColors) {
+  var colors = [];
+  const MAXCOLORS = 147;
+  var letters = "0123456789ABCDEF";
+  var n = 0;
+  while(n < numColors) {
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[(Math.floor(Math.random() * 16))];
+     }
+     if(!colors.includes(color)) {
+       colors.push(color);
+     }
+     if(n === MAXCOLORS) {
+       return [];
+     }
+     n++;
+  }
+  return colors;
+}
+
 //returns an incremented date Object
 /*
   dateObj - the date the increment

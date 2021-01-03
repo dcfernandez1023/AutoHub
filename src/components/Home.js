@@ -18,6 +18,7 @@ import Image from 'react-bootstrap/Image';
 import { v4 as uuidv4 } from 'uuid';
 
 import CarModal from './CarModal.js';
+import UpcomingMaintenance from './UpcomingMaintenance.js';
 
 const DB = require('../controllers/db.js');
 const STORAGE = require('../controllers/storage.js');
@@ -192,28 +193,9 @@ function Home(props) {
           </Row>
         </Col>
         <Col lg = {5}>
-          <Row>
-            <Col>
-              <Card>
-                <Card.Header>
-                  Upcoming Maintenance 🛠️
-                  {/*
-                  <Button
-                    variant = "outline-dark"
-                    style = {{float: "right"}}
-                    size = "sm"
-                    disabled = {cars.length === 0}
-                  >
-                    +
-                  </Button>
-                  */}
-                </Card.Header>
-                <Card.Body>
-                  You have nothing scheduled for your cars.
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+          <UpcomingMaintenance
+            cars = {cars}
+          />
         </Col>
       </Row>
     </Container>
