@@ -170,12 +170,35 @@ function SSTModal(props) {
     DB.writeOne(sst.typeId, sst, "scheduledServiceTypes",
       function() {
         handleModalClose();
+        updateServiceLog();
       },
       function(error) {
         alert(error);
         setIsLoading(false);
       }
     );
+  }
+
+  //have to update serviceNames in scheduled service log if there is a name change of an sst
+  function updateServiceLog() {
+    if(sst.serviceName !== props.sst.serviceName) {
+      DB.getQuerey("userCreated", props.userCreated, "serviceLogs").onSnapshot(quereySnapshot => {
+        var logs = [];
+        for(var i = 0; i < quereySnapshot.docs.length; i++) {
+          logs.push(quereySnapshot.docs[i].data());
+        }
+        for(var i = 0; i < logs.length; i++) {
+          var log = logs[i];
+          for(var j = 0; j < log.scheduledLog.length; j++) {
+            var service = log.scheduledLog[j];
+            if(service.sstRefId === sst.typeId) {
+              service.serviceName = sst.serviceName;
+            }
+          }
+        }
+        DB.writeMany("logId", logs, "serviceLogs");
+      });
+    }
   }
 
   function trimSst() {

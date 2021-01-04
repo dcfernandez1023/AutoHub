@@ -178,16 +178,26 @@ function ScheduledLog(props) {
   }
 
   function getNextServiceMileage(sstId, serviceIndex) {
+    var arr = services.slice();
+    var copy = arr[serviceIndex];
     for(var i = 0; i < props.ssts.length; i++) {
       if(props.ssts[i].typeId === sstId) {
         if(props.ssts[i].carsScheduled[props.carId] === undefined) {
           props.ssts[i].carsScheduled[props.carId] = SSTModel.interval;
         }
         if(Object.keys(props.ssts[i].carsScheduled).length !== 0 && Number(props.ssts[i].carsScheduled[props.carId].miles) !== 0) {
+          var mileage;
           if(Number(services[serviceIndex].mileage) === 0) {
-            return (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(props.car.mileage));
+            mileage = (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(props.car.mileage));
           }
-          return (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(services[serviceIndex].mileage));
+          else {
+            mileage = (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(services[serviceIndex].mileage));
+          }
+          copy.nextServiceMileage = mileage;
+          arr[serviceIndex] = copy;
+          services[serviceIndex].nextServiceMileage = mileage;
+          //setServices(arr);
+          return mileage;
         }
       }
     }
@@ -195,6 +205,8 @@ function ScheduledLog(props) {
   }
 
   function getNextServiceDate(sstId, serviceIndex) {
+    var arr = services.slice();
+    var copy = arr[serviceIndex];
     for(var i = 0; i < props.ssts.length; i++) {
       if(props.ssts[i].typeId === sstId) {
         if(props.ssts[i].carsScheduled[props.carId] === undefined) {
@@ -204,7 +216,12 @@ function ScheduledLog(props) {
           var dateObj = new Date(services[serviceIndex].datePerformed);
           var timeUnits = props.ssts[i].carsScheduled[props.carId].time.units;
           var timeStep = Number(props.ssts[i].carsScheduled[props.carId].time.quantity);
-          return GENERICFUNCTIONS.incrementDate(dateObj,timeUnits, timeStep).toLocaleDateString();
+          var nextDate = GENERICFUNCTIONS.incrementDate(dateObj,timeUnits, timeStep).toLocaleDateString();
+          copy.nextServiceDate = nextDate;
+          arr[serviceIndex] = copy;
+          services[serviceIndex].nextServiceDate = nextDate;
+          //setServices(arr);
+          return nextDate;
         }
       }
     }
@@ -630,7 +647,6 @@ function ScheduledLog(props) {
                           >
                             <option value = "" selected> Select </option>
                             {props.ssts.map((sst, sstIndex) => {
-                              var strIndex = sstIndex.toString();
                               return (
                                 <option value = {sst.typeId}> {sst.serviceName} </option>
                               );

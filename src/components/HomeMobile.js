@@ -19,6 +19,7 @@ import Image from 'react-bootstrap/Image';
 import { v4 as uuidv4 } from 'uuid';
 
 import CarModal from './CarModal.js';
+import UpcomingMaintenance from './UpcomingMaintenance.js';
 
 const DB = require('../controllers/db.js');
 const CARMODEL = require('../models/car.js');
@@ -199,18 +200,10 @@ function HomeMobile(props) {
           </Row>
         </Col>
         <Col lg = {5}>
-          <Row>
-            <Col>
-              <Card>
-                <Card.Header>
-                  Upcoming Maintenance 🛠️
-                </Card.Header>
-                <Card.Body>
-                  You have nothing scheduled for your cars.
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+              <UpcomingMaintenance
+                cars = {cars}
+                userCreated = {props.userInfo.email}
+              />
         </Col>
       </Row>
     </Container>

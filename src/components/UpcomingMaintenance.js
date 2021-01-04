@@ -8,47 +8,121 @@ import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
 import Calendar from 'react-calendar';
+import Spinner from 'react-bootstrap/Spinner';
+import Badge from 'react-bootstrap/Badge';
 
 const DB = require('../controllers/db.js');
 
 function UpcomingMaintenance(props) {
 
   const [serviceLogs, setServiceLogs] = useState([]);
+  const[isCalendar, setIsCalendar] = useState(false);
+  const[isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getServiceLogs(props.cars);
   }, [props.cars])
 
   function getServiceLogs(cars) {
-    for(var i = 0; i < cars.length; i++) {
-      var car = cars[i];
-      getServiceLog(car.carId);
+    if(cars === undefined) {
+      return;
+    }
+    setIsLoading(true);
+    if(cars.length === 1) {
+      DB.getQuerey("carReferenceId", cars[0].carId, "serviceLogs").onSnapshot(quereySnapshot => {
+        if(quereySnapshot.docs.length > 1 || quereySnapshot.docs[0] === undefined) {
+          return;
+        }
+        else {
+          var serviceLog = quereySnapshot.docs[0].data();
+          if(serviceLog !== undefined) {
+            var logs = serviceLogs.slice();
+            logs.push(serviceLog);
+            setServiceLogs(logs);
+            setIsLoading(false);
+          }
+        }
+      });
+    }
+    else {
+      DB.getQuerey("userCreated", props.userCreated, "serviceLogs").onSnapshot(quereySnapshot => {
+        if(quereySnapshot.docs.length < 1 || quereySnapshot.docs === undefined) {
+          return;
+        }
+        else {
+          if(serviceLogs !== undefined) {
+            var logs = serviceLogs.slice();
+            for(var i = 0; i < quereySnapshot.docs.length; i++) {
+              logs.push(quereySnapshot.docs[i].data());
+            }
+            setServiceLogs(logs);
+            setIsLoading(false);
+          }
+        }
+      });
     }
   }
 
-  function getServiceLog(carId) {
+  function findCar(carId) {
     if(carId === undefined || carId === null) {
-      return;
+      return null;
     }
-    DB.getQuerey("carReferenceId", carId, "serviceLogs").onSnapshot(quereySnapshot => {
-      if(quereySnapshot.docs.length > 1 || quereySnapshot.docs[0] === undefined) {
+    for(var i = 0; i < props.cars.length; i++) {
+      if(props.cars[i].carId === carId) {
+        return props.cars[i];
+      }
+    }
+  }
+
+  function getUpcomingServices(log) {
+    var upcoming = [];
+    var today = new Date();
+    for(var i = 0; i < log.scheduledLog.length; i++) {
+      var service = log.scheduledLog[i];
+      var currMileage = Number(findCar(log.carReferenceId).mileage);
+      if(new Date(service.nextServiceDate).getTime() >= today.getTime() || Number(service.nextServiceMileage.toString().trim()) >= currMileage && Number(service.nextServiceMileage.toString().trim()) !== 0) {
+        upcoming.push(service);
+      }
+    }
+    return upcoming;
+  }
+
+  function getCarName(carId) {
+    for(var i = 0; i < props.cars.length; i++) {
+      var car = props.cars[i];
+      if(car.carId === carId) {
+        return car.name;
+      }
+    }
+    return "";
+  }
+
+  function getDueText(service) {
+    var text = "Due:";
+    var isDate = false;
+    if(service.nextServiceDate.trim().length !== 0) {
+      text = text + " " + service.nextServiceDate.trim();
+      isDate = true;
+    }
+    if(Number(service.nextServiceMileage.toString().trim()) !== 0 && service.nextServiceMileage.toString().trim().length !== 0) {
+      if(isDate) {
+        text = text + " or " + service.nextServiceMileage.toString().trim() + " miles";
       }
       else {
-        var serviceLog = quereySnapshot.docs[0].data();
-        if(serviceLog !== undefined) {
-          var len;
-          var repairLen = serviceLog.repairLog.length;
-          var scheduledLen = serviceLog.scheduledLog.length;
-          if(repairLen > scheduledLen) {
-            len = serviceLog.repairLog.length;
-          }
-          else {
-            len = serviceLog.scheduledLog.length;
-          }
-        }
-        serviceLogs.push(serviceLog);
+        text = text + " " + service.nextServiceMileage.toString().trim() + " miles";
       }
-    });
+    }
+    return text;
+  }
+
+  if(props.cars === undefined || isLoading) {
+    return (
+      <Container fluid>
+        <div style = {{textAlign: "center", marginTop: "3%"}}>
+          <Spinner animation = "border"/>
+        </div>
+      </Container>
+    );
   }
 
   return (
@@ -59,7 +133,40 @@ function UpcomingMaintenance(props) {
             Upcoming Maintenance 🛠️
           </Card.Header>
           <Card.Body>
-            You have nothing scheduled for your cars.
+            {serviceLogs.length === 0 ?
+              <div> You have nothing scheduled for your cars. </div>
+              :
+              <Row>
+                <Col>
+                  {serviceLogs.map((log) => {
+                    var upcoming = getUpcomingServices(log);
+                    return (
+                      <div>
+                        {upcoming.map((service) => {
+                          return (
+                            <div style = {{border: "1px solid white"}}>
+                              <Row>
+                                <Col>
+                                  <h6> {getCarName(log.carReferenceId) + " - " + service.serviceName} </h6>
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col>
+                                  <Badge variant = "warning">
+                                    {getDueText(service)}
+                                  </Badge>
+                                </Col>
+                              </Row>
+                              <hr style = {{border: "1px solid lightGray", height: "50%"}} />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </Col>
+              </Row>
+            }
           </Card.Body>
         </Card>
       </Col>

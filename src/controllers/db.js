@@ -19,7 +19,7 @@ export function writeOne(id, data, collectionName, callback, callbackOnError) {
 			var id = data[idField];
 			DBFS.collection(collectionName).doc(id).set(data)
 				.then((res) => {return})
-				.catch((error) => {return});
+				.catch((error) => {alert(error)});
 		}
 	}
 

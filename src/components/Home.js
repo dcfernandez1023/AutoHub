@@ -195,6 +195,7 @@ function Home(props) {
         <Col lg = {5}>
           <UpcomingMaintenance
             cars = {cars}
+            userCreated = {props.userInfo.email}
           />
         </Col>
       </Row>
