@@ -9,7 +9,6 @@ export const repairService = {
   laborCost: 0,
   totalCost: 0,
   notes: "",
-  markedAsCompleted: false
 }
 
 export const privateFields = [

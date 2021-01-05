@@ -12,7 +12,6 @@ export const scheduledService = {
   laborCost: 0,
   totalCost: 0,
   notes: "",
-  markedAsCompleted: false
 }
 
 export const privateFields = [

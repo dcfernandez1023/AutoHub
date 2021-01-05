@@ -97,14 +97,16 @@ function UpcomingMaintenance(props) {
     return "";
   }
 
-  function getDueText(service) {
+  function getDueText(service, carId) {
     var text = "Due:";
     var isDate = false;
-    if(service.nextServiceDate.trim().length !== 0) {
+    var currMileage = Number(findCar(carId).mileage);
+    var today = new Date();
+    if(service.nextServiceDate.trim().length !== 0 && new Date(service.nextServiceDate).getTime() >= today.getTime()) {
       text = text + " " + service.nextServiceDate.trim();
       isDate = true;
     }
-    if(Number(service.nextServiceMileage.toString().trim()) !== 0 && service.nextServiceMileage.toString().trim().length !== 0) {
+    if(Number(service.nextServiceMileage.toString().trim()) !== 0 && service.nextServiceMileage.toString().trim().length !== 0 && Number(service.nextServiceMileage) >= currMileage) {
       if(isDate) {
         text = text + " or " + service.nextServiceMileage.toString().trim() + " miles";
       }
@@ -115,16 +117,34 @@ function UpcomingMaintenance(props) {
     return text;
   }
 
-  if(props.cars === undefined || isLoading) {
+  if(props.cars === undefined) {
+    if(isLoading) {
+      return (
+        <Container fluid>
+          <div style = {{textAlign: "center", marginTop: "3%"}}>
+            <Spinner animation = "border"/>
+          </div>
+        </Container>
+      );
+    }
     return (
-      <Container fluid>
-        <div style = {{textAlign: "center", marginTop: "3%"}}>
-          <Spinner animation = "border"/>
-        </div>
-      </Container>
+      <Row>
+        <Col>
+          <Card>
+            <Card.Header>
+              Upcoming Maintenance 🛠️
+            </Card.Header>
+            <Card.Body>
+              Error occurred in finding upcoming maintenance
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
     );
   }
 
+  //counter to determine if there is no upcoming maintenance
+  var upcomingCount = 0;
   return (
     <Row>
       <Col>
@@ -140,6 +160,7 @@ function UpcomingMaintenance(props) {
                 <Col>
                   {serviceLogs.map((log) => {
                     var upcoming = getUpcomingServices(log);
+                    upcomingCount += upcoming.length;
                     return (
                       <div>
                         {upcoming.map((service) => {
@@ -153,7 +174,7 @@ function UpcomingMaintenance(props) {
                               <Row>
                                 <Col>
                                   <Badge variant = "warning">
-                                    {getDueText(service)}
+                                    {getDueText(service, log.carReferenceId)}
                                   </Badge>
                                 </Col>
                               </Row>
@@ -164,6 +185,11 @@ function UpcomingMaintenance(props) {
                       </div>
                     );
                   })}
+                  {upcomingCount === 0 ?
+                    <div> You have nothing scheduled for your cars. </div>
+                    :
+                    <div> </div>
+                  }
                 </Col>
               </Row>
             }
