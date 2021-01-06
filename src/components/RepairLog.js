@@ -87,7 +87,12 @@ function RepairLog(props) {
     var arr = services.slice();
     //var copy = JSON.parse(JSON.stringify(arr[index]));
     var copy = arr[index];
-    copy.datePerformed = date.toLocaleDateString();
+    if(date === null) {
+      copy.datePerformed = new Date().toLocaleDateString();
+    }
+    else {
+      copy.datePerformed = date.toLocaleDateString();
+    }
     arr[index] = copy;
     setServices(arr);
     setIsSaved(false);

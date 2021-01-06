@@ -74,14 +74,59 @@ function UpcomingMaintenance(props) {
     }
   }
 
+  function getOverdueServices(log) {
+    var overdue = [];
+    var sstIds = [];
+    var today = new Date();
+    var currMileage = Number(findCar(log.carReferenceId).mileage);
+    for(var i = 0; i < log.scheduledLog.length; i++) {
+      if(!sstIds.includes(log.scheduledLog[i].sstRefId)) {
+        sstIds.push(log.scheduledLog[i].sstRefId);
+      }
+    }
+    for(var i = 0; i < sstIds.length; i++) {
+      var sstId = sstIds[i];
+      var mostRecentDate = 0;
+      var mostRecentService = null;
+      for(var j = 0; j < log.scheduledLog.length; j++) {
+        var service = log.scheduledLog[j];
+        var datePerformed = new Date(service.datePerformed).getTime()
+        if(service.sstRefId === sstId && datePerformed > mostRecentDate) {
+          mostRecentDate = datePerformed;
+          mostRecentService = service;
+        }
+      }
+      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.mileage) < currMileage) {
+        overdue.push(mostRecentService);
+      }
+    }
+    return overdue;
+  }
+
   function getUpcomingServices(log) {
     var upcoming = [];
+    var sstIds = [];
     var today = new Date();
+    var currMileage = Number(findCar(log.carReferenceId).mileage);
     for(var i = 0; i < log.scheduledLog.length; i++) {
-      var service = log.scheduledLog[i];
-      var currMileage = Number(findCar(log.carReferenceId).mileage);
-      if(new Date(service.nextServiceDate).getTime() >= today.getTime() || Number(service.nextServiceMileage.toString().trim()) >= currMileage && Number(service.nextServiceMileage.toString().trim()) !== 0) {
-        upcoming.push(service);
+      if(!sstIds.includes(log.scheduledLog[i].sstRefId)) {
+        sstIds.push(log.scheduledLog[i].sstRefId);
+      }
+    }
+    for(var i = 0; i < sstIds.length; i++) {
+      var sstId = sstIds[i];
+      var mostRecentDate = 0;
+      var mostRecentService = null;
+      for(var j = 0; j < log.scheduledLog.length; j++) {
+        var service = log.scheduledLog[j];
+        var datePerformed = new Date(service.datePerformed).getTime();
+        if(service.sstRefId === sstId && datePerformed >= mostRecentDate) {
+          mostRecentDate = datePerformed;
+          mostRecentService = service;
+        }
+      }
+      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() >= today.getTime() || mostRecentService !== null && Number(mostRecentService.mileage) >= currMileage) {
+        upcoming.push(mostRecentService);
       }
     }
     return upcoming;
@@ -102,11 +147,11 @@ function UpcomingMaintenance(props) {
     var isDate = false;
     var currMileage = Number(findCar(carId).mileage);
     var today = new Date();
-    if(service.nextServiceDate.trim().length !== 0 && new Date(service.nextServiceDate).getTime() >= today.getTime()) {
+    if(service.nextServiceDate.trim().length !== 0) {
       text = text + " " + service.nextServiceDate.trim();
       isDate = true;
     }
-    if(Number(service.nextServiceMileage.toString().trim()) !== 0 && service.nextServiceMileage.toString().trim().length !== 0 && Number(service.nextServiceMileage) >= currMileage) {
+    if(Number(service.nextServiceMileage.toString().trim()) !== 0 && service.nextServiceMileage.toString().trim().length !== 0) {
       if(isDate) {
         text = text + " or " + service.nextServiceMileage.toString().trim() + " miles";
       }
@@ -145,6 +190,7 @@ function UpcomingMaintenance(props) {
 
   //counter to determine if there is no upcoming maintenance
   var upcomingCount = 0;
+  var overdueCount = 0;
   return (
     <Row>
       <Col>
@@ -158,38 +204,76 @@ function UpcomingMaintenance(props) {
               :
               <Row>
                 <Col>
-                  {serviceLogs.map((log) => {
-                    var upcoming = getUpcomingServices(log);
-                    upcomingCount += upcoming.length;
-                    return (
-                      <div>
-                        {upcoming.map((service) => {
-                          return (
-                            <div style = {{border: "1px solid white"}}>
-                              <Row>
-                                <Col>
-                                  <h6> {getCarName(log.carReferenceId) + " - " + service.serviceName} </h6>
-                                </Col>
-                              </Row>
-                              <Row>
-                                <Col>
-                                  <Badge variant = "warning">
-                                    {getDueText(service, log.carReferenceId)}
-                                  </Badge>
-                                </Col>
-                              </Row>
-                              <hr style = {{border: "1px solid lightGray", height: "50%"}} />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                  {upcomingCount === 0 ?
-                    <div> You have nothing scheduled for your cars. </div>
-                    :
-                    <div> </div>
-                  }
+                  <Row>
+                    <Col>
+                      {serviceLogs.map((log) => {
+                        var overdue = getOverdueServices(log);
+                        overdueCount += overdue.length;
+                        return (
+                          <div>
+                            {overdue.map((service) => {
+                              return (
+                                <div style = {{border: "1px solid white"}}>
+                                  <Row>
+                                    <Col xs = {8}>
+                                      <h6>
+                                        {getCarName(log.carReferenceId) + " - " + service.serviceName}
+                                      </h6>
+                                    </Col>
+                                    <Col xs = {4} style = {{textAlign: "right"}}>
+                                      <Badge variant = "danger">
+                                        ! Overdue
+                                      </Badge>
+                                    </Col>
+                                  </Row>
+                                  <Row>
+                                    <Col style = {{textIndent: "2%"}}>
+                                      <small> ⌛ {getDueText(service, log.carReferenceId)} </small>
+                                    </Col>
+                                  </Row>
+                                  <hr style = {{border: "1px solid lightGray", height: "50%"}} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })}
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      {serviceLogs.map((log) => {
+                        var upcoming = getUpcomingServices(log);
+                        upcomingCount += upcoming.length;
+                        return (
+                          <div>
+                            {upcoming.map((service) => {
+                              return (
+                                <div style = {{border: "1px solid white"}}>
+                                  <Row>
+                                    <Col>
+                                      <h6> {getCarName(log.carReferenceId) + " - " + service.serviceName} </h6>
+                                    </Col>
+                                  </Row>
+                                  <Row>
+                                    <Col style = {{textIndent: "2%"}}>
+                                      <small> ⌛ {getDueText(service, log.carReferenceId)} </small>
+                                    </Col>
+                                  </Row>
+                                  <hr style = {{border: "1px solid lightGray", height: "50%"}} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })}
+                      {upcomingCount === 0 && overdueCount === 0 ?
+                        <div> You have nothing scheduled for your cars. </div>
+                        :
+                        <div> </div>
+                      }
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
             }
