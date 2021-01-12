@@ -12,7 +12,7 @@ export function googleSignin() {
 }
 
 //signs the user out
-export function signout(test) {
+export function signout() {
 	AUTH.signOut().then(function(result) {
 		window.location.pathname = "/";
 	}).catch(function(error) {

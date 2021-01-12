@@ -14,6 +14,7 @@ import Home from './components/Home.js';
 import HomeMobile from './components/HomeMobile.js';
 import ScheduledServiceTypes from './pages/ScheduledServiceTypes.js';
 import CarInfo from './pages/CarInfo.js';
+import Profile from './pages/Profile.js';
 
 const AUTH = require('./controllers/auth.js');
 const MOBILEBREAKPOINT = 500;
@@ -102,6 +103,16 @@ function App() {
             </Container>
           }
         >
+        </Route>
+        <Route
+          exact path = "/profile"
+        >
+          <Container fluid>
+            <AppNavbar />
+            <Profile
+              userInfo = {userInfo}
+            />
+          </Container>
         </Route>
       </Switch>
     </Router>

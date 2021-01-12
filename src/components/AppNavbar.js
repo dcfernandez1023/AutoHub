@@ -48,7 +48,9 @@ function AppNavbar() {
             </Tooltip>
           }
         >
-          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
+          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
+            onClick = {() => {window.location.pathname = "/profile"}}
+          >
             👤
           </Button>
         </OverlayTrigger>
