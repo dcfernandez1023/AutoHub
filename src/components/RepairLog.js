@@ -56,6 +56,7 @@ function RepairLog(props) {
     newRow.userCreated = props.userInfo.email;
     newRow.datePerformed = new Date().toLocaleDateString();
     newRow.mileage = props.car.mileage;
+    newRow.carReferenceId = props.car.carId;
     arr.push(newRow);
     setServices(arr);
     setIsSaved(false);

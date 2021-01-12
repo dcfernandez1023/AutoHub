@@ -19,6 +19,7 @@ import Card from 'react-bootstrap/Card';
 import CarModal from '../components/CarModal.js';
 import ScheduledLog from '../components/ScheduledLog.js';
 import RepairLog from '../components/RepairLog.js';
+import UpcomingMaintenance from '../components/UpcomingMaintenance.js';
 
 const DB = require('../controllers/db.js');
 const CARMODEL = require('../models/car.js');
@@ -28,6 +29,7 @@ const GENERICFUNCTIONS = require('../controllers/genericFunctions.js');
 function CarInfo(props) {
 
   const[car, setCar] = useState();
+  const[cars, setCars] = useState([]); //THIS IS ONLY USED TO PUSH THE CAR INTO AN ARRAY AND PASS IT AS PROPS TO UPCOMINGMAINTENANCE COMPONENT
   const[serviceLog, setServiceLog] = useState();
   const[ssts, setSsts] = useState();
   const[show, setShow] = useState(false);
@@ -52,6 +54,9 @@ function CarInfo(props) {
       }
       else {
         setCar(quereySnapshot.docs[0].data());
+        var cars = [];
+        cars.push(quereySnapshot.docs[0].data());
+        setCars(cars);
       }
     });
   }
@@ -318,7 +323,7 @@ function CarInfo(props) {
             <Tab eventKey = "info" title = "Info">
               <br/>
               <Row>
-                <Col md = {6} style = {{marginBottom: "5%"}}>
+                <Col lg = {6} style = {{marginBottom: "5%"}}>
                   <Row>
                     <Col>
                       <Row>
@@ -424,20 +429,33 @@ function CarInfo(props) {
                     </Col>
                   </Row>
                 </Col>
-                <Col md = {6}>
-                  <Card border = "light">
-                    <Card.Header> Cost Breakdown 💰 </Card.Header>
-                    <Card.Body>
-                      <Card.Text>
-                        <Pie
-                          data = {calculateCostBreakdown()}
-                          options = {{ maintainAspectRatio: false }}
-                          height = {250}
-                          width = {250}
-                        />
-                      </Card.Text>
-                    </Card.Body>
-                  </Card>
+                <Col lg = {6}>
+                  <Row>
+                    <Col>
+                      <UpcomingMaintenance
+                        cars = {cars}
+                        userCreated = {props.userInfo.email}
+                      />
+                    </Col>
+                  </Row>
+                  <br style = {{height: "50%"}} />
+                  <Row>
+                    <Col>
+                      <Card>
+                        <Card.Header> Cost Breakdown 💰 </Card.Header>
+                        <Card.Body>
+                          <Card.Text>
+                            <Pie
+                              data = {calculateCostBreakdown()}
+                              options = {{ maintainAspectRatio: false }}
+                              height = {250}
+                              width = {250}
+                            />
+                          </Card.Text>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
             </Tab>

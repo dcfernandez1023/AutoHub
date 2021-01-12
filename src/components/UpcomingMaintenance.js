@@ -16,8 +16,9 @@ const DB = require('../controllers/db.js');
 function UpcomingMaintenance(props) {
 
   const [serviceLogs, setServiceLogs] = useState([]);
-  const[isCalendar, setIsCalendar] = useState(false);
   const[isLoading, setIsLoading] = useState(false);
+  const[upcomingServices, setUpcomingServices] = useState();
+  const[overdueServices, setOverdueServices] = useState();
 
   useEffect(() => {
     getServiceLogs(props.cars);
@@ -30,28 +31,43 @@ function UpcomingMaintenance(props) {
     setIsLoading(true);
     if(cars.length === 1) {
       DB.getQuerey("carReferenceId", cars[0].carId, "serviceLogs").onSnapshot(quereySnapshot => {
+        var logs = [];
         if(quereySnapshot.docs.length > 1 || quereySnapshot.docs[0] === undefined) {
           return;
         }
         else {
           var serviceLog = quereySnapshot.docs[0].data();
           if(serviceLog !== undefined) {
-            var logs = serviceLogs.slice();
             logs.push(serviceLog);
             setServiceLogs(logs);
             setIsLoading(false);
           }
         }
+        var upcoming = [];
+        var overdue = [];
+        for(var i = 0; i < logs.length; i++) {
+          var log = logs[i]
+          var u = getUpcomingServices(log)
+          var o = getOverdueServices(log)
+          for(var j = 0; j < u.length; j++) {
+            upcoming.push(u[j]);
+          }
+          for(var n = 0; n < o.length; n++) {
+            overdue.push(o[n]);
+          }
+        }
+        setUpcomingServices(upcoming);
+        setOverdueServices(overdue);
       });
     }
     else {
       DB.getQuerey("userCreated", props.userCreated, "serviceLogs").onSnapshot(quereySnapshot => {
-        if(quereySnapshot.docs.length < 1 || quereySnapshot.docs === undefined) {
+        var logs = [];
+        if(quereySnapshot.docs === undefined) {
           return;
         }
         else {
           if(serviceLogs !== undefined) {
-            var logs = serviceLogs.slice();
             for(var i = 0; i < quereySnapshot.docs.length; i++) {
               logs.push(quereySnapshot.docs[i].data());
             }
@@ -59,6 +75,21 @@ function UpcomingMaintenance(props) {
             setIsLoading(false);
           }
         }
+        var upcoming = [];
+        var overdue = [];
+        for(var i = 0; i < logs.length; i++) {
+          var log = logs[i]
+          var u = getUpcomingServices(log)
+          var o = getOverdueServices(log)
+          for(var j = 0; j < u.length; j++) {
+            upcoming.push(u[j]);
+          }
+          for(var n = 0; n < o.length; n++) {
+            overdue.push(o[n]);
+          }
+        }
+        setUpcomingServices(upcoming);
+        setOverdueServices(overdue);
       });
     }
   }
@@ -75,10 +106,17 @@ function UpcomingMaintenance(props) {
   }
 
   function getOverdueServices(log) {
+    if(log === undefined || log === null) {
+      return [];
+    }
     var overdue = [];
     var sstIds = [];
     var today = new Date();
-    var currMileage = Number(findCar(log.carReferenceId).mileage);
+    var car = findCar(log.carReferenceId);
+    if(car === null || car === undefined) {
+      return [];
+    }
+    var currMileage = Number(car.mileage);
     for(var i = 0; i < log.scheduledLog.length; i++) {
       if(!sstIds.includes(log.scheduledLog[i].sstRefId)) {
         sstIds.push(log.scheduledLog[i].sstRefId);
@@ -96,7 +134,11 @@ function UpcomingMaintenance(props) {
           mostRecentService = service;
         }
       }
-      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.mileage) < currMileage) {
+      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) < currMileage) {
+        //same as saying: if the next service date and next service mileage are blank/empty, then they aren't overdue
+        if(mostRecentService.nextServiceDate.toString().trim().length === 0 && mostRecentService.nextServiceMileage.toString().trim().length === 0) {
+          continue;
+        }
         overdue.push(mostRecentService);
       }
     }
@@ -104,10 +146,17 @@ function UpcomingMaintenance(props) {
   }
 
   function getUpcomingServices(log) {
+    if(log === undefined || log === null) {
+      return [];
+    }
     var upcoming = [];
     var sstIds = [];
     var today = new Date();
-    var currMileage = Number(findCar(log.carReferenceId).mileage);
+    var car = findCar(log.carReferenceId);
+    if(car === null || car === undefined) {
+      return [];
+    }
+    var currMileage = Number(car.mileage);
     for(var i = 0; i < log.scheduledLog.length; i++) {
       if(!sstIds.includes(log.scheduledLog[i].sstRefId)) {
         sstIds.push(log.scheduledLog[i].sstRefId);
@@ -125,7 +174,11 @@ function UpcomingMaintenance(props) {
           mostRecentService = service;
         }
       }
-      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() >= today.getTime() || mostRecentService !== null && Number(mostRecentService.mileage) >= currMileage) {
+      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() >= today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) >= currMileage) {
+        //same as saying: if the mostRecentService is included within the overdue list, then don't add it to the upcoming list
+        if(new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) < currMileage) {
+          continue;
+        }
         upcoming.push(mostRecentService);
       }
     }
@@ -162,7 +215,7 @@ function UpcomingMaintenance(props) {
     return text;
   }
 
-  if(props.cars === undefined) {
+  if(props.cars === undefined || upcomingServices === undefined || overdueServices === undefined) {
     if(isLoading) {
       return (
         <Container fluid>
@@ -206,68 +259,56 @@ function UpcomingMaintenance(props) {
                 <Col>
                   <Row>
                     <Col>
-                      {serviceLogs.map((log) => {
-                        var overdue = getOverdueServices(log);
-                        overdueCount += overdue.length;
-                        return (
-                          <div>
-                            {overdue.map((service) => {
-                              return (
-                                <div style = {{border: "1px solid white"}}>
-                                  <Row>
-                                    <Col xs = {8}>
-                                      <h6>
-                                        {getCarName(log.carReferenceId) + " - " + service.serviceName}
-                                      </h6>
-                                    </Col>
-                                    <Col xs = {4} style = {{textAlign: "right"}}>
-                                      <Badge variant = "danger">
-                                        ! Overdue
-                                      </Badge>
-                                    </Col>
-                                  </Row>
-                                  <Row>
-                                    <Col style = {{textIndent: "2%"}}>
-                                      <small> ⌛ {getDueText(service, log.carReferenceId)} </small>
-                                    </Col>
-                                  </Row>
-                                  <hr style = {{border: "1px solid lightGray", height: "50%"}} />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      })}
+                      <div>
+                        {overdueServices.map((service) => {
+                          return (
+                            <div style = {{border: "1px solid white"}}>
+                              <Row>
+                                <Col xs = {8}>
+                                  <h6>
+                                    {getCarName(service.carReferenceId) + " - " + service.serviceName}
+                                  </h6>
+                                </Col>
+                                <Col xs = {4} style = {{textAlign: "right"}}>
+                                  <Badge variant = "danger">
+                                    ! Overdue
+                                  </Badge>
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col style = {{textIndent: "2%"}}>
+                                  <small> ⌛ {getDueText(service, service.carReferenceId)} </small>
+                                </Col>
+                              </Row>
+                              <hr style = {{border: "1px solid lightGray", height: "50%"}} />
+                            </div>
+                          );
+                        })}
+                      </div>
                     </Col>
                   </Row>
                   <Row>
                     <Col>
-                      {serviceLogs.map((log) => {
-                        var upcoming = getUpcomingServices(log);
-                        upcomingCount += upcoming.length;
-                        return (
-                          <div>
-                            {upcoming.map((service) => {
-                              return (
-                                <div style = {{border: "1px solid white"}}>
-                                  <Row>
-                                    <Col>
-                                      <h6> {getCarName(log.carReferenceId) + " - " + service.serviceName} </h6>
-                                    </Col>
-                                  </Row>
-                                  <Row>
-                                    <Col style = {{textIndent: "2%"}}>
-                                      <small> ⌛ {getDueText(service, log.carReferenceId)} </small>
-                                    </Col>
-                                  </Row>
-                                  <hr style = {{border: "1px solid lightGray", height: "50%"}} />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      })}
-                      {upcomingCount === 0 && overdueCount === 0 ?
+                      <div>
+                        {upcomingServices.map((service) => {
+                          return (
+                            <div style = {{border: "1px solid white"}}>
+                              <Row>
+                                <Col>
+                                  <h6> {getCarName(service.carReferenceId) + " - " + service.serviceName} </h6>
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col style = {{textIndent: "2%"}}>
+                                  <small> ⌛ {getDueText(service, service.carReferenceId)} </small>
+                                </Col>
+                              </Row>
+                              <hr style = {{border: "1px solid lightGray", height: "50%"}} />
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {upcomingServices.length === 0 && overdueServices.length === 0 ?
                         <div> You have nothing scheduled for your cars. </div>
                         :
                         <div> </div>

@@ -40,19 +40,6 @@ function AppNavbar() {
           </Button>
         </OverlayTrigger>
         <OverlayTrigger
-          key = "messages"
-          placement = "bottom"
-          overlay = {
-            <Tooltip id = "message">
-              Messages
-            </Tooltip>
-          }
-        >
-          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}>
-            ✉️
-          </Button>
-        </OverlayTrigger>
-        <OverlayTrigger
           key = "profile"
           placement = "bottom"
           overlay = {

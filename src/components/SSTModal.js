@@ -179,25 +179,56 @@ function SSTModal(props) {
     );
   }
 
-  //have to update serviceNames in scheduled service log if there is a name change of an sst
+  //have to update serviceNames & intervals in scheduled service log if there is a name change or interval change of an sst
   function updateServiceLog() {
-    if(sst.serviceName !== props.sst.serviceName) {
-      DB.getQuerey("userCreated", props.userCreated, "serviceLogs").onSnapshot(quereySnapshot => {
-        var logs = [];
-        for(var i = 0; i < quereySnapshot.docs.length; i++) {
-          logs.push(quereySnapshot.docs[i].data());
-        }
-        for(var i = 0; i < logs.length; i++) {
-          var log = logs[i];
-          for(var j = 0; j < log.scheduledLog.length; j++) {
-            var service = log.scheduledLog[j];
-            if(service.sstRefId === sst.typeId) {
-              service.serviceName = sst.serviceName;
+    DB.getQuerey("userCreated", props.userCreated, "serviceLogs").onSnapshot(quereySnapshot => {
+      var logs = [];
+      for(var i = 0; i < quereySnapshot.docs.length; i++) {
+        logs.push(quereySnapshot.docs[i].data());
+      }
+      for(var i = 0; i < logs.length; i++) {
+        var log = logs[i];
+        for(var j = 0; j < log.scheduledLog.length; j++) {
+          var service = log.scheduledLog[j];
+          if(service.sstRefId === sst.typeId) {
+            service.serviceName = sst.serviceName;
+            var dateObj = new Date(service.datePerformed);
+            var timeUnits = sst.carsScheduled[log.carReferenceId].time.units;
+            var timeStep = sst.carsScheduled[log.carReferenceId].time.quantity;
+            var mileageInterval = sst.carsScheduled[log.carReferenceId].miles;
+            var car = findCar(log.carReferenceId);
+            if(timeUnits.trim().length === 0 || Number(timeStep) === 0) {
+              service.nextServiceDate = "";
+            }
+            else {
+              service.nextServiceDate = GENERICFUNCTIONS.incrementDate(dateObj, timeUnits, timeStep).toLocaleDateString();
+            }
+            if(Number(mileageInterval) === 0 || mileageInterval.toString().trim().length === 0) {
+              service.nextServiceMileage = "";
+            }
+            else {
+              if(Number(service.mileage) === 0) {
+                service.nextServiceMileage = (Number(sst.carsScheduled[log.carReferenceId].miles) + Number(car.mileage));
+              }
+              else {
+                service.nextServiceMileage = (Number(sst.carsScheduled[log.carReferenceId].miles) + Number(service.mileage));
+              }
             }
           }
         }
-        DB.writeMany("logId", logs, "serviceLogs");
-      });
+      }
+      DB.writeMany("logId", logs, "serviceLogs");
+    });
+  }
+
+  function findCar(carId) {
+    if(carId === undefined || carId === null) {
+      return null;
+    }
+    for(var i = 0; i < cars.length; i++) {
+      if(cars[i].carId === carId) {
+        return cars[i];
+      }
     }
   }
 

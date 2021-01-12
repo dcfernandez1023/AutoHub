@@ -2,6 +2,7 @@ export const repairService = {
   userCreated: "",
   serviceId: "",
   serviceType: "repair",
+  carReferenceId: "",
   datePerformed: "",
   serviceName: "",
   mileage: 0,

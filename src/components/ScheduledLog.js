@@ -56,6 +56,7 @@ function ScheduledLog(props) {
     newRow.userCreated = props.userInfo.email;
     newRow.datePerformed = new Date().toLocaleDateString();
     newRow.mileage = props.car.mileage;
+    newRow.carReferenceId = props.car.carId;
     arr.push(newRow);
     setServices(arr);
     setIsSaved(false);
@@ -192,7 +193,7 @@ function ScheduledLog(props) {
         }
         if(Object.keys(props.ssts[i].carsScheduled).length !== 0 && Number(props.ssts[i].carsScheduled[props.carId].miles) !== 0) {
           var mileage;
-          if(Number(services[serviceIndex].mileage) === 0) {
+          if(Number(services[serviceIndex].mileage) === 0 || services[serviceIndex].mileage.toString().trim().length === 0) {
             mileage = (Number(props.ssts[i].carsScheduled[props.carId].miles) + Number(props.car.mileage));
           }
           else {

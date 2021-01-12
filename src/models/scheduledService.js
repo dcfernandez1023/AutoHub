@@ -2,6 +2,7 @@ export const scheduledService = {
   userCreated: "",
   serviceId: "",
   serviceType: "scheduled",
+  carReferenceId: "",
   datePerformed: "",
   serviceName: "",
   sstRefId: "",
