@@ -28,12 +28,7 @@ function App() {
   useEffect(() => {
     isUserSignedin();
     detectMobile();
-    test();
   });
-
-  function test() {
-    console.log("test");
-  }
 
   //sets userInfo state object
   //passes a call back to AUTH controller to set state object of this component

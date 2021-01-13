@@ -41,13 +41,29 @@ function ScheduledLog(props) {
   const[sortValue, setSortValue] = useState("");
   const[toggleNotes, setToggleNotes] = useState("");
   const[currMileageId, setCurrMileageId] = useState({serviceId: "", mileage: -1});
+  const[notSavedShow, setNotSavedShow] = useState(false);
 
   useEffect(() => {
     getCars();
+    /*
+    if(!isSaved) {
+      console.log("setting event listener");
+      window.addEventListener("beforeunload", test);
+    }
+    else {
+      console.log("removing event listener");
+      window.removeEventListener("beforeunload", test);
+    }
+    */
     if(props.serviceLog !== undefined) {
       setServices(props.serviceLog.scheduledLog);
     }
-  }, [props.userInfo, props.serviceLog])
+  }, [props.userInfo, props.serviceLog, isSaved])
+
+  const test = (e) => {
+    e.preventDefault();
+    e.returnValue = "";
+  }
 
   function addRow() {
     var newRow = JSON.parse(JSON.stringify(SSMODEL.scheduledService));
