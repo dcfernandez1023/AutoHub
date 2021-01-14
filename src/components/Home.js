@@ -29,7 +29,7 @@ function Home(props) {
 
   const[showCarModal, setShowCarModal] = useState(false); //flag to display car modal
   const[cars, setCars] = useState(); //user's Cars
-  const[isListView, setIsListView] = useState(false); //flag to toggle the mode of displaying cars (list vs. grid)
+  const[isListView, setIsListView] = useState(true); //flag to toggle the mode of displaying cars (list vs. grid)
 
   useEffect(() => {
     getCars();

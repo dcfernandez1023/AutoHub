@@ -11,6 +11,28 @@ export function googleSignin() {
 	});
 }
 
+export function standardRegister(email, password) {
+	AUTH.createUserWithEmailAndPassword(email, password)
+		.then((user) => {
+			return;
+		}).catch((error) => {
+			alert(error.message);
+			console.log(error.code);
+			console.log(error.message);
+		});
+}
+
+export function standardLogin(email, password) {
+	AUTH.signInWithEmailAndPassword(email, password)
+		.then((user) => {
+			return;
+		}).catch((error) => {
+			alert(error.message);
+			console.log(error.code);
+			console.log(error.message);
+		});
+}
+
 //signs the user out
 export function signout() {
 	AUTH.signOut().then(function(result) {

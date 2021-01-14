@@ -448,8 +448,8 @@ function CarInfo(props) {
                             <Pie
                               data = {calculateCostBreakdown()}
                               options = {{ maintainAspectRatio: false }}
-                              height = {250}
-                              width = {250}
+                              height = {175}
+                              width = {175}
                             />
                           </Card.Text>
                         </Card.Body>

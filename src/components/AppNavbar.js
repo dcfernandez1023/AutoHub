@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
+import '../component-css/AppNavbar.css';
+
 import Button from 'react-bootstrap/Button';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Dropdown from 'react-bootstrap/Dropdown';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
@@ -9,7 +13,9 @@ import Nav from 'react-bootstrap/Nav';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip'
 
-function AppNavbar() {
+const AUTH = require('../controllers/auth.js');
+
+function AppNavbar(props) {
   return (
     <Navbar fluid style = {{backgroundColor: "#A9CCE3"}}>
       <Navbar.Brand href = "/">
@@ -22,38 +28,44 @@ function AppNavbar() {
       <Nav className = "mr-auto">
       </Nav>
       <Nav className = "justify-content-end">
-        <OverlayTrigger
-          key = "scheduled-service-types"
-          placement = "bottom"
-          overlay = {
-            <Tooltip id = "scheduled-service-type">
-              Scheduled Service Types
-            </Tooltip>
-          }
+        <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
+          onClick = {() => {
+            window.location.pathname = "/scheduledServiceTypes";
+          }}
         >
-          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
-            onClick = {() => {
-              window.location.pathname = "/scheduledServiceTypes";
-            }}
-          >
-            🛎️
-          </Button>
-        </OverlayTrigger>
-        <OverlayTrigger
-          key = "profile"
-          placement = "bottom"
-          overlay = {
-            <Tooltip id = "my-profile">
-              Profile
-            </Tooltip>
-          }
+          🛎️
+        </Button>
+        <Dropdown
         >
-          <Button variant = "light" style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
-            onClick = {() => {window.location.pathname = "/profile"}}
+          <Dropdown.Toggle
+            variant = "light"
+            style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
           >
             👤
-          </Button>
-        </OverlayTrigger>
+          </Dropdown.Toggle>
+          <Dropdown.Menu align = "right" style = {{width: "280px", height: "100px", padding: "10px", border: "1px solid gray"}}>
+            <Row>
+              <Col>
+                <Row style = {{marginBottom: "15px"}}>
+                  <Col>
+                    <p>
+                      {props.userInfo === undefined ? "" : props.userInfo.email}
+                    </p>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col style = {{textAlign: "center"}}>
+                    <Button size = "sm"
+                      onClick = {() => {AUTH.signout()}}
+                    >
+                      Signout
+                    </Button>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </Dropdown.Menu>
+        </Dropdown>
       </Nav>
     </Navbar>
   );

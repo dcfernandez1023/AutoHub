@@ -14,7 +14,6 @@ import Home from './components/Home.js';
 import HomeMobile from './components/HomeMobile.js';
 import ScheduledServiceTypes from './pages/ScheduledServiceTypes.js';
 import CarInfo from './pages/CarInfo.js';
-import Profile from './pages/Profile.js';
 
 const AUTH = require('./controllers/auth.js');
 const MOBILEBREAKPOINT = 500;
@@ -53,14 +52,16 @@ function App() {
         <Route exact path = "/">
           {userInfo === null
             ?
-              <body style = {{backgroundImage: "url('tools.gif')"}}>
+              <body style = {{backgroundColor: "#A9CCE3"}}>
                 <Login
                   googleSignin = {AUTH.googleSignin}
                 />
               </body>
             :
               <Container fluid>
-                <AppNavbar />
+                <AppNavbar
+                  userInfo = {userInfo}
+                />
                 {isMobile ?
                   <div>
                     <HomeMobile
@@ -79,7 +80,9 @@ function App() {
         </Route>
         <Route exact path = "/scheduledServiceTypes">
           <Container fluid>
-            <AppNavbar />
+            <AppNavbar
+              userInfo = {userInfo}
+            />
             <ScheduledServiceTypes
               userInfo = {userInfo}
             />
@@ -89,7 +92,9 @@ function App() {
           path = "/carInfo/:carId"
           render = {(props) =>
             <Container fluid>
-              <AppNavbar />
+              <AppNavbar
+                userInfo = {userInfo}
+              />
               <CarInfo
                 {...props}
                 userInfo = {userInfo}
@@ -98,16 +103,6 @@ function App() {
             </Container>
           }
         >
-        </Route>
-        <Route
-          exact path = "/profile"
-        >
-          <Container fluid>
-            <AppNavbar />
-            <Profile
-              userInfo = {userInfo}
-            />
-          </Container>
         </Route>
       </Switch>
     </Router>
