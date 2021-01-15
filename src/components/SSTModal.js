@@ -307,7 +307,7 @@ function SSTModal(props) {
           <hr style = {{border: "1px solid lightGray"}} />
           <Row>
             <Col xs = {9}>
-              <h5> Cars </h5>
+              <h5> Vehicles </h5>
             </Col>
             <Col xs = {3} style = {{textAlign: "right"}}>
               {!toggleApply ?
@@ -486,7 +486,7 @@ function SSTModal(props) {
                     overlay = {
                       <Tooltip id = "apply-info-tooltip">
                         Enter the desired <strong> mile </strong> and/or <strong> time </strong> interval and click the 'Apply' button
-                        to apply it to the selected cars.
+                        to apply it to the selected vehicles.
                       </Tooltip>
                     }
                   >

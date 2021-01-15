@@ -65,7 +65,7 @@ function Home(props) {
       <CarModal
         show = {showCarModal}
         setShow = {setShowCarModal}
-        title = "Add Car"
+        title = "Add Vehicle"
         car = {CARMODEL.car}
         userInfo = {props.userInfo}
       />
@@ -78,7 +78,7 @@ function Home(props) {
               >
                 +
               </Button>
-              <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
+              <h4 style = {{marginTop: "0.5%"}}> Your Vehicles </h4>
             </Col>
             {cars.length === 0 ?
               <div></div>
@@ -101,7 +101,7 @@ function Home(props) {
           <Row>
           {cars.length === 0 ?
             <Col style = {{marginBottom: "10%"}}>
-              <h6> You have not added any cars. Click the + button to add a car 🚗 </h6>
+              <h6> You have not added any vehicles. Click the + button to add a car 🚗 </h6>
             </Col>
             :
             <div></div>

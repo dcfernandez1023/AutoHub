@@ -45,11 +45,6 @@ export function signout() {
 //takes in a callback to capture value from the async callback method passed to onAuthStateChanged
 export function isUserSignedin(callback) {
 	AUTH.onAuthStateChanged(function(user) {
-		try {
-			callback(user);
-		}
-		catch(error) {
-			alert(error.message);
-		}
+		callback(user);
 	});
 }

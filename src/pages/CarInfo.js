@@ -250,7 +250,7 @@ function CarInfo(props) {
       <CarModal
         show = {show}
         setShow = {setShow}
-        title = "Edit Car"
+        title = "Edit Vehicle"
         car = {car}
         userInfo = {props.userInfo}
       />
@@ -261,7 +261,7 @@ function CarInfo(props) {
         keyboard = {false}
       >
         <Modal.Header closeButton>
-          <Modal.Title> Delete Car Image </Modal.Title>
+          <Modal.Title> Delete Vehicle Image </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row>
@@ -293,14 +293,14 @@ function CarInfo(props) {
         keyboard = {false}
       >
         <Modal.Header closeButton>
-          <Modal.Title> Delete Car </Modal.Title>
+          <Modal.Title> Delete Vehicle </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Alert variant = "danger">
             <Alert.Heading>
               Warning
             </Alert.Heading>
-            Are you sure you want to delete this car? (all of this car's data will be lost)
+            Are you sure you want to delete this vehicle? (all of this vehicle's data will be lost)
           </Alert>
         </Modal.Body>
         <Modal.Footer>
@@ -330,9 +330,8 @@ function CarInfo(props) {
                         <Col style = {{textAlign: "right"}}>
                           <DropdownButton title = "⚙️" variant = "outline-dark">
                             <Dropdown.Item onClick = {() => {setShow(true)}}> Edit </Dropdown.Item>
-                            <Dropdown.Item> Export Data </Dropdown.Item>
                             <Dropdown.Item disabled = {car.imageUrl.trim().length === 0} onClick = {() => {setDeleteShow(true)}}> Delete Image </Dropdown.Item>
-                            <Dropdown.Item onClick = {() => {setDeleteCarShow(true)}}> Delete Car </Dropdown.Item>
+                            <Dropdown.Item onClick = {() => {setDeleteCarShow(true)}}> Delete Vehicle </Dropdown.Item>
                           </DropdownButton>
                         </Col>
                       </Row>
@@ -448,8 +447,8 @@ function CarInfo(props) {
                             <Pie
                               data = {calculateCostBreakdown()}
                               options = {{ maintainAspectRatio: false }}
-                              height = {175}
-                              width = {175}
+                              height = {200}
+                              width = {200}
                             />
                           </Card.Text>
                         </Card.Body>

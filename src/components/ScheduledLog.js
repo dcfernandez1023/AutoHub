@@ -67,7 +67,7 @@ function ScheduledLog(props) {
 
   function addRow() {
     var newRow = JSON.parse(JSON.stringify(SSMODEL.scheduledService));
-    var arr = services.slice();
+    var arr = services;
     newRow.serviceId = GENERICFUNCTIONS.generateId();
     newRow.userCreated = props.userInfo.email;
     newRow.datePerformed = new Date().toLocaleDateString();
@@ -76,17 +76,18 @@ function ScheduledLog(props) {
     arr.push(newRow);
     setServices(arr);
     setIsSaved(false);
+    console.log(arr);
   }
 
   function deleteRow(index) {
-    var arr = services.slice();
+    var arr = services;
     arr.splice(index, 1);
     setServices(arr);
     setIsSaved(false);
   }
 
   function onChangeCol(e, index, type) {
-    var arr = services.slice();
+    var arr = services;
     var copy = arr[index];
     var name = [e.target.name][0];
     var value = e.target.value;
@@ -121,7 +122,7 @@ function ScheduledLog(props) {
   }
 
   function onChangeDate(date, index) {
-    var arr = services.slice();
+    var arr = services;
     //var copy = JSON.parse(JSON.stringify(arr[index]));
     var copy = arr[index];
     if(date === null) {
@@ -517,7 +518,7 @@ function ScheduledLog(props) {
                             <Form.Check
                               size = "sm"
                               type = "checkbox"
-                              id = "apply-mileage"
+                              id = {service.serviceId}
                               onChange = {() => {
                                 setIsSaved(false);
                                 if(service.serviceId === currMileageId.serviceId) {
