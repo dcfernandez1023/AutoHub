@@ -328,7 +328,7 @@ function CarInfo(props) {
                     <Col>
                       <Row>
                         <Col style = {{textAlign: "right"}}>
-                          <DropdownButton title = "⚙️" variant = "outline-dark">
+                          <DropdownButton title = "⚙️" variant = "outline-dark" menuAlign = "right">
                             <Dropdown.Item onClick = {() => {setShow(true)}}> Edit </Dropdown.Item>
                             <Dropdown.Item disabled = {car.imageUrl.trim().length === 0} onClick = {() => {setDeleteShow(true)}}> Delete Image </Dropdown.Item>
                             <Dropdown.Item onClick = {() => {setDeleteCarShow(true)}}> Delete Vehicle </Dropdown.Item>
