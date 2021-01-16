@@ -21,7 +21,10 @@ function AppNavbar(props) {
       <Navbar.Brand href = "/">
         <Row>
           <Col>
-            <h4> AutoHub </h4>
+            <h4>
+              AutoHub
+              <Image src = "/auto.png" style = {{width: "25px", height: "25px", marginLeft: "8px", marginBottom: "3%"}} />
+            </h4>
           </Col>
         </Row>
       </Navbar.Brand>

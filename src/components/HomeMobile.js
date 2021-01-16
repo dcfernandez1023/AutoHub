@@ -71,7 +71,7 @@ function HomeMobile(props) {
         car = {CARMODEL.car}
         userInfo = {props.userInfo}
       />
-      <Row style = {{marginTop: "5%"}}>
+    <Row style = {{marginTop: "25px"}}>
         <Col>
           <Row>
             <Button variant = "outline-dark" style = {{marginRight: "3%"}}

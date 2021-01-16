@@ -69,7 +69,7 @@ function Home(props) {
         car = {CARMODEL.car}
         userInfo = {props.userInfo}
       />
-      <Row style = {{marginTop: "2%"}}>
+    <Row style = {{marginTop: "25px"}}>
         <Col lg = {7}>
           <Row>
             <Col xs = {6}>

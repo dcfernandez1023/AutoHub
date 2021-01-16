@@ -250,10 +250,10 @@ function UpcomingMaintenance(props) {
           <Card>
             <Accordion.Toggle as = {Card.Header} eventKey = "upcoming-maintenance">
               <Row>
-                <Col xs = {8}>
+                <Col xs = {10}>
                   Upcoming Maintenance 🛠️
                 </Col>
-                <Col xs = {4} style = {{textAlign: "right"}}>
+                <Col xs = {2} style = {{textAlign: "right"}}>
                   <Image src = "/expand_collapse.png" style = {{width: "15px", height: "15px"}} />
                 </Col>
               </Row>
