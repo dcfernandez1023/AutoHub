@@ -10,6 +10,8 @@ import Card from 'react-bootstrap/Card';
 import Calendar from 'react-calendar';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
+import Accordion from 'react-bootstrap/Accordion';
+import Image from 'react-bootstrap/Image';
 
 const DB = require('../controllers/db.js');
 
@@ -241,85 +243,93 @@ function UpcomingMaintenance(props) {
     );
   }
 
-  //counter to determine if there is no upcoming maintenance
-  var upcomingCount = 0;
-  var overdueCount = 0;
   return (
     <Row>
       <Col>
-        <Card>
-          <Card.Header>
-            Upcoming Maintenance 🛠️
-          </Card.Header>
-          <Card.Body>
-            {serviceLogs.length === 0 ?
-              <div> You have nothing scheduled for your cars. </div>
-              :
+        <Accordion defaultActiveKey = "upcoming-maintenance">
+          <Card>
+            <Accordion.Toggle as = {Card.Header} eventKey = "upcoming-maintenance">
               <Row>
-                <Col>
-                  <Row>
-                    <Col>
-                      <div>
-                        {overdueServices.map((service) => {
-                          return (
-                            <div style = {{border: "1px solid white"}}>
-                              <Row>
-                                <Col xs = {8}>
-                                  <h6>
-                                    {getCarName(service.carReferenceId) + " - " + service.serviceName}
-                                  </h6>
-                                </Col>
-                                <Col xs = {4} style = {{textAlign: "right"}}>
-                                  <Badge variant = "danger">
-                                    ! Overdue
-                                  </Badge>
-                                </Col>
-                              </Row>
-                              <Row>
-                                <Col style = {{textIndent: "2%"}}>
-                                  <small> ⌛ {getDueText(service, service.carReferenceId)} </small>
-                                </Col>
-                              </Row>
-                              <hr style = {{border: "1px solid lightGray", height: "50%"}} />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
-                      <div>
-                        {upcomingServices.map((service) => {
-                          return (
-                            <div style = {{border: "1px solid white"}}>
-                              <Row>
-                                <Col>
-                                  <h6> {getCarName(service.carReferenceId) + " - " + service.serviceName} </h6>
-                                </Col>
-                              </Row>
-                              <Row>
-                                <Col style = {{textIndent: "2%"}}>
-                                  <small> ⌛ {getDueText(service, service.carReferenceId)} </small>
-                                </Col>
-                              </Row>
-                              <hr style = {{border: "1px solid lightGray", height: "50%"}} />
-                            </div>
-                          );
-                        })}
-                      </div>
-                      {upcomingServices.length === 0 && overdueServices.length === 0 ?
-                        <div> You have nothing scheduled for your cars. </div>
-                        :
-                        <div> </div>
-                      }
-                    </Col>
-                  </Row>
+                <Col xs = {8}>
+                  Upcoming Maintenance 🛠️
+                </Col>
+                <Col xs = {4} style = {{textAlign: "right"}}>
+                  <Image src = "/expand_collapse.png" style = {{width: "15px", height: "15px"}} />
                 </Col>
               </Row>
-            }
-          </Card.Body>
-        </Card>
+            </Accordion.Toggle>
+            <Accordion.Collapse eventKey = "upcoming-maintenance">
+              <Card.Body>
+                {serviceLogs.length === 0 ?
+                  <div> You have nothing scheduled for your cars. </div>
+                  :
+                  <Row>
+                    <Col>
+                      <Row>
+                        <Col>
+                          <div>
+                            {overdueServices.map((service) => {
+                              return (
+                                <div style = {{border: "1px solid white"}}>
+                                  <Row>
+                                    <Col xs = {8}>
+                                      <h6>
+                                        {getCarName(service.carReferenceId) + " - " + service.serviceName}
+                                      </h6>
+                                    </Col>
+                                    <Col xs = {4} style = {{textAlign: "right"}}>
+                                      <Badge variant = "danger">
+                                        ! Overdue
+                                      </Badge>
+                                    </Col>
+                                  </Row>
+                                  <Row>
+                                    <Col style = {{textIndent: "2%"}}>
+                                      <small> ⌛ {getDueText(service, service.carReferenceId)} </small>
+                                    </Col>
+                                  </Row>
+                                  <hr style = {{border: "1px solid lightGray", height: "50%"}} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <div>
+                            {upcomingServices.map((service) => {
+                              return (
+                                <div style = {{border: "1px solid white"}}>
+                                  <Row>
+                                    <Col>
+                                      <h6> {getCarName(service.carReferenceId) + " - " + service.serviceName} </h6>
+                                    </Col>
+                                  </Row>
+                                  <Row>
+                                    <Col style = {{textIndent: "2%"}}>
+                                      <small> ⌛ {getDueText(service, service.carReferenceId)} </small>
+                                    </Col>
+                                  </Row>
+                                  <hr style = {{border: "1px solid lightGray", height: "50%"}} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {upcomingServices.length === 0 && overdueServices.length === 0 ?
+                            <div> You have nothing scheduled for your cars. </div>
+                            :
+                            <div> </div>
+                          }
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                }
+              </Card.Body>
+            </Accordion.Collapse>
+          </Card>
+        </Accordion>
       </Col>
     </Row>
   );

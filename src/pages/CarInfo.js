@@ -15,6 +15,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Alert from 'react-bootstrap/Alert';
 import Pie from 'react-chartjs-2';
 import Card from 'react-bootstrap/Card';
+import Accordion from 'react-bootstrap/Accordion';
 
 import CarModal from '../components/CarModal.js';
 import ScheduledLog from '../components/ScheduledLog.js';
@@ -441,7 +442,9 @@ function CarInfo(props) {
                   <Row>
                     <Col>
                       <Card>
-                        <Card.Header> Cost Breakdown 💰 </Card.Header>
+                        <Card.Header>
+                          Cost Breakdown 💰
+                        </Card.Header>
                         <Card.Body>
                           <Card.Text>
                             <Pie
@@ -449,6 +452,7 @@ function CarInfo(props) {
                               options = {{ maintainAspectRatio: false }}
                               height = {200}
                               width = {200}
+                              style = {{minWidth: "200px", minHeight: "200px"}}
                             />
                           </Card.Text>
                         </Card.Body>

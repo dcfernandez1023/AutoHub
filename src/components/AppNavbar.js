@@ -43,9 +43,9 @@ function AppNavbar(props) {
           >
             👤
           </Dropdown.Toggle>
-          <Dropdown.Menu align = "right" style = {{width: "280px", height: "100px", padding: "10px", border: "1px solid gray"}}>
+          <Dropdown.Menu align = "right" style = {{width: "280px", height: "100px", border: "1px solid gray"}}>
             <Row>
-              <Col>
+              <Col style = {{textAlign: "center"}}>
                 <Row style = {{marginBottom: "15px"}}>
                   <Col>
                     <p>

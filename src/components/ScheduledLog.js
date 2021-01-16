@@ -373,7 +373,7 @@ function ScheduledLog(props) {
           <Button variant = "dark" size = "sm"
             onClick = {() => {addRow()}}
           >
-            Add Row
+            Add +
           </Button>
         </Col>
       </Row>

@@ -270,7 +270,7 @@ function RepairLog(props) {
       <br style = {{height: "50%"}} />
       <Row>
         <Col xs = {6}>
-          <DropdownButton variant = "dark" size = "sm" title = "Filter By">
+          <DropdownButton variant = "dark" size = "sm" title = "Filters">
             <LogFilters
               applyFilters = {applyFilters}
               toggleFiltering = {toggleFiltering}
@@ -281,7 +281,7 @@ function RepairLog(props) {
           <Button variant = "dark" size = "sm"
             onClick = {() => {addRow()}}
           >
-            Add Row
+            Add +
           </Button>
         </Col>
       </Row>

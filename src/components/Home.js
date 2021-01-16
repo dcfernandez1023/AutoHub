@@ -101,7 +101,7 @@ function Home(props) {
           <Row>
           {cars.length === 0 ?
             <Col style = {{marginBottom: "10%"}}>
-              <h6> You have not added any vehicles. Click the + button to add a car 🚗 </h6>
+              <h6> You have not added any vehicles. Click the + button to add a vehicle 🚗 </h6>
             </Col>
             :
             <div></div>
@@ -123,14 +123,7 @@ function Home(props) {
                         }}
                       >
                         <Row>
-                          <Col xs = {3}>
-                            {car.imageId.toString().trim().length === 0 ?
-                              <Image src = "car-holder.png" style = {{width: "100%", height: "125px"}} />
-                              :
-                              <Image src = {car.imageUrl} style = {{width: "100%", height: "125px"}} />
-                            }
-                          </Col>
-                          <Col xs = {9}>
+                          <Col xs = {8}>
                             <Row>
                               <Col>
                                 <p> <b> {car.name} </b> </p>
@@ -138,7 +131,7 @@ function Home(props) {
                             </Row>
                             <Row>
                               <Col>
-                                <p> {car.year + " " + " " + car.make + " " + car.model} </p>
+                                <p> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </p>
                               </Col>
                             </Row>
                             <Row>
@@ -146,6 +139,13 @@ function Home(props) {
                                 <p> <Badge pills variant = "light"> {car.mileage + " miles"} </Badge> </p>
                               </Col>
                             </Row>
+                          </Col>
+                          <Col xs = {4} style = {{textAlign: "right"}}>
+                            {car.imageId.toString().trim().length === 0 ?
+                              <Image src = "car-holder.png" style = {{width: "80px", height: "75px"}} />
+                              :
+                              <Image src = {car.imageUrl} style = {{width: "80px", height: "75px"}} />
+                            }
                           </Col>
                         </Row>
                       </ListGroup.Item>
@@ -155,7 +155,7 @@ function Home(props) {
               }
               else {
                 return (
-                  <Col md = {3} style = {{marginBottom: "5%"}}>
+                  <Col xl = {3} lg = {4} sm = {3} xs = {6} style = {{marginBottom: "5%"}}>
                     <a style = {{cursor: "pointer"}}
                       onClick = {() => {
                         window.location.pathname = "/carInfo" + "/" + car.carId
@@ -163,19 +163,19 @@ function Home(props) {
                     >
                       <Card border = "dark">
                         {car.imageId.toString().trim().length === 0 ?
-                          <Card.Img style = {{width: "100%", height: "125px"}}id = {car.carId} variant = "top" src = "car-holder.png" />
+                          <Card.Img style = {{height: "140px"}} id = {car.carId} variant = "top" src = "car-holder.png" />
                           :
-                          <Card.Img style = {{width: "100%", height: "125px"}} id = {car.carId} variant = "top" src = {car.imageUrl}/>
+                          <Card.Img style = {{height: "140px"}} id = {car.carId} variant = "top" src = {car.imageUrl}/>
                         }
                         <Card.Body>
                           <Row>
                             <Col>
-                              <p> <b> {car.name} </b> </p>
+                              <p> <strong> {car.name} </strong> </p>
                             </Col>
                           </Row>
                           <Row>
                             <Col>
-                              <p> {car.year + " " + " " + car.make + " " + car.model} </p>
+                              <p> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </p>
                             </Col>
                           </Row>
                           <Row>
