@@ -7,6 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import {ErrorBoundary} from 'react-error-boundary';
 
 import Login from './components/Login.js';
 import AppNavbar from './components/AppNavbar.js';
@@ -14,6 +15,7 @@ import Home from './components/Home.js';
 import HomeMobile from './components/HomeMobile.js';
 import ScheduledServiceTypes from './pages/ScheduledServiceTypes.js';
 import CarInfo from './pages/CarInfo.js';
+import ErrorHandler from './components/ErrorHandler.js';
 
 const AUTH = require('./controllers/auth.js');
 const MOBILEBREAKPOINT = 500;
@@ -53,9 +55,16 @@ function App() {
           {userInfo === null
             ?
               <body style = {{backgroundColor: "#A9CCE3"}}>
-                <Login
-                  googleSignin = {AUTH.googleSignin}
-                />
+                <ErrorBoundary
+                  FallbackComponent = {ErrorHandler}
+                  onReset = {() => {
+                    window.location.pathname = "/";
+                  }}
+                >
+                  <Login
+                    googleSignin = {AUTH.googleSignin}
+                  />
+                </ErrorBoundary>
               </body>
             :
               <Container fluid>
@@ -64,15 +73,29 @@ function App() {
                 />
                 {isMobile ?
                   <div>
-                    <HomeMobile
-                      userInfo = {userInfo}
-                    />
+                    <ErrorBoundary
+                      FallbackComponent = {ErrorHandler}
+                      onReset = {() => {
+                        window.location.pathname = "/";
+                      }}
+                    >
+                      <HomeMobile
+                        userInfo = {userInfo}
+                      />
+                    </ErrorBoundary>
                   </div>
                 :
                   <div>
-                    <Home
-                      userInfo = {userInfo}
-                    />
+                    <ErrorBoundary
+                      FallbackComponent = {ErrorHandler}
+                      onReset = {() => {
+                        window.location.pathname = "/";
+                      }}
+                    >
+                      <Home
+                        userInfo = {userInfo}
+                      />
+                    </ErrorBoundary>
                   </div>
                 }
               </Container>
@@ -83,9 +106,16 @@ function App() {
             <AppNavbar
               userInfo = {userInfo}
             />
-            <ScheduledServiceTypes
-              userInfo = {userInfo}
-            />
+            <ErrorBoundary
+              FallbackComponent = {ErrorHandler}
+              onReset = {() => {
+                window.location.pathname = "/scheduledServiceTypes";
+              }}
+            >
+              <ScheduledServiceTypes
+                userInfo = {userInfo}
+              />
+            </ErrorBoundary>
           </Container>
         </Route>
         <Route
@@ -95,11 +125,18 @@ function App() {
               <AppNavbar
                 userInfo = {userInfo}
               />
-              <CarInfo
-                {...props}
-                userInfo = {userInfo}
-                {...props}
-              />
+              <ErrorBoundary
+                FallbackComponent = {ErrorHandler}
+                onReset = {() => {
+                  window.location.pathname = "/";
+                }}
+              >
+                <CarInfo
+                  {...props}
+                  userInfo = {userInfo}
+                  {...props}
+                />
+              </ErrorBoundary>
             </Container>
           }
         >

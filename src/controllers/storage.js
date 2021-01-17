@@ -1,6 +1,7 @@
 import 'firebase/storage';
 import firebase from 'firebase/app';
 const firebaseApp = require('./firebaseapp.js');
+const ERRORLOG = require('./errorLog.js');
 
 export function uploadFile(file, path, prevImageUrl, callback, callbackOnError) {
   try {
@@ -16,38 +17,56 @@ export function uploadFile(file, path, prevImageUrl, callback, callbackOnError) 
               return;
             },
             function(error) {
+              ERRORLOG.logError(error);
               alert(error);
             }
           );
         }
       }).catch((error) => {
+        ERRORLOG.logError(error);
         alert(error);
       });
       //alert("File uploaded successfully");
     }).catch((error) => {
+      ERRORLOG.logError(error);
       callbackOnError(error);
     });
   }
   catch(error) {
+    ERRORLOG.logError(error);
     //TODO: handle this error more elegantly
     callbackOnError(error);
   }
 }
 
 export function deleteFile(url, callback, callbackOnError) {
-  var storageRef = firebase.storage(firebaseApp.app).refFromURL(url);
-  storageRef.delete().then(() => {
-    callback();
-  }).catch((error) => {
-    callbackOnError(error);
-  });
+  try {
+    var storageRef = firebase.storage(firebaseApp.app).refFromURL(url);
+    storageRef.delete().then(() => {
+      callback();
+    }).catch((error) => {
+      ERRORLOG.logError(error);
+      callbackOnError(error);
+    });
+  }
+  catch(error) {
+    ERRORLOG.logError(error);
+    alert(error);
+  }
 }
 
 export function downloadFile(url, callback, elementId, callbackOnError) {
-  var storageRef = firebase.storage(firebaseApp.app).refFromURL(url);
-  storageRef.getDownloadURL().then((url, elementId) => {
-    callback(url);
-  }).catch((error) => {
-    callbackOnError(error);
-  });
+  try {
+    var storageRef = firebase.storage(firebaseApp.app).refFromURL(url);
+    storageRef.getDownloadURL().then((url, elementId) => {
+      callback(url);
+    }).catch((error) => {
+      ERRORLOG.logError(error);
+      callbackOnError(error);
+    });
+  }
+  catch(error) {
+    ERRORLOG.logError(error);
+    alert(error);
+  }
 }

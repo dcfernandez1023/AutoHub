@@ -207,7 +207,6 @@ function CarModal(props) {
                 );
               }
               else if(field.inputType === "select") {
-                console.log(car);
                 return (
                     <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
                       <Form.Label> {field.displayName} </Form.Label>
