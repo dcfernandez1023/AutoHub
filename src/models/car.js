@@ -14,7 +14,7 @@ export const car = {
   licensePlate: "",
   mileage: 0,
   vinNumber: "",
-  notes: ""
+  notes: "",
 }
 
 export const privateFields = [

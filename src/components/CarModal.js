@@ -126,6 +126,7 @@ function CarModal(props) {
   //function to handle adding values to car
   function onChangeNewCar(e, type) {
     var carCopy = JSON.parse(JSON.stringify(car));
+    //var carCopy = car;
     var name = [e.target.name][0];
     var value = e.target.value;
     if(type === "number" && isNaN(value)) {
