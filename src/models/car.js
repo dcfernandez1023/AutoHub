@@ -14,6 +14,9 @@ export const car = {
   licensePlate: "",
   mileage: 0,
   vinNumber: "",
+  suggestedMaintenance: [],
+  recalls: [],
+  lastApiRotation: null,
   notes: "",
 }
 
