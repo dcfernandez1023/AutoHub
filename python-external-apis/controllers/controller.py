@@ -2,7 +2,8 @@ from requests import Request, request
 import schedule
 from datetime import datetime
 import time
-from controllers import firebase_access
+#from controllers import firebase_access
+from firebase_access import Firebaseapp
 
 class Controller:
     def __init__(self):
@@ -12,7 +13,7 @@ class Controller:
           "authorization": "Basic YzIxYjg1ODgtOGJiYi00MTk5LWI5NmEtM2UzY2ZmYzRiMzU2",
           "partner-token": "aea9049b168d446c97cdf2bf3511d01f"
         }
-        self.__firebaseapp = firebase_access.firebaseapp()
+        self.__firebaseapp = Firebaseapp()
         self.__initialize_scheduled_jobs()
 
     def update_suggested_maintenance_and_recalls(self):
@@ -31,9 +32,18 @@ class Controller:
         for car in queue:
             print("~~ Name: " + str(car["name"]) + " | " + "Last Rotation: " + str(car["lastApiRotation"]) + " | " + "VIN: " + str(car["vinNumber"]))
             car.update({"lastApiRotation": self.__now_milliseconds()})
-            car.update({"suggestedMaintenance": [], "recalls": []})
-            #car.update({"suggestedMaintenance": ["test"]})
-            #car.update({"recalls": ["test"]})
+            if len(car["recalls"]) == 0:
+                arr = car["recalls"]
+                arr.append("recall")
+                car.update({"recalls": arr})
+            elif len(car["suggestedMaintenance"]) == 0:
+                arr = car["suggestedMaintenance"]
+                arr.append("maintenance")
+                car.update({"suggestedMaintenance": arr})
+            else:
+                arr = car["recalls"]
+                arr.append("recall")
+                car.update({"recalls": arr})
         print("###########")
         self.__firebaseapp.write_documents("cars", "carId", queue)
         print("Queue: " + str(queue))
@@ -68,7 +78,7 @@ class Controller:
                 if len(queue) < max_api_calls and not car["carId"] in current_cars:
                     queue.append(car)
                     current_cars.update({car["carId"]: True})
-        # enqueue cars that have not been updated in the longest
+        # enqueue cars that have not been updated most recently
         for i in range(len(cars)):
             oldest = cars[i]
             for j in range(len(cars)):

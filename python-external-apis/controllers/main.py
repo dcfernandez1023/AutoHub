@@ -1,3 +1,4 @@
-from controllers import controller
+#from controllers import controller
+from controller import Controller
 
-c = controller.Controller()
+c = Controller()

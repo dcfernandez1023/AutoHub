@@ -1,7 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-class firebaseapp:
+class Firebaseapp:
     def __init__(self):
         self.__initialize()
 
