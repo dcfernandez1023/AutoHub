@@ -20,9 +20,22 @@ class Controller:
         now = datetime.now()
         queue = self.__queue_cars_for_api_rotation(cars)
         print("Query Executed at: " + now.strftime("%Y-%m-%d %H:%M:%S"))
-        print("Query Results: " + str(cars))
+        print("###########")
+        print("QUERY RESULTS")
+        for car in cars:
+            print("~~ Name: " + str(car["name"]) + " | " + "Last Rotation: " + str(car["lastApiRotation"]) + " | " + "VIN: " + str(car["vinNumber"]))
+        print("###########")
+        print("")
+        print("###########")
+        print("QUEUE RESULTS")
         for car in queue:
+            print("~~ Name: " + str(car["name"]) + " | " + "Last Rotation: " + str(car["lastApiRotation"]) + " | " + "VIN: " + str(car["vinNumber"]))
             car.update({"lastApiRotation": self.__now_milliseconds()})
+            car.update({"suggestedMaintenance": [], "recalls": []})
+            #car.update({"suggestedMaintenance": ["test"]})
+            #car.update({"recalls": ["test"]})
+        print("###########")
+        self.__firebaseapp.write_documents("cars", "carId", queue)
         print("Queue: " + str(queue))
         print("Query Length: " + str(len(cars)))
         print("Queue Length: " + str(len(queue)))
@@ -30,8 +43,8 @@ class Controller:
         # TODO: loop through and update users' cars with suggested_maintenance and/or recalls
 
 
-    def get_suggested_maintenance(self, vin_number, mileage):
-        url = "http://api.carmd.com/v3.0/maint?vin=1GNALDEK9FZ108495&mileage=51000"
+    def get_suggested_maintenance(self, vin_number):
+        url = "http://api.carmd.com/v3.0/maintlist?vin=" + vin_number
         response = request("GET", url=url, headers=self.carmd_request_headers)
         return response.json()
 
@@ -43,6 +56,7 @@ class Controller:
         queue = []
         current_cars = {}
         max_api_calls = 5
+        # enqueue cars that do not have suggested maintenance or recalls FIRST
         for car in cars:
             if not "suggestedMaintenance" in car:
                 car.update({"suggestedMaintenance": []})
@@ -54,14 +68,16 @@ class Controller:
                 if len(queue) < max_api_calls and not car["carId"] in current_cars:
                     queue.append(car)
                     current_cars.update({car["carId"]: True})
+        # enqueue cars that have not been updated in the longest
         for i in range(len(cars)):
-            car = cars[i]
+            oldest = cars[i]
             for j in range(len(cars)):
-                if i != j and cars[j]["lastApiRotation"] is not None and car["lastApiRotation"] is not None:
-                    if cars[j]["lastApiRotation"] < car["lastApiRotation"]:
-                        if len(queue) < max_api_calls and not car["carId"] in current_cars:
-                            queue.append(car)
-                            current_cars.update({car["carId"]: True})
+                if i != j and cars[j]["lastApiRotation"] is not None and oldest["lastApiRotation"] is not None:
+                    if cars[j]["lastApiRotation"] < oldest["lastApiRotation"]:
+                        oldest = cars[j]
+            if len(queue) < max_api_calls and not oldest["carId"] in current_cars:
+                queue.append(oldest)
+                current_cars.update({oldest["carId"]: True})
         return queue
 
     def __now_milliseconds(self):

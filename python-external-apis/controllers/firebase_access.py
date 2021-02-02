@@ -16,3 +16,8 @@ class firebaseapp:
         for doc in collection_ref:
             data.append(doc.to_dict())
         return data
+
+    def write_documents(self, collection_name, id_key, documents):
+        collection_ref = self.__db_client.collection(collection_name)
+        for doc in documents:
+            collection_ref.document(doc[id_key]).set(doc)
