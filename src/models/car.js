@@ -16,7 +16,7 @@ export const car = {
   vinNumber: "",
   suggestedMaintenance: [],
   recalls: [],
-  lastApiRotation: null,
+  lastApiRotation: -1,
   notes: "",
 }
 

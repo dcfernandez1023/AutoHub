@@ -2,6 +2,7 @@ from requests import Request, request
 import schedule
 from datetime import datetime
 import time
+import tracemalloc
 #from scheduler import firebase_access
 from firebase_access import Firebaseapp
 
@@ -23,24 +24,24 @@ class Scheduler:
         try:
             # get cars from db
             cars = self.__firebaseapp.get_documents("cars", "vinNumber", "!=", "")
-            now = datetime.now()
+            #now = datetime.now()
             # get queue of cars to update
             queue = self.__queue_cars_for_api_rotation(cars)
-            print("Query Executed at: " + now.strftime("%Y-%m-%d %H:%M:%S"))
-            print("###########")
-            print("QUERY RESULTS")
-            for car in cars:
-                print("~~ Name: " + str(car["name"]) + " | " + "Last Rotation: " + str(car["lastApiRotation"]) + " | " + "VIN: " + str(car["vinNumber"]))
-                print(car["recalls"])
+            # print("Query Executed at: " + now.strftime("%Y-%m-%d %H:%M:%S"))
+            # print("###########")
+            # print("QUERY RESULTS")
+            # for car in cars:
+            #     print("~~ Name: " + str(car["name"]) + " | " + "Last Rotation: " + str(car["lastApiRotation"]) + " | " + "VIN: " + str(car["vinNumber"]))
+            #     print(car["recalls"])
                 # del car["suggestedMaintenance"]
                 # del car["recalls"]
                 # del car["lastApiRotation"]
-            print("###########")
-            print("")
-            print("###########")
-            print("QUEUE RESULTS")
+            # print("###########")
+            # print("")
+            # print("###########")
+            # print("QUEUE RESULTS")
             for car in queue:
-                print("~~ Name: " + str(car["name"]) + " | " + "Last Rotation: " + str(car["lastApiRotation"]) + " | " + "VIN: " + str(car["vinNumber"]))
+                #print("~~ Name: " + str(car["name"]) + " | " + "Last Rotation: " + str(car["lastApiRotation"]) + " | " + "VIN: " + str(car["vinNumber"]))
                 car.update({"lastApiRotation": self.__now_milliseconds()})
                 if len(car["recalls"]) == 0:
                     recalls = self.get_recalls(car["vinNumber"])
@@ -60,13 +61,14 @@ class Scheduler:
                     if recalls is None or not isinstance(recalls, list):
                         continue
                     car.update({"recalls": recalls})
-                print("Has recalls: " + str(len(car["recalls"]) == 0) + " | " + "Has Maintenance: " + str(len(car["suggestedMaintenance"]) == 0))
-            print("###########")
+            #     print("Has recalls: " + str(len(car["recalls"]) == 0) + " | " + "Has Maintenance: " + str(len(car["suggestedMaintenance"]) == 0))
+            # print("###########")
             self.__firebaseapp.write_documents("cars", "carId", queue)
-            print("Queue: " + str(queue))
-            print("Query Length: " + str(len(cars)))
-            print("Queue Length: " + str(len(queue)))
-            print("--------")
+            # print("Queue: " + str(queue))
+            # print("Query Length: " + str(len(cars)))
+            # print("Queue Length: " + str(len(queue)))
+            # print("--------")
+            self.__write_log()
         except Exception as e:
             self.__write_error(str(e))
 
@@ -127,8 +129,21 @@ class Scheduler:
         error_log.write(str(error_msg) + '\n')
         error_log.close()
 
+    def __write_log(self):
+        now = datetime.now()
+        file = open("../log.txt", "a")
+        file.write("Job Executed at: " + now.strftime("%Y-%m-%d %H:%M:%S") + '\n')
+        file.close()
+
+    def __trace_memory(self):
+        tracemalloc.start()
+        current, peak = tracemalloc.get_traced_memory()
+        print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+
     def __run_scheduled_jobs(self):
-        # schedule.every(5).seconds.do(self.update_suggested_maintenance_and_recalls)
-        # while True:
-        #     schedule.run_pending()
-        self.update_suggested_maintenance_and_recalls()
+        schedule.every(1).days.do(self.update_suggested_maintenance_and_recalls)
+        #schedule.every(5).seconds.do(self.__trace_memory)
+        #tracemalloc.stop()
+        while True:
+            schedule.run_pending()
+        #self.update_suggested_maintenance_and_recalls()
