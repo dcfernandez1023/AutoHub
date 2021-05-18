@@ -270,7 +270,7 @@ function RepairLog(props) {
       <br style = {{height: "50%"}} />
       <Row>
         <Col xs = {6}>
-          <DropdownButton variant = "dark" size = "sm" title = "Filter By">
+          <DropdownButton variant = "dark" size = "sm" title = "Filters">
             <LogFilters
               applyFilters = {applyFilters}
               toggleFiltering = {toggleFiltering}
@@ -281,7 +281,7 @@ function RepairLog(props) {
           <Button variant = "dark" size = "sm"
             onClick = {() => {addRow()}}
           >
-            Add Row
+            Add +
           </Button>
         </Col>
       </Row>
@@ -416,7 +416,7 @@ function RepairLog(props) {
                             <Form.Check
                               size = "sm"
                               type = "checkbox"
-                              id = "apply-mileage"
+                              id = {service.serviceId}
                               onChange = {() => {
                                 setIsSaved(false);
                                 if(service.serviceId === currMileageId.serviceId) {
@@ -569,6 +569,36 @@ function RepairLog(props) {
                   </td>
                   {RSMODEL.publicFields.map((field) => {
                     if(field.inputType === "input") {
+                      if(field.value === "mileage") {
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <Form.Control
+                              size = "sm"
+                              as = {field.inputType}
+                              name = {field.value}
+                              value = {services[index][field.value]}
+                              onChange = {(e) => {onChangeCol(e, index, field.type)}}
+                              disabled = {field.disabled}
+                            />
+                            <Form.Check
+                              size = "sm"
+                              type = "checkbox"
+                              id = {service.serviceId}
+                              onChange = {() => {
+                                setIsSaved(false);
+                                if(service.serviceId === currMileageId.serviceId) {
+                                  setCurrMileageId({serviceId: "", mileage: -1});
+                                }
+                                else {
+                                  setCurrMileageId({serviceId: service.serviceId, mileage: service.mileage});
+                                }
+                              }}
+                              label = {<small> Use as current mileage </small>}
+                              checked = {service.serviceId === currMileageId.serviceId}
+                            />
+                          </td>
+                        );
+                      }
                       if(field.value === "datePerformed") {
                         return (
                           <td style = {{minWidth: field.tableWidth}}>
@@ -577,6 +607,60 @@ function RepairLog(props) {
                               onChange = {(date) => {onChangeDate(date, index)}}
                               customInput = {<Form.Control as = "input" size = "sm"/>}
                             />
+                          </td>
+                        );
+                      }
+                      if(field.value === "notes") {
+                        const popover = (
+                          <Popover id = {"notes-popover" + service.serviceId} style = {{height: "100%"}}>
+                            <Modal.Header closeButton style = {{backgroundColor: "#F2F4F4"}}>
+                              Notes
+                            </Modal.Header>
+                            <Popover.Content>
+                              Testing the popover component to display the notes for this service fjsdkfjsdklfjskdlfjsdklfjsdklfjskldfjslkdfjskldfjslkdfjskldfjkldsfjksldfjksldfjsdklfjskldfjsdfkjksldfjskdlfjsdklfjskdlfjdsklfdjslfjsdklfjsdlfjsdlkfjksldfjsdlfjskdlfjsldfjskdlfjsdklfjsdklfjsdklfjsdkljlkjfkdlsfjdkslfjslkdfjskldfjlskfjskldfjlsdjfljklfjdsklfjsdlkfjdlfjsdljfklj
+                            </Popover.Content>
+                          </Popover>
+                        );
+                        if(toggleNotes === service.serviceId) {
+                          return (
+                            <td style = {{minWidth: field.tableWidth}}>
+                              <Form.Control
+                                size = "sm"
+                                as = "textarea"
+                                name = {field.value}
+                                value = {services[index][field.value]}
+                                onChange = {(e) => {onChangeCol(e, index, field.type)}}
+                                disabled = {field.disabled}
+                                style = {{height: "150px"}}
+                              />
+                              <Button variant = "link" size = "sm" style = {{float: "right"}}
+                                onClick = {() => {
+                                  setToggleNotes("");
+                                }}
+                              >
+                                Done
+                              </Button>
+                            </td>
+                          );
+                        }
+                        return (
+                          <td style = {{minWidth: field.tableWidth}}>
+                            <Form.Control
+                              size = "sm"
+                              as = {field.inputType}
+                              name = {field.value}
+                              value = {services[index][field.value]}
+                              onChange = {(e) => {onChangeCol(e, index, field.type)}}
+                              disabled = {field.disabled}
+                              readOnly
+                            />
+                            <Button variant = "link" size = "sm" style = {{float: "right"}}
+                              onClick = {() => {
+                                setToggleNotes(service.serviceId);
+                              }}
+                            >
+                              Edit
+                            </Button>
                           </td>
                         );
                       }

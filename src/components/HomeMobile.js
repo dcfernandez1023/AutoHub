@@ -67,11 +67,11 @@ function HomeMobile(props) {
       <CarModal
         show = {showCarModal}
         setShow = {setShowCarModal}
-        title = "Add Car"
+        title = "Add Vehicle"
         car = {CARMODEL.car}
         userInfo = {props.userInfo}
       />
-      <Row style = {{marginTop: "5%"}}>
+    <Row style = {{marginTop: "25px"}}>
         <Col>
           <Row>
             <Button variant = "outline-dark" style = {{marginRight: "3%"}}
@@ -79,7 +79,7 @@ function HomeMobile(props) {
             >
               +
             </Button>
-            <h4 style = {{marginTop: "0.5%"}}> Your Cars </h4>
+            <h4 style = {{marginTop: "0.5%"}}> Your Vehicles </h4>
           </Row>
           {cars.length === 0 ?
             <div></div>
@@ -108,7 +108,7 @@ function HomeMobile(props) {
           <Row>
           {cars.length === 0 ?
             <Col style = {{marginBottom: "10%"}}>
-              <h6> You have not added any cars. Click the + button to add a car 🚗 </h6>
+              <h6> You have not added any vehicles. Click the + button to add a vehicle 🚗 </h6>
             </Col>
             :
             <div></div>
@@ -130,22 +130,15 @@ function HomeMobile(props) {
                         }}
                       >
                         <Row>
-                          <Col xs = {5}>
-                            {car.imageId.toString().trim().length === 0 ?
-                              <Image src = "car-holder.png" style = {{width: "100%", height: "100px"}} />
-                              :
-                              <Image src = {car.imageUrl} style = {{width: "100%", height: "100px"}} />
-                            }
-                          </Col>
-                          <Col xs = {7} style = {{float: "right"}}>
+                          <Col xs = {8} style = {{float: "right"}}>
                             <Row>
                               <Col>
-                                <p> <b> {car.name} </b> </p>
+                                <p> <strong> {car.name} </strong> </p>
                               </Col>
                             </Row>
                             <Row>
                               <Col>
-                                <p> {car.year + " " + " " + car.make + " " + car.model} </p>
+                                <p> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </p>
                               </Col>
                             </Row>
                             <Row>
@@ -153,6 +146,13 @@ function HomeMobile(props) {
                                 <p> <Badge pills variant = "light"> {car.mileage + " miles"} </Badge> </p>
                               </Col>
                             </Row>
+                          </Col>
+                          <Col xs = {4} style = {{textAlign: "right"}}>
+                            {car.imageId.toString().trim().length === 0 ?
+                              <Image src = "car-holder.png" style = {{width: "65px", height: "70px"}} />
+                              :
+                              <Image src = {car.imageUrl} style = {{width: "65px", height: "70px"}} />
+                            }
                           </Col>
                         </Row>
                       </ListGroup.Item>
@@ -162,7 +162,7 @@ function HomeMobile(props) {
               }
               else {
                 return (
-                  <Col md = {3} style = {{marginBottom: "5%"}}>
+                  <Col xs = {12} style = {{marginBottom: "5%"}}>
                     <a style = {{cursor: "pointer"}}
                       onClick = {() => {
                         window.location.pathname = "/carInfo" + "/" + car.carId
@@ -170,9 +170,9 @@ function HomeMobile(props) {
                     >
                       <Card border = "dark">
                         {car.imageId.toString().trim().length === 0 ?
-                          <Card.Img style = {{width: "100%", height: "175px"}}id = {car.carId} variant = "top" src = "car-holder.png" />
+                          <Card.Img style = {{height: "200px"}} id = {car.carId} variant = "top" src = "car-holder.png" />
                           :
-                          <Card.Img style = {{width: "100%", height: "175px"}} id = {car.carId} variant = "top" src = {car.imageUrl}/>
+                          <Card.Img style = {{height: "200px"}} id = {car.carId} variant = "top" src = {car.imageUrl}/>
                         }
                         <Card.Body>
                           <Row>
@@ -182,7 +182,7 @@ function HomeMobile(props) {
                           </Row>
                           <Row>
                             <Col>
-                              <p> {car.year + " " + " " + car.make + " " + car.model} </p>
+                              <p> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </p>
                             </Col>
                           </Row>
                           <Row>

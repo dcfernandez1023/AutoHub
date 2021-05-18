@@ -62,7 +62,7 @@ function LogFilters(props) {
   //TODO: make this dynamic based off the model
   function renderFilterOptions() {
     return (
-      <Row>
+      <Row style = {{padding: "5%", minWidth: "100px"}}>
         <Col>
           <Row style = {{marginBottom: "2%"}}>
             <Col style = {{textAlign: "left"}}>
@@ -233,6 +233,14 @@ function LogFilters(props) {
           </Row>
           <Row>
             <Col style = {{textAlign: "right"}}>
+              <Button variant = "secondary" size = "sm" style = {{marginRight: "2%"}}
+                onClick = {() => {
+                  setSelectedFilters([]);
+                  setFilterValues(LOGMODEL.filterValues);
+                }}
+              >
+                Clear
+              </Button>
               <Button variant = "success" size = "sm"
                 onClick = {() => {
                   props.applyFilters(selectedFilters, filterValues);

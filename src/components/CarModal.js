@@ -126,6 +126,7 @@ function CarModal(props) {
   //function to handle adding values to car
   function onChangeNewCar(e, type) {
     var carCopy = JSON.parse(JSON.stringify(car));
+    //var carCopy = car;
     var name = [e.target.name][0];
     var value = e.target.value;
     if(type === "number" && isNaN(value)) {
@@ -207,7 +208,6 @@ function CarModal(props) {
                 );
               }
               else if(field.inputType === "select") {
-                console.log(car);
                 return (
                     <Col md = {field.modalColSpan} style = {{marginBottom: "1%"}}>
                       <Form.Label> {field.displayName} </Form.Label>

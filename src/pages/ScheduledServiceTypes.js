@@ -194,7 +194,7 @@ function ScheduledServiceTypes(props) {
                 <Accordion.Collapse eventKey = {service.typeId}>
                   <Card.Body>
                     {!isAppliedToCars(service) ?
-                      <div> This scheduled service type has not been applied to any cars </div>
+                      <div> This scheduled service type has not been applied to any vehicles. </div>
                     :
                     <div>
                       {Object.keys(service.carsScheduled).map((key) => {
