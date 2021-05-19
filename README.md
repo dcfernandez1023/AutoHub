@@ -9,6 +9,7 @@ An automobile management platform for keeping track of cost, maintenance, and up
 - Create React App (https://reactjs.org/docs/create-a-new-react-app.html)
 - React Bootstrap (https://react-bootstrap.github.io/)
 - Firebase
+- react-minimal-piechart (https://www.npmjs.com/package/react-minimal-pie-chart)
 - axios (https://www.npmjs.com/package/axios)
 
 ## Usage
