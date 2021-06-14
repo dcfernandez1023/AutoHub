@@ -38,8 +38,7 @@ function AppNavbar(props) {
         >
           🛎️
         </Button>
-        <Dropdown
-        >
+        <Dropdown>
           <Dropdown.Toggle
             variant = "light"
             style = {{backgroundColor: "#A9CCE3", margin: "1%", float: "right"}}
