@@ -199,6 +199,14 @@ function Home(props) {
           />
         </Col>
       </Row>
+      <br/>
+      <Row>
+        <Col style = {{textAlign: "right"}}>
+          <Button onClick = {() => {window.open("https://docs.google.com/forms/d/e/1FAIpQLScemmtQXSsfWEHB41VgWRbi8YniKv_dIUNTiK4QaRSIZ5zlKg/viewform?usp=sf_link", "_blank")}}>
+            Submit Feedback
+          </Button>
+        </Col>
+      </Row>
     </Container>
   );
 }
