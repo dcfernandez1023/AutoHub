@@ -126,17 +126,17 @@ function Home(props) {
                           <Col xs = {8}>
                             <Row>
                               <Col>
-                                <p> <b> {car.name} </b> </p>
+                                <div> <b> {car.name} </b> </div>
                               </Col>
                             </Row>
                             <Row>
                               <Col>
-                                <p> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </p>
+                                <div> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </div>
                               </Col>
                             </Row>
                             <Row>
                               <Col>
-                                <p> <Badge pills variant = "light"> {car.mileage + " miles"} </Badge> </p>
+                                <div> <Badge pills variant = "light"> {car.mileage + " miles"} </Badge> </div>
                               </Col>
                             </Row>
                           </Col>
@@ -170,17 +170,17 @@ function Home(props) {
                         <Card.Body>
                           <Row>
                             <Col>
-                              <p> <strong> {car.name} </strong> </p>
+                              <div> <strong> {car.name} </strong> </div>
                             </Col>
                           </Row>
                           <Row>
                             <Col>
-                              <p> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </p>
+                              <div> <small> {car.year + " " + " " + car.make + " " + car.model} </small> </div>
                             </Col>
                           </Row>
                           <Row>
                             <Col>
-                              <p> <Badge pills variant = "light"> {car.mileage + " miles"} </Badge> </p>
+                              <div> <Badge pills variant = "light"> {car.mileage + " miles"} </Badge> </div>
                             </Col>
                           </Row>
                         </Card.Body>
@@ -200,13 +200,6 @@ function Home(props) {
         </Col>
       </Row>
       <br/>
-      <Row>
-        <Col style = {{textAlign: "right"}}>
-          <Button onClick = {() => {window.open("https://docs.google.com/forms/d/e/1FAIpQLScemmtQXSsfWEHB41VgWRbi8YniKv_dIUNTiK4QaRSIZ5zlKg/viewform?usp=sf_link", "_blank")}}>
-            Submit Feedback
-          </Button>
-        </Col>
-      </Row>
     </Container>
   );
 }

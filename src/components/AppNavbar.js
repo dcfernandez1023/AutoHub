@@ -11,7 +11,8 @@ import Image from 'react-bootstrap/Image';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip'
+import Tooltip from 'react-bootstrap/Tooltip';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 const AUTH = require('../controllers/auth.js');
 
@@ -45,25 +46,32 @@ function AppNavbar(props) {
           >
             👤
           </Dropdown.Toggle>
-          <Dropdown.Menu align = "right" style = {{width: "280px", height: "100px", border: "1px solid gray"}}>
+          <Dropdown.Menu align = "right" style = {{border: "1px solid gray"}}>
             <Row>
-              <Col style = {{textAlign: "center"}}>
-                <Row style = {{marginBottom: "15px"}}>
-                  <Col>
-                    <p>
-                      {props.userInfo === undefined ? "" : props.userInfo.email}
-                    </p>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col style = {{textAlign: "center"}}>
-                    <Button size = "sm"
-                      onClick = {() => {AUTH.signout()}}
-                    >
-                      Signout
-                    </Button>
-                  </Col>
-                </Row>
+              <Col>
+                <ListGroup variant="flush">
+                  <ListGroup.Item>
+                    <Row>
+                      <Col xs ={12} style = {{textAlign: "center"}}>
+                        Signed in as:
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col style = {{textAlign: "center"}}>
+                        <strong> {props.userInfo === undefined ? "" : props.userInfo.email} </strong>
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
+                  <ListGroup.Item action onClick = {() => {window.location.pathname = "/changelog"}}>
+                    View Changelog
+                  </ListGroup.Item>
+                  <ListGroup.Item action onClick = {() => {window.open("https://docs.google.com/forms/d/e/1FAIpQLScemmtQXSsfWEHB41VgWRbi8YniKv_dIUNTiK4QaRSIZ5zlKg/viewform?usp=sf_link", "_blank")}}>
+                    Submit Feedback
+                  </ListGroup.Item>
+                  <ListGroup.Item action onClick = {() => {AUTH.signout()}}>
+                    Signout
+                  </ListGroup.Item>
+                </ListGroup>
               </Col>
             </Row>
           </Dropdown.Menu>

@@ -15,6 +15,7 @@ import Home from './components/Home.js';
 import HomeMobile from './components/HomeMobile.js';
 import ScheduledServiceTypes from './pages/ScheduledServiceTypes.js';
 import CarInfo from './pages/CarInfo.js';
+import Changelog from './pages/Changelog.js';
 import ErrorHandler from './components/ErrorHandler.js';
 
 const AUTH = require('./controllers/auth.js');
@@ -140,6 +141,14 @@ function App() {
             </Container>
           }
         >
+        </Route>
+        <Route path="/changelog">
+          <Container fluid>
+            <AppNavbar
+              userInfo = {userInfo}
+            />
+            <Changelog />
+          </Container>
         </Route>
       </Switch>
     </Router>
