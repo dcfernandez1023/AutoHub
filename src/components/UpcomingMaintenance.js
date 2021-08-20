@@ -136,11 +136,12 @@ function UpcomingMaintenance(props) {
           mostRecentService = service;
         }
       }
-      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) < currMileage) {
+      if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) < currMileage && mostRecentService.nextServiceMileage.toString().trim().length != 0) {
         //same as saying: if the next service date and next service mileage are blank/empty, then they aren't overdue
         if(mostRecentService.nextServiceDate.toString().trim().length === 0 && mostRecentService.nextServiceMileage.toString().trim().length === 0) {
           continue;
         }
+        console.log(mostRecentService);
         overdue.push(mostRecentService);
       }
     }
@@ -178,7 +179,7 @@ function UpcomingMaintenance(props) {
       }
       if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() >= today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) >= currMileage) {
         //same as saying: if the mostRecentService is included within the overdue list, then don't add it to the upcoming list
-        if(new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) < currMileage) {
+        if(mostRecentService !== null && new Date(mostRecentService.nextServiceDate).getTime() < today.getTime() || mostRecentService !== null && Number(mostRecentService.nextServiceMileage) < currMileage && mostRecentService.nextServiceMileage.toString().trim().length != 0) {
           continue;
         }
         upcoming.push(mostRecentService);
