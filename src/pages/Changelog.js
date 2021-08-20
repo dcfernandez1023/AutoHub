@@ -31,13 +31,14 @@ const Changelog = (props) => {
         <ul>
           <li> New menu for profile button dropdown </li>
           <li> Added a changelog (the one you are reading right now) </li>
+          <li> Fixed bug indicating upcoming maintenance is overdue when it really is not </li>
         </ul>
       </p>,
       tags: [
         {name: "Bug Fix", variant: "warning"},
         {name: "Enhancement", variant: "info"}
       ],
-      date: "August 8, 2021"
+      date: "August 20, 2021"
     }
   ];
 
