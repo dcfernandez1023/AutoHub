@@ -65,7 +65,7 @@ function AppNavbar(props) {
                   <ListGroup.Item action onClick = {() => {window.location.pathname = "/changelog"}}>
                     View Changelog
                   </ListGroup.Item>
-                  <ListGroup.Item action onClick = {() => {window.open("https://docs.google.com/forms/d/e/1FAIpQLScemmtQXSsfWEHB41VgWRbi8YniKv_dIUNTiK4QaRSIZ5zlKg/viewform?usp=sf_link", "_blank")}}>
+                  <ListGroup.Item action onClick = {() => {window.open("https://formtosheets.com/e6db4457-3c82-474d-b38f-d39f5b4a8a7e", "_blank")}}>
                     Submit Feedback
                   </ListGroup.Item>
                   <ListGroup.Item action onClick = {() => {AUTH.signout()}}>

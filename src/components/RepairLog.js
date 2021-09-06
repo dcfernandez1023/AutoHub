@@ -41,6 +41,13 @@ function RepairLog(props) {
   const[sortValue, setSortValue] = useState("");
   const[toggleNotes, setToggleNotes] = useState("");
   const[currMileageId, setCurrMileageId] = useState({serviceId: "", mileage: -1});
+  const[newRowIds, setNewRowIds] = useState({});
+
+  // window.onbeforeunload = () => {
+  //   if(!isSaved) {
+  //     return "You have not saved your changes. Are you sure you want to leave?";
+  //   }
+  // };
 
   useEffect(() => {
     getCars();
@@ -48,6 +55,10 @@ function RepairLog(props) {
       setServices(props.serviceLog.repairLog);
     }
   }, [props.userInfo, props.serviceLog])
+
+  const unhighlightNewRow = (id) => {
+    document.getElementById(id).style.backgroundColor = "white";
+  }
 
   function addRow() {
     var newRow = JSON.parse(JSON.stringify(RSMODEL.repairService));
@@ -58,9 +69,25 @@ function RepairLog(props) {
     newRow.mileage = props.car.mileage;
     newRow.carReferenceId = props.car.carId;
     arr.push(newRow);
+    var copy = Object.assign({}, newRowIds);
+    copy[newRow.serviceId] = true;
+    setNewRowIds(copy);
     setServices(arr);
     setIsSaved(false);
+    setTimeout(() => {
+      unhighlightNewRow(newRow.serviceId);
+    }, 5000);
+    scrollToBottom();
   }
+
+  const scrollToBottom = () =>{
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+      /* you can also use 'auto' behaviour
+         in place of 'smooth' */
+    });
+  };
 
   function deleteRow(index) {
     var arr = services.slice();
@@ -392,7 +419,7 @@ function RepairLog(props) {
           <tbody>
             {services.map((service, index) => {
               return (
-                <tr key = {service.serviceId}>
+                <tr key = {service.serviceId} id={service.serviceId}  style={newRowIds[service.serviceId] ? {backgroundColor: "yellow"} : undefined}>
                   <td style = {{minWidth: "50px"}}>
                     <Button size = "sm" variant = "outline-dark"
                       onClick = {() => {deleteRow(index)}}
@@ -559,7 +586,7 @@ function RepairLog(props) {
                 return null;
               }
               return (
-                <tr key = {service.serviceId}>
+                <tr key = {service.serviceId} id={service.serviceId}  style={newRowIds[service.serviceId] ? {backgroundColor: "yellow"} : undefined}>
                   <td style = {{minWidth: "50px"}}>
                     <Button size = "sm" variant = "outline-dark"
                       onClick = {() => {deleteRow(index)}}
@@ -739,6 +766,12 @@ function RepairLog(props) {
         :
         <div></div>
       }
+      <br/>
+      <div style={{textAlign: "center"}}>
+        <Button  disabled = {isSaved} variant="success" onClick = {() => {saveServiceLog()}}> Save </Button>
+      </div>
+      <br/>
+      <br/>
     </Container>
   );
 }

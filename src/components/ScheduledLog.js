@@ -42,19 +42,16 @@ function ScheduledLog(props) {
   const[toggleNotes, setToggleNotes] = useState("");
   const[currMileageId, setCurrMileageId] = useState({serviceId: "", mileage: -1});
   const[notSavedShow, setNotSavedShow] = useState(false);
+  const[newRowIds, setNewRowIds] = useState({});
+
+  // window.onbeforeunload = () => {
+  //   if(!isSaved) {
+  //     return "You have not saved your changes. Are you sure you want to leave?";
+  //   }
+  // };
 
   useEffect(() => {
     getCars();
-    /*
-    if(!isSaved) {
-      console.log("setting event listener");
-      window.addEventListener("beforeunload", test);
-    }
-    else {
-      console.log("removing event listener");
-      window.removeEventListener("beforeunload", test);
-    }
-    */
     if(props.serviceLog !== undefined) {
       setServices(props.serviceLog.scheduledLog);
     }
@@ -65,6 +62,19 @@ function ScheduledLog(props) {
     e.returnValue = "";
   }
 
+  const unhighlightNewRow = (id) => {
+    document.getElementById(id).style.backgroundColor = "white";
+  }
+
+  const scrollToBottom = () =>{
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+      /* you can also use 'auto' behaviour
+         in place of 'smooth' */
+    });
+  };
+
   function addRow() {
     var newRow = JSON.parse(JSON.stringify(SSMODEL.scheduledService));
     var arr = services.slice();
@@ -74,8 +84,15 @@ function ScheduledLog(props) {
     newRow.mileage = props.car.mileage;
     newRow.carReferenceId = props.car.carId;
     arr.push(newRow);
+    var copy = Object.assign({}, newRowIds);
+    copy[newRow.serviceId] = true;
+    setNewRowIds(copy);
     setServices(arr);
     setIsSaved(false);
+    setTimeout(() => {
+      unhighlightNewRow(newRow.serviceId);
+    }, 5000);
+    scrollToBottom();
   }
 
   function deleteRow(index) {
@@ -498,7 +515,7 @@ function ScheduledLog(props) {
           <tbody>
             {services.map((service, index) => {
               return (
-                <tr key = {service.serviceId}>
+                <tr key = {service.serviceId} id={service.serviceId}  style={newRowIds[service.serviceId] ? {backgroundColor: "yellow"} : undefined}>
                   <td style = {{minWidth: "50px"}}>
                     <Button size = "sm" variant = "outline-dark"
                       onClick = {() => {deleteRow(index)}}
@@ -694,7 +711,7 @@ function ScheduledLog(props) {
                 return null;
               }
               return (
-                <tr key = {service.serviceId}>
+                <tr key = {service.serviceId} id = {service.serviceId} style={newRowIds[service.serviceId] ? {backgroundColor: "yellow"} : undefined}>
                   <td style = {{minWidth: "50px"}}>
                     <Button size = "sm" variant = "outline-dark"
                       onClick = {() => {deleteRow(index)}}
@@ -904,6 +921,12 @@ function ScheduledLog(props) {
         :
         <div></div>
       }
+      <br/>
+      <div style={{textAlign: "center"}}>
+        <Button  disabled = {isSaved} variant="success" onClick = {() => {saveServiceLog()}}> Save </Button>
+      </div>
+      <br/>
+      <br/>
     </Container>
   );
 }
