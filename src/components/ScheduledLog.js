@@ -53,7 +53,14 @@ function ScheduledLog(props) {
   useEffect(() => {
     getCars();
     if(props.serviceLog !== undefined) {
-      setServices(props.serviceLog.scheduledLog);
+      let copy = props.serviceLog.scheduledLog.slice();
+      copy.sort((a, b) => {
+        if(a.datePerformed !== undefined && b.datePerformed !== undefined) {
+          return new Date(b.datePerformed).getTime() - new Date(a.datePerformed).getTime();
+        }
+        return 0;
+      });
+      setServices(copy);
     }
   }, [props.userInfo, props.serviceLog])
 
@@ -83,7 +90,7 @@ function ScheduledLog(props) {
     newRow.datePerformed = new Date().toLocaleDateString();
     newRow.mileage = props.car.mileage;
     newRow.carReferenceId = props.car.carId;
-    arr.push(newRow);
+    arr.unshift(newRow);
     var copy = Object.assign({}, newRowIds);
     copy[newRow.serviceId] = true;
     setNewRowIds(copy);
@@ -92,7 +99,6 @@ function ScheduledLog(props) {
     setTimeout(() => {
       unhighlightNewRow(newRow.serviceId);
     }, 5000);
-    scrollToBottom();
   }
 
   function deleteRow(index) {
